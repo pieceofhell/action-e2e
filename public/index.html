@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Action E2E Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="background-grid" aria-hidden="true"></div>
+
+    <header class="hero">
+      <div class="hero__content">
+        <div class="hero__eyebrow">Experimental pipeline for E2E testing</div>
+        <h1>Action E2E Prototype</h1>
+        <p class="hero__copy">
+          Local prototype for inspecting web projects, proposing user flows, reviewing acceptance
+          criteria, generating Playwright tests, and consolidating results with support from local
+          or remote models.
+        </p>
+        <div class="hero__meta">
+          <span class="pill">Local analysis</span>
+          <span class="pill">Configurable models</span>
+          <span class="pill">Human review</span>
+          <span class="pill">Playwright</span>
+          <span class="pill pill--muted" id="healthBadge">Connecting...</span>
+        </div>
+      </div>
+
+      <section class="pipeline-band">
+        <div class="panel-heading pipeline-band__heading">
+          <div>
+            <h2>Pipeline</h2>
+            <p>The complete workflow covered by the prototype, from project reading to final insights.</p>
+          </div>
+        </div>
+
+        <ol class="timeline timeline--horizontal" id="timelineList">
+          <li class="timeline__item" data-step="selection">
+            <span class="timeline__index">1</span>
+            <div>
+              <strong>Project selection</strong>
+              <p>Choose the directory and entry point.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="inspection">
+            <span class="timeline__index">2</span>
+            <div>
+              <strong>Inspection and understanding</strong>
+              <p>README, structure, manifests, and UI hints.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="flows">
+            <span class="timeline__index">3</span>
+            <div>
+              <strong>Primary flows</strong>
+              <p>Hypotheses about the expected user journey.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="criteria">
+            <span class="timeline__index">4</span>
+            <div>
+              <strong>Acceptance criteria</strong>
+              <p>Human review and approval.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="generation">
+            <span class="timeline__index">5</span>
+            <div>
+              <strong>Test generation</strong>
+              <p>Creation of Playwright artifacts.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="execution">
+            <span class="timeline__index">6</span>
+            <div>
+              <strong>Execution</strong>
+              <p>Target application startup and test run.</p>
+            </div>
+          </li>
+          <li class="timeline__item" data-step="insights">
+            <span class="timeline__index">7</span>
+            <div>
+              <strong>Results and insights</strong>
+              <p>Consolidation of pipeline observations.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </header>
+
+    <main class="layout">
+      <section class="workspace">
+        <section class="card card--accent">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 1</p>
+              <h2>Select project</h2>
+            </div>
+            <span class="status-chip" id="selectionStatus">Waiting</span>
+          </div>
+
+          <div class="path-picker">
+            <label class="field">
+              <span>Project path</span>
+              <input id="projectPathInput" type="text" placeholder="C:\Users\...\my-repository" />
+            </label>
+            <div class="button-row">
+              <button id="browseProjectButton" class="button button--secondary">Choose folder in Windows</button>
+              <button id="loadProjectButton" class="button">Load project</button>
+            </div>
+          </div>
+
+          <p class="muted">
+            The button tries to open a native Windows folder picker on the desktop itself. If the
+            operating system blocks that dialog, the manual path field remains available as a fallback.
+          </p>
+        </section>
+
+        <section class="card card--ai">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Cross-cutting layer</p>
+              <h2>Selectable model</h2>
+            </div>
+            <span class="status-chip" id="aiStatus">Detecting</span>
+          </div>
+
+          <div class="config-grid">
+            <label class="field">
+              <span>Provider</span>
+              <select id="aiProviderInput"></select>
+            </label>
+
+            <label class="field">
+              <span>Detected models</span>
+              <select id="aiModelSelect"></select>
+            </label>
+
+            <label class="field">
+              <span>Manual model</span>
+              <input id="aiModelInput" type="text" placeholder="openllama:8b" />
+            </label>
+
+            <label class="field">
+              <span>Endpoint</span>
+              <input id="aiEndpointInput" type="text" placeholder="http://127.0.0.1:11434" />
+            </label>
+
+            <label class="field">
+              <span>API key (optional)</span>
+              <input id="aiApiKeyInput" type="password" placeholder="Only for remote endpoints when needed" />
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="refreshAiButton" class="button button--quiet">Refresh providers</button>
+          </div>
+
+          <div id="aiProviderNote" class="hint-panel">
+            The AI layer is configured here. The prototype does not load weights directly; it talks to a
+            local or remote runtime.
+          </div>
+
+          <section class="usage-block">
+            <div class="panel-heading">
+              <div>
+                <h3>How the model participates</h3>
+                <p>The selected model does not replace the whole pipeline: it is used where semantic interpretation adds the most value.</p>
+              </div>
+            </div>
+            <div id="aiUsagePanel" class="usage-grid"></div>
+          </section>
+        </section>
+
+        <section class="card card--console">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Conversational console</p>
+              <h2>Model terminal</h2>
+            </div>
+            <span class="status-chip" id="consoleStatus">Ready</span>
+          </div>
+
+          <p class="muted">
+            This panel talks to the same provider selected above and sends along a summary of the current
+            pipeline state.
+          </p>
+
+          <div id="chatTranscript" class="chat-transcript" aria-live="polite"></div>
+
+          <div class="chat-composer">
+            <label class="field">
+              <span>Message to the model</span>
+              <textarea id="chatInput" placeholder="Example: what are the most prudent next steps for this project?"></textarea>
+            </label>
+
+            <div class="button-row">
+              <button id="sendChatButton" class="button">Send to model</button>
+              <button id="clearChatButton" class="button button--quiet">Clear conversation</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 2</p>
+              <h2>Project inspection</h2>
+            </div>
+            <span class="status-chip" id="inspectionStatus">Pending</span>
+          </div>
+
+          <div id="inspectionSummary" class="summary-grid empty-state">
+            The project analysis has not been run yet.
+          </div>
+
+          <div class="button-row">
+            <button id="exploreLiveButton" class="button button--quiet" disabled>Explore live interface</button>
+            <button id="generatePlanButton" class="button button--secondary" disabled>Generate flows and criteria</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Steps 3 and 4</p>
+              <h2>Flows and acceptance criteria</h2>
+            </div>
+            <span class="status-chip" id="criteriaStatus">Pending</span>
+          </div>
+
+          <div id="flowList" class="stack empty-state">
+            Flows will be proposed after the project is inspected.
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 5</p>
+              <h2>Generation and execution settings</h2>
+            </div>
+            <span class="status-chip" id="generationStatus">Pending</span>
+          </div>
+
+          <p class="muted">
+            These runtime settings are reused by live interface exploration, AI-assisted flow generation, and the final Playwright execution.
+          </p>
+
+          <div class="runtime-grid">
+            <label class="field">
+              <span>Execution mode</span>
+              <select id="runtimeModeInput">
+                <option value="static">Internal static server</option>
+                <option value="command">Local command</option>
+                <option value="external">Application already running</option>
+                <option value="manual">Analysis only</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Install command</span>
+              <input id="installCommandInput" type="text" placeholder="npm install" />
+            </label>
+
+            <label class="field">
+              <span>Start command</span>
+              <input id="startCommandInput" type="text" placeholder="npm run dev" />
+            </label>
+
+            <label class="field">
+              <span>Base URL</span>
+              <input id="baseUrlInput" type="text" placeholder="http://127.0.0.1:3000" />
+            </label>
+
+            <label class="checkbox">
+              <input id="runInstallCheckbox" type="checkbox" />
+              <span>Run installation before the test execution</span>
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="generateTestsButton" class="button" disabled>Generate Playwright tests</button>
+            <button id="runTestsButton" class="button button--secondary" disabled>Run tests</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 6</p>
+              <h2>Generated artifacts</h2>
+            </div>
+            <span class="status-chip" id="artifactsStatus">Pending</span>
+          </div>
+
+          <div id="generatedArtifacts" class="stack empty-state">
+            Playwright files have not been generated yet.
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 7</p>
+              <h2>Results and insights</h2>
+            </div>
+            <span class="status-chip" id="executionStatus">Pending</span>
+          </div>
+
+          <div id="resultsPanel" class="stack empty-state">
+            Pipeline results will appear here after execution.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

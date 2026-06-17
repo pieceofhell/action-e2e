@@ -1,0 +1,6 @@
+node_modules/
+prototype-runs/*
+!prototype-runs/.gitkeep
+.env
+*.log
+ui-check.png
