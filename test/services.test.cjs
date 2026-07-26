@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { normalizeAiConfig } = require("../src/services/llm-provider");
 const { parsePlaywrightReport } = require("../src/services/test-runner");
 const { hasLiveEvidence, validateAiTestBody } = require("../src/services/test-generator");
+const { recommendRuntime } = require("../src/services/project-inspector");
 
 test("normalizes local and hosted provider configurations", () => {
   const ollama = normalizeAiConfig({
@@ -86,4 +87,22 @@ test("requires live exploration before model-authored tests and rejects generic 
     ),
     /without a matching observed placeholder/
   );
+});
+
+test("infers a safe command runtime from the selected application manifest", () => {
+  const runtime = recommendRuntime({
+    files: [{ relativePath: "bun.lock" }],
+    manifestCandidate: {
+      entry: { relativePath: "apps/web/package.json" },
+      manifest: { scripts: { dev: "next dev --port 3105" } },
+    },
+    framework: "Next.js",
+    readmeExcerpt: "",
+  });
+
+  assert.equal(runtime.mode, "command");
+  assert.equal(runtime.startCommand, "bun run dev");
+  assert.equal(runtime.baseUrl, "http://127.0.0.1:3105");
+  assert.equal(runtime.workingDirectory, "apps/web");
+  assert.equal(runtime.source, "package-manifest");
 });

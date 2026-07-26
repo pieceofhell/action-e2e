@@ -9,12 +9,14 @@ function normalizeRuntimeConfig(defaultRuntime = {}, runtimeConfig = {}) {
     installCommand: runtimeConfig?.installCommand ?? defaultRuntime.installCommand ?? "",
     startCommand: runtimeConfig?.startCommand ?? defaultRuntime.startCommand ?? "",
     baseUrl: runtimeConfig?.baseUrl ?? defaultRuntime.baseUrl ?? "",
+    workingDirectory: runtimeConfig?.workingDirectory ?? defaultRuntime.workingDirectory ?? ".",
     runInstallBeforeExecution: Boolean(runtimeConfig?.runInstallBeforeExecution),
   };
 
   if (merged.mode === "static") {
     merged.baseUrl = "auto";
     merged.startCommand = "";
+    merged.workingDirectory = ".";
   }
 
   return merged;
@@ -25,12 +27,14 @@ async function maybeInstallTargetProject({
   runtimeConfig,
   label = "Target project installation",
 }) {
+  const workingDirectory = resolveWorkingDirectory(targetProjectPath, runtimeConfig.workingDirectory);
+
   if (!runtimeConfig.runInstallBeforeExecution || !runtimeConfig.installCommand) {
     return null;
   }
 
   return runShellCommand(runtimeConfig.installCommand, {
-    cwd: targetProjectPath,
+    cwd: workingDirectory,
     label,
     timeoutMs: 240000,
   });
@@ -47,7 +51,7 @@ async function startTargetRuntime({ targetProjectPath, runtimeConfig }) {
     }
 
     return startCommandServer({
-      cwd: targetProjectPath,
+      cwd: resolveWorkingDirectory(targetProjectPath, runtimeConfig.workingDirectory),
       startCommand: runtimeConfig.startCommand,
       baseUrl: runtimeConfig.baseUrl,
     });
@@ -68,6 +72,18 @@ async function startTargetRuntime({ targetProjectPath, runtimeConfig }) {
   }
 
   throw new Error("Could not start the target project with the provided configuration.");
+}
+
+function resolveWorkingDirectory(targetProjectPath, requestedDirectory) {
+  const root = path.resolve(targetProjectPath);
+  const candidate = path.resolve(root, requestedDirectory || ".");
+  const relative = path.relative(root, candidate);
+
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error("The suggested working directory must remain inside the selected project.");
+  }
+
+  return candidate;
 }
 
 async function startStaticServer(projectPath) {
@@ -248,6 +264,7 @@ function delay(timeout) {
 module.exports = {
   maybeInstallTargetProject,
   normalizeRuntimeConfig,
+  resolveWorkingDirectory,
   runShellCommand,
   startTargetRuntime,
   waitForUrl,

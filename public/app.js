@@ -37,6 +37,7 @@ const elements = {
   installCommandInput: document.getElementById("installCommandInput"),
   startCommandInput: document.getElementById("startCommandInput"),
   baseUrlInput: document.getElementById("baseUrlInput"),
+  workingDirectoryInput: document.getElementById("workingDirectoryInput"),
   runInstallCheckbox: document.getElementById("runInstallCheckbox"),
   selectionStatus: document.getElementById("selectionStatus"),
   inspectionStatus: document.getElementById("inspectionStatus"),
@@ -567,6 +568,9 @@ function renderInspection() {
         <strong>${escapeHtml(inspection.runtime.mode)}</strong>
       </div>
       <p>${escapeHtml(inspection.runtime.notes || "No additional notes.")}</p>
+      <p>Working directory: <code>${escapeHtml(inspection.runtime.workingDirectory || ".")}</code></p>
+      <p>Start command: <code>${escapeHtml(inspection.runtime.startCommand || "not detected")}</code></p>
+      <p>Base URL: <code>${escapeHtml(inspection.runtime.baseUrl || "not detected")}</code></p>
     </article>
     <article class="summary-card">
       <div class="metric">
@@ -982,6 +986,7 @@ function populateRuntimeFields(runtime) {
   elements.installCommandInput.value = runtime.installCommand || "";
   elements.startCommandInput.value = runtime.startCommand || "";
   elements.baseUrlInput.value = runtime.baseUrl || "";
+  elements.workingDirectoryInput.value = runtime.workingDirectory || ".";
   elements.runInstallCheckbox.checked = false;
   renderRuntimeModeState();
 }
@@ -995,10 +1000,12 @@ function renderRuntimeModeState() {
   elements.installCommandInput.disabled = isStatic || isExternal || isManual;
   elements.startCommandInput.disabled = isStatic || isExternal || isManual;
   elements.baseUrlInput.disabled = isStatic || isManual;
+  elements.workingDirectoryInput.disabled = isStatic || isExternal || isManual;
   elements.runInstallCheckbox.disabled = isStatic || isExternal || isManual;
 
   if (isStatic) {
     elements.baseUrlInput.value = "auto";
+    elements.workingDirectoryInput.value = ".";
   }
 
   updateTimeline();
@@ -1010,6 +1017,7 @@ function collectRuntimeConfig() {
     installCommand: elements.installCommandInput.value.trim(),
     startCommand: elements.startCommandInput.value.trim(),
     baseUrl: elements.baseUrlInput.value.trim(),
+    workingDirectory: elements.workingDirectoryInput.value.trim() || ".",
     runInstallBeforeExecution: elements.runInstallCheckbox.checked,
   };
 }

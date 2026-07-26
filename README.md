@@ -139,6 +139,12 @@ These cases exercise both supported runtime modes (`command` and `static`) and d
 - `external`: for applications already running outside the prototype.
 - `manual`: analysis only, without execution.
 
+### Automatic Runtime Suggestions
+
+When a project is loaded, the prototype automatically proposes the execution mode, package manager, install command, start command, base URL, and working directory. These values are derived from actual project evidence: lockfiles, `package.json` scripts, framework conventions, explicit ports in scripts, and README instructions.
+
+For monorepos, the selected web manifest can be nested. For example, a detected `apps/web/package.json` is executed with `apps/web` as the working directory instead of incorrectly running the command at the repository root. The selected model contributes to the semantic inspection, but it does not invent shell commands: the commands remain restricted to evidence found in the inspected project. All fields stay visible and editable, and installation remains opt-in.
+
 ## Current Scope
 
 This first version prioritizes robustness and demonstrability:

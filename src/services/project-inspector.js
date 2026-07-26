@@ -60,10 +60,9 @@ async function inspectProject(projectPath) {
   });
   const runtime = recommendRuntime({
     files,
-    packageManifest: rootManifest?.manifest || packageManifest,
+    manifestCandidate: primaryManifestCandidate || rootManifest,
     framework,
     readmeExcerpt,
-    projectPath: resolvedProjectPath,
   });
 
   const signals = buildSignals({
@@ -259,13 +258,15 @@ function detectAppType({ readmeExcerpt, packageManifest, relevantFiles, uiHints 
   return "generic-web";
 }
 
-function recommendRuntime({ files, packageManifest, framework, readmeExcerpt }) {
+function recommendRuntime({ files, manifestCandidate, framework, readmeExcerpt }) {
+  const packageManifest = manifestCandidate?.manifest || null;
   const hasIndexHtml = files.some((file) => file.relativePath === "index.html");
   const hasPackageJson = Boolean(packageManifest);
   const scripts = packageManifest?.scripts || {};
-  const packageManager = detectPackageManager(files);
-  const installCommand = packageManager === "pnpm" ? "pnpm install" : packageManager === "yarn" ? "yarn install" : "npm install";
+  const packageManager = detectPackageManager(files, packageManifest);
+  const installCommand = buildInstallCommand(packageManager);
   const readmeRuntime = inferRuntimeFromReadme(readmeExcerpt);
+  const workingDirectory = manifestWorkingDirectory(manifestCandidate);
 
   if (hasIndexHtml && !hasPackageJson) {
     return {
@@ -274,6 +275,8 @@ function recommendRuntime({ files, packageManifest, framework, readmeExcerpt }) 
       installCommand: "",
       startCommand: "",
       baseUrl: "auto",
+      workingDirectory: ".",
+      source: "static-file-detection",
       notes: "The application appears to be static. The prototype can serve it internally without changing the original project.",
     };
   }
@@ -286,7 +289,9 @@ function recommendRuntime({ files, packageManifest, framework, readmeExcerpt }) 
       installCommand,
       startCommand,
       baseUrl: guessBaseUrl(framework, scripts),
-      notes: "Command suggested automatically. The interface allows manual review before execution.",
+      workingDirectory,
+      source: "package-manifest",
+      notes: `Command and base URL were inferred from ${manifestCandidate?.entry?.relativePath || "package.json"}. The interface allows manual review before execution.`,
     };
   }
 
@@ -297,6 +302,8 @@ function recommendRuntime({ files, packageManifest, framework, readmeExcerpt }) 
       installCommand: readmeRuntime.installCommand || installCommand,
       startCommand: readmeRuntime.startCommand,
       baseUrl: readmeRuntime.baseUrl || "http://127.0.0.1:3000",
+      workingDirectory: ".",
+      source: "readme",
       notes: "The runtime suggestion was inferred from README instructions and should be reviewed before live exploration or execution.",
     };
   }
@@ -307,18 +314,43 @@ function recommendRuntime({ files, packageManifest, framework, readmeExcerpt }) 
     installCommand,
     startCommand: "",
     baseUrl: "",
+    workingDirectory: ".",
+    source: "unresolved",
     notes: "The project could be analyzed, but no reliable local startup flow was identified.",
   };
 }
 
-function detectPackageManager(files) {
+function detectPackageManager(files, packageManifest = {}) {
+  const declaredManager = String(packageManifest?.packageManager || "").toLowerCase();
+  if (declaredManager.startsWith("bun@")) return "bun";
+  if (declaredManager.startsWith("pnpm@")) return "pnpm";
+  if (declaredManager.startsWith("yarn@")) return "yarn";
+  if (files.some((file) => /(^|\/)bun\.lockb?$/i.test(file.relativePath))) return "bun";
   if (files.some((file) => file.relativePath === "pnpm-lock.yaml")) return "pnpm";
   if (files.some((file) => file.relativePath === "yarn.lock")) return "yarn";
   return "npm";
 }
 
+function buildInstallCommand(packageManager) {
+  if (packageManager === "bun") return "bun install";
+  if (packageManager === "pnpm") return "pnpm install";
+  if (packageManager === "yarn") return "yarn install";
+  return "npm install";
+}
+
+function manifestWorkingDirectory(manifestCandidate) {
+  const relativePath = String(manifestCandidate?.entry?.relativePath || "package.json").replace(/\\/g, "/");
+  const directory = path.posix.dirname(relativePath);
+  return directory === "." ? "." : directory;
+}
+
 function guessBaseUrl(framework, scripts) {
   const scriptText = Object.values(scripts || {}).join(" ").toLowerCase();
+  const explicitUrl = scriptText.match(/https?:\/\/(?:127\.0\.0\.1|localhost):(\d{2,5})/i);
+  const explicitPort = scriptText.match(/(?:--port|\-p|port=)\s*(?:=\s*)?(\d{2,5})/i);
+
+  if (explicitUrl) return `http://127.0.0.1:${explicitUrl[1]}`;
+  if (explicitPort) return `http://127.0.0.1:${explicitPort[1]}`;
 
   if (/5173/.test(scriptText) || framework === "Vite") return "http://127.0.0.1:5173";
   if (/4200/.test(scriptText) || framework === "Angular") return "http://127.0.0.1:4200";
@@ -860,4 +892,5 @@ function buildWarnings({ appType, runtime, readmeExcerpt, uiHints }) {
 
 module.exports = {
   inspectProject,
+  recommendRuntime,
 };
