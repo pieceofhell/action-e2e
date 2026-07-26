@@ -496,7 +496,7 @@ function pickPrimaryHeading(inspection) {
       text: liveHeading,
       level: "h1",
       filePath: "live-exploration",
-      target: { strategy: "roleText", role: "heading", value: liveHeading },
+      target: { strategy: "text", value: liveHeading },
     };
   }
 

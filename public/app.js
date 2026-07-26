@@ -936,7 +936,7 @@ function renderAiUsage() {
     </article>
     <article class="usage-card">
       <strong>Step 5: test rendering</strong>
-      <p>The selected model can author a Playwright body from the approved flow and observed evidence. The generated JavaScript is validated before saving; when it is unsafe, unsupported, or invalid, the deterministic renderer takes over and records that fallback.</p>
+      <p>After live exploration, the selected model can author a Playwright body from the approved flow and observed interface. The generated JavaScript is validated before saving; without live evidence, or when it is unsafe, unsupported, or invalid, the deterministic renderer takes over and records that fallback.</p>
     </article>
     <article class="usage-card">
       <strong>Step 7: results and insights</strong>

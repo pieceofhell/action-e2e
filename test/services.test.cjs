@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { normalizeAiConfig } = require("../src/services/llm-provider");
 const { parsePlaywrightReport } = require("../src/services/test-runner");
+const { hasLiveEvidence, validateAiTestBody } = require("../src/services/test-generator");
 
 test("normalizes local and hosted provider configurations", () => {
   const ollama = normalizeAiConfig({
@@ -52,4 +53,37 @@ test("keeps Playwright evidence and multi-error failures in the parsed report", 
   assert.match(parsed.tests[0].error, /heading/);
   assert.deepEqual(parsed.tests[0].evidence.map((item) => item.kind), ["screenshot", "video", "trace"]);
   assert.equal(parsed.tests[0].evidence[0].relativePath, "results/test-artifacts/login.png");
+});
+
+test("requires live exploration before model-authored tests and rejects generic role selectors", () => {
+  assert.equal(hasLiveEvidence({ liveExploration: { status: "completed", routes: [{ path: "/" }] } }), true);
+  assert.equal(hasLiveEvidence({ liveExploration: { status: "not-attempted", routes: [] } }), false);
+
+  assert.throws(
+    () => validateAiTestBody("await openHome(page);\nawait expect(page.getByRole('heading')).toBeVisible();", { uiHints: { buttons: [], headings: [] } }),
+    /unscoped getByRole\('heading'\)/
+  );
+
+  assert.throws(
+    () => validateAiTestBody("await openHome(page);\nawait expect(page.getByRole('form')).toBeVisible();", { uiHints: { buttons: [], headings: [] } }),
+    /unscoped getByRole\('form'\)/
+  );
+
+  assert.throws(
+    () => validateAiTestBody("test('unexpected extra test', async ({ page }) => { await expect(page.locator('body')).toBeVisible(); });", { uiHints: { buttons: [], headings: [] } }),
+    /complete test declaration/
+  );
+
+  assert.throws(
+    () => validateAiTestBody("await expect(page.getByText('Welcome')).toBeVisible();", { uiHints: { buttons: [], headings: [] } }),
+    /did not navigate with openHome/
+  );
+
+  assert.throws(
+    () => validateAiTestBody(
+      "await openHome(page);\nawait expect(page.getByPlaceholder('Task title:')).toBeVisible();",
+      { uiHints: { buttons: [], headings: [], inputs: [] }, liveExploration: { routes: [{ inputs: [{ label: 'Task title:', placeholder: '' }] }] } }
+    ),
+    /without a matching observed placeholder/
+  );
 });

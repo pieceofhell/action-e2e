@@ -32,7 +32,7 @@ async function generateTestBundle({
 
     content = buildHeuristicSpecContent(flow);
 
-    if (normalizedAi.enabled) {
+    if (normalizedAi.enabled && hasLiveEvidence(inspection)) {
       try {
         content = await buildSpecContentWithAi({
           flow,
@@ -47,6 +47,9 @@ async function generateTestBundle({
         generationMode = "deterministic-fallback";
         generationNote = `The model-generated test was rejected or unavailable (${error.message}). A deterministic, evidence-grounded test was used instead.`;
       }
+    } else if (normalizedAi.enabled) {
+      generationMode = "deterministic-live-evidence-required";
+      generationNote = "A model is configured, but no completed live exploration is available. The deterministic generator was used to avoid authoring selectors from static evidence alone.";
     }
 
     await writeText(specFilePath, content);
@@ -152,7 +155,8 @@ async function buildSpecContentWithAi({
     "Use Playwright syntax only. Valid examples include await expect(locator).toBeVisible(), await locator.click(), and await locator.fill('value').",
     "Never use shouldBeVisible, should(), Cypress APIs, Selenium APIs, WebDriver APIs, or absolute page.goto URLs.",
     "Prefer openHome(page) and relative routes over hardcoded full URLs.",
-    "Prefer page.getByRole, page.getByText, page.getByPlaceholder, and page.locator.",
+    "Prefer page.getByRole, page.getByLabel, page.getByText, and evidence-grounded page.getByPlaceholder calls.",
+    "When a live form field has a visible label, use page.getByLabel with that label. Do not treat a field label as a placeholder unless the observed placeholder explicitly matches it.",
     "If you are uncertain, prefer visibility and navigation assertions over risky form submission or native system dialogs.",
     "Do not click controls that likely open file pickers, folder dialogs, uploads, authentication, checkout, destructive actions, or require unavailable project-specific input.",
     "Keep the test concise but meaningful.",
@@ -262,6 +266,8 @@ function normalizeAiTestBody(rawText) {
 
 function validateAiTestBody(body, inspection) {
   const forbiddenPatterns = [
+    { pattern: /\btest\s*\(/, message: "The model returned a complete test declaration instead of a single test body." },
+    { pattern: /\.locator\(\s*["']text=/i, message: "The model used a raw text-engine selector instead of an evidence-grounded locator." },
     { pattern: /\.should[A-Z]/, message: "The model used a non-Playwright assertion helper." },
     { pattern: /\.should\s*\(/, message: "The model used a Cypress-style should() assertion." },
     { pattern: /\bcy\./i, message: "The model used Cypress APIs instead of Playwright." },
@@ -281,7 +287,73 @@ function validateAiTestBody(body, inspection) {
     throw new Error("The generated test body did not include clear Playwright assertions or navigation.");
   }
 
+  validateNavigationOrder(body);
+  validateRoleSpecificity(body);
+  validateInputLocatorGrounding(body, inspection);
   validateInteractionLines(body, inspection);
+}
+
+function validateNavigationOrder(body) {
+  const source = String(body || "");
+  const navigationIndex = source.search(/await\s+openHome\(\s*page\s*\)/);
+  const firstUiOperation = source.search(/\bexpect\s*\(|\bpage\.(?:getBy|locator|goto)/);
+
+  if (navigationIndex < 0) {
+    throw new Error("The model did not navigate with openHome(page) before interacting with the application.");
+  }
+
+  if (firstUiOperation >= 0 && navigationIndex > firstUiOperation) {
+    throw new Error("The model attempted to inspect or interact with the page before openHome(page). ");
+  }
+}
+
+function validateRoleSpecificity(body) {
+  const genericRoleCalls = String(body || "").matchAll(/getByRole\(\s*["'](heading|button|link|textbox|checkbox|combobox|form|main|dialog)["']\s*\)/gi);
+
+  for (const match of genericRoleCalls) {
+    throw new Error(`The model used an unscoped getByRole('${match[1]}') selector without an observed accessible name.`);
+  }
+}
+
+function validateInputLocatorGrounding(body, inspection) {
+  const knownPlaceholders = collectKnownInputValues(inspection, "placeholder");
+  const placeholderCalls = String(body || "").matchAll(/getByPlaceholder\(\s*["']([^"']+)["']/gi);
+
+  for (const match of placeholderCalls) {
+    const value = match[1].trim();
+    if (!knownPlaceholders.includes(value)) {
+      throw new Error(`The model used getByPlaceholder('${value}') without a matching observed placeholder.`);
+    }
+  }
+
+  const knownLabels = collectKnownInputValues(inspection, "label");
+  const labelCalls = String(body || "").matchAll(/getByLabel\(\s*["']([^"']+)["']/gi);
+
+  for (const match of labelCalls) {
+    const value = match[1].trim();
+    if (!knownLabels.includes(value)) {
+      throw new Error(`The model used getByLabel('${value}') without a matching observed label.`);
+    }
+  }
+}
+
+function collectKnownInputValues(inspection, field) {
+  const staticValues = (inspection?.uiHints?.inputs || []).map((input) => input?.[field] || "");
+  const liveValues = (inspection?.liveExploration?.routes || [])
+    .flatMap((route) => route?.inputs || [])
+    .map((input) => input?.[field] || "");
+
+  return uniqueStrings([...staticValues, ...liveValues]);
+}
+
+function hasLiveEvidence(inspection) {
+  return inspection?.liveExploration?.status === "completed"
+    && Array.isArray(inspection.liveExploration.routes)
+    && inspection.liveExploration.routes.length > 0;
+}
+
+function uniqueStrings(items) {
+  return [...new Set((items || []).map((item) => String(item || "").trim()).filter(Boolean))];
 }
 
 function stripCodeFences(text) {
@@ -662,6 +734,8 @@ function locatorCode(target) {
       return `page.locator(${jsString(`[data-tool="${target.value}"]`)})`;
     case "roleText":
       return `page.getByRole(${jsString(target.role)}, { name: ${regexCode(target.value)} })`;
+    case "text":
+      return `page.getByText(${jsString(target.value)}, { exact: true })`;
     case "href":
       return `page.locator(${jsString(`a[href="${target.value}"]`)})`;
     case "placeholder":
@@ -721,4 +795,6 @@ function indent(text, spaces) {
 
 module.exports = {
   generateTestBundle,
+  hasLiveEvidence,
+  validateAiTestBody,
 };
