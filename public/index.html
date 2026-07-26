@@ -251,7 +251,7 @@
           </div>
 
           <p class="muted">
-            These runtime settings are reused by live interface exploration, AI-assisted flow generation, and the final Playwright execution.
+            These settings are reused by live exploration, model-assisted generation, and the final Playwright execution. Every execution records screenshots, video, and a trace for each test so the result can be reviewed visually.
           </p>
 
           <div class="runtime-grid">
@@ -288,7 +288,7 @@
 
           <div class="button-row">
             <button id="generateTestsButton" class="button" disabled>Generate Playwright tests</button>
-            <button id="runTestsButton" class="button button--secondary" disabled>Run tests</button>
+            <button id="runTestsButton" class="button button--secondary" disabled>Run tests and collect evidence</button>
           </div>
         </section>
 
@@ -310,13 +310,13 @@
           <div class="card__header">
             <div>
               <p class="kicker">Step 7</p>
-              <h2>Results and insights</h2>
+              <h2>Results, evidence, and insights</h2>
             </div>
             <span class="status-chip" id="executionStatus">Pending</span>
           </div>
 
           <div id="resultsPanel" class="stack empty-state">
-            Pipeline results will appear here after execution.
+            Pipeline results and visual evidence will appear here after execution.
           </div>
         </section>
       </section>

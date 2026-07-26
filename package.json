@@ -6,7 +6,9 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.cjs",
+    "test:smoke": "node test/smoke-pipeline.cjs"
   },
   "dependencies": {
     "@playwright/test": "^1.54.0",

@@ -33,8 +33,20 @@ async function generateTestBundle({
     content = buildHeuristicSpecContent(flow);
 
     if (normalizedAi.enabled) {
-      generationMode = "deterministic";
-      generationNote = "The approved flow and acceptance criteria may be model-refined, but the Playwright file is rendered by the deterministic generator for execution stability.";
+      try {
+        content = await buildSpecContentWithAi({
+          flow,
+          inspection,
+          approvedFlows,
+          normalizedRuntime,
+          aiConfig: normalizedAi,
+        });
+        generationMode = "model-assisted";
+        generationNote = "The selected model authored the Playwright body from approved criteria and observed evidence; structural validation ran before the file was saved.";
+      } catch (error) {
+        generationMode = "deterministic-fallback";
+        generationNote = `The model-generated test was rejected or unavailable (${error.message}). A deterministic, evidence-grounded test was used instead.`;
+      }
     }
 
     await writeText(specFilePath, content);
@@ -84,9 +96,10 @@ module.exports = {
   outputDir: path.join(__dirname, "results", "test-artifacts"),
   use: {
     baseURL: process.env.TARGET_BASE_URL || "http://127.0.0.1:3000",
-    trace: "retain-on-failure",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    // Keep an auditable visual record for every generated test, including passes.
+    trace: "on",
+    screenshot: "on",
+    video: "on",
   },
 };
 `;

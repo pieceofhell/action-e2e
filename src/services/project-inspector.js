@@ -36,10 +36,17 @@ async function inspectProject(projectPath) {
   await walkProject(resolvedProjectPath, resolvedProjectPath, 0, files);
 
   const extensionCounts = countExtensions(files);
-  const packageJsonEntry = files.find((file) => file.relativePath === "package.json");
+  const packageJsonEntries = files.filter((file) => path.basename(file.relativePath) === "package.json");
+  const packageJsonEntry = packageJsonEntries.find((file) => file.relativePath === "package.json") || packageJsonEntries[0];
   const readmeEntry = files.find((file) => /^readme(\.[a-z0-9]+)?$/i.test(path.basename(file.relativePath)));
   const htmlCandidates = files.filter((file) => /\.(html?|jsx?|tsx?)$/i.test(file.relativePath));
-  const packageManifest = packageJsonEntry ? await readJsonSafe(packageJsonEntry.absolutePath) : null;
+  const manifestCandidates = await Promise.all(packageJsonEntries.map(async (entry) => ({
+    entry,
+    manifest: await readJsonSafe(entry.absolutePath).catch(() => null),
+  })));
+  const rootManifest = manifestCandidates.find((candidate) => candidate.entry.relativePath === "package.json") || null;
+  const primaryManifestCandidate = choosePrimaryManifest(manifestCandidates) || rootManifest;
+  const packageManifest = primaryManifestCandidate?.manifest || null;
   const readmeExcerpt = readmeEntry ? await readTextExcerpt(readmeEntry.absolutePath) : "";
   const relevantFiles = await readRelevantFiles(files, resolvedProjectPath);
   const uiHints = await extractUiHints(htmlCandidates, resolvedProjectPath);
@@ -53,7 +60,7 @@ async function inspectProject(projectPath) {
   });
   const runtime = recommendRuntime({
     files,
-    packageManifest,
+    packageManifest: rootManifest?.manifest || packageManifest,
     framework,
     readmeExcerpt,
     projectPath: resolvedProjectPath,
@@ -104,6 +111,7 @@ async function inspectProject(projectPath) {
       packageJson: packageManifest
         ? {
             name: packageManifest.name || null,
+            path: primaryManifestCandidate?.entry.relativePath || packageJsonEntry?.relativePath || null,
             scripts: packageManifest.scripts || {},
             dependencies: listTopDependencies(packageManifest),
           }
@@ -317,6 +325,38 @@ function guessBaseUrl(framework, scripts) {
   if (/4173/.test(scriptText)) return "http://127.0.0.1:4173";
   if (/8080/.test(scriptText)) return "http://127.0.0.1:8080";
   return "http://127.0.0.1:3000";
+}
+
+function choosePrimaryManifest(candidates) {
+  const ranked = (candidates || [])
+    .filter((candidate) => candidate?.manifest)
+    .map((candidate) => ({
+      ...candidate,
+      score: scoreManifestCandidate(candidate),
+    }))
+    .sort((left, right) => right.score - left.score);
+
+  return ranked[0] || null;
+}
+
+function scoreManifestCandidate(candidate) {
+  const manifest = candidate.manifest || {};
+  const dependencies = {
+    ...(manifest.dependencies || {}),
+    ...(manifest.devDependencies || {}),
+  };
+  const scripts = manifest.scripts || {};
+  const location = candidate.entry?.relativePath || "";
+  let score = location === "package.json" ? 4 : 0;
+
+  if (dependencies.next) score += 40;
+  if (dependencies.react || dependencies["@angular/core"] || dependencies.vue || dependencies.svelte) score += 28;
+  if (dependencies.vite) score += 20;
+  if (scripts.dev || scripts.start) score += 10;
+  if (/^(apps|packages)\/web\//i.test(location)) score += 14;
+  if (/mobile|native/i.test(location)) score -= 12;
+
+  return score;
 }
 
 function inferRuntimeFromReadme(readmeExcerpt) {

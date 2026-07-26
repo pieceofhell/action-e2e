@@ -352,7 +352,7 @@ async function handleRunTests() {
     state.execution = payload.execution;
     state.insights = payload.insights;
 
-    setStatus("executionStatus", "Execution complete", "is-ready");
+    setStatus("executionStatus", "Evidence ready", "is-ready");
     renderAll();
 
     if (state.insights.ai?.error) {
@@ -360,7 +360,7 @@ async function handleRunTests() {
       return;
     }
 
-    notify("Execution finished. Review the results and insights.");
+    notify("Execution finished. Review the visual evidence, results, and insights.");
   } catch (error) {
     setStatus("executionStatus", "Failed", "is-error");
     notify(error.message);
@@ -448,20 +448,18 @@ function handleClearChat() {
 
 function handleAiProviderChange(event) {
   state.aiTouched = true;
-  state.aiConfig.provider = event.target.value;
+  const providerId = event.target.value;
+  const provider = (state.aiCatalog?.providers || []).find((candidate) => candidate.id === providerId);
 
-  if (state.aiConfig.provider === "heuristic") {
+  if (providerId === "heuristic") {
     state.aiConfig = { ...DEFAULT_AI_CONFIG };
-  } else if (state.aiConfig.provider === "ollama") {
-    const provider = getCurrentAiProvider();
-    state.aiConfig.endpoint = provider?.endpoint || state.aiConfig.endpoint || "http://127.0.0.1:11434";
-    if (!state.aiConfig.model) {
-      state.aiConfig.model = getPreferredModel(provider?.models || []);
-    }
-    state.aiConfig.apiKey = "";
-  } else if (state.aiConfig.provider === "openai-compatible") {
-    const provider = getCurrentAiProvider();
-    state.aiConfig.endpoint = state.aiConfig.endpoint || provider?.endpoint || "https://openrouter.ai/api/v1";
+  } else {
+    state.aiConfig = {
+      provider: providerId,
+      endpoint: provider?.endpoint || "",
+      model: getPreferredModel(provider?.models || []),
+      apiKey: "",
+    };
   }
 
   renderAiConfiguration();
@@ -525,7 +523,7 @@ function renderAiConfiguration() {
   elements.aiModelSelect.disabled = disableModelFields;
   elements.aiModelInput.disabled = disableModelFields;
   elements.aiEndpointInput.disabled = disableModelFields;
-  elements.aiApiKeyInput.disabled = state.aiConfig.provider !== "openai-compatible";
+  elements.aiApiKeyInput.disabled = disableModelFields || !(provider?.requiresApiKey || state.aiConfig.provider === "openai-compatible");
 
   renderAiProviderNote(provider);
   renderAiUsage();
@@ -810,9 +808,12 @@ function renderResults() {
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/playwright-results.json`)}" target="_blank" rel="noreferrer">playwright-results.json</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/stdout.log`)}" target="_blank" rel="noreferrer">stdout.log</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/stderr.log`)}" target="_blank" rel="noreferrer">stderr.log</a>
+        <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/visual-evidence.json`)}" target="_blank" rel="noreferrer">visual-evidence.json</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/insights.json`)}" target="_blank" rel="noreferrer">insights.json</a>
       </div>
     </article>
+
+    ${renderEvidenceGallery(tests)}
 
     <article class="result-card">
       <strong>Overview</strong>
@@ -848,6 +849,81 @@ function renderResults() {
   `;
 }
 
+function renderEvidenceGallery(tests) {
+  const items = (tests || []).flatMap((testItem) => (testItem.evidence || []).map((evidence) => ({
+    ...evidence,
+    testTitle: testItem.title,
+    testStatus: testItem.status,
+  })));
+
+  if (!items.length) {
+    return `
+      <article class="result-card evidence-empty">
+        <strong>Visual evidence</strong>
+        <p>No visual artifact was reported. This can happen when Playwright cannot start the browser or the target application before a test begins. Review the logs above for the blocking point.</p>
+      </article>
+    `;
+  }
+
+  return `
+    <article class="result-card">
+      <strong>Visual evidence</strong>
+      <p>Each test keeps screenshots, video, and a trace whenever Playwright produced them. Open an item below to validate what was exercised.</p>
+      <div class="evidence-grid">
+        ${items.map((item) => renderEvidenceItem(item)).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderEvidenceItem(item) {
+  const url = artifactUrl(item.relativePath);
+  const title = `${item.testTitle} - ${item.kind}`;
+  const statusClass = item.testStatus === "passed" ? "high" : item.testStatus === "failed" ? "low" : "medium";
+
+  if (item.kind === "screenshot") {
+    return `
+      <figure class="evidence-card evidence-card--image">
+        <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer" title="Open full-size screenshot">
+          <img src="${escapeHtml(url)}" alt="${escapeHtml(title)}" loading="lazy" />
+        </a>
+        <figcaption>
+          <span class="confidence confidence--${statusClass}">${escapeHtml(item.testStatus)}</span>
+          <strong>${escapeHtml(item.testTitle)}</strong>
+          <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open screenshot</a>
+        </figcaption>
+      </figure>
+    `;
+  }
+
+  if (item.kind === "video") {
+    return `
+      <article class="evidence-card">
+        <video controls preload="metadata" src="${escapeHtml(url)}"></video>
+        <div class="evidence-card__meta">
+          <span class="confidence confidence--${statusClass}">${escapeHtml(item.testStatus)}</span>
+          <strong>${escapeHtml(item.testTitle)}</strong>
+          <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open video</a>
+        </div>
+      </article>
+    `;
+  }
+
+  return `
+    <article class="evidence-card evidence-card--file">
+      <span class="evidence-card__type">${escapeHtml(item.kind)}</span>
+      <strong>${escapeHtml(item.testTitle)}</strong>
+      <p>${escapeHtml(item.name || item.relativePath)}</p>
+      <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open ${escapeHtml(item.kind)}</a>
+    </article>
+  `;
+}
+
+function artifactUrl(relativePath) {
+  const base = state.generated?.artifactBaseUrl || "";
+  return encodeURI(`${base}/${String(relativePath || "").replace(/^\/+/, "")}`);
+}
+
 function renderAiUsage() {
   elements.aiUsagePanel.innerHTML = `
     <article class="usage-card">
@@ -860,11 +936,11 @@ function renderAiUsage() {
     </article>
     <article class="usage-card">
       <strong>Step 5: test rendering</strong>
-      <p>The approved flows are converted into Playwright files by a deterministic renderer. This keeps execution stable while still letting the model shape the upstream understanding and acceptance criteria.</p>
+      <p>The selected model can author a Playwright body from the approved flow and observed evidence. The generated JavaScript is validated before saving; when it is unsafe, unsupported, or invalid, the deterministic renderer takes over and records that fallback.</p>
     </article>
     <article class="usage-card">
       <strong>Step 7: results and insights</strong>
-      <p>Execution data remains objective and local. The model only synthesizes a critical reading of the results, limitations, and next steps from the Playwright report.</p>
+      <p>Execution data remains objective and local. The result keeps screenshots, video, and traces for visual review, while the model synthesizes a critical reading of the results, limitations, and next steps.</p>
     </article>
   `;
 }
@@ -1004,8 +1080,9 @@ function ensureAiDefaults(forceReset = false) {
       state.aiConfig.apiKey = "";
     }
 
-    if (currentProvider.id === "openai-compatible") {
-      state.aiConfig.endpoint = state.aiConfig.endpoint || currentProvider.endpoint || "https://openrouter.ai/api/v1";
+    if (currentProvider.id !== "heuristic") {
+      state.aiConfig.endpoint = state.aiConfig.endpoint || currentProvider.endpoint || "";
+      state.aiConfig.model = state.aiConfig.model || getPreferredModel(currentProvider.models || []);
     }
 
     if (currentProvider.id === "heuristic") {
@@ -1062,10 +1139,46 @@ function buildFallbackAiCatalog(errorMessage = "") {
         description: "Uses models served locally through Ollama.",
       },
       {
-        id: "openai-compatible",
-        label: "OpenAI-compatible endpoint",
+        id: "lm-studio",
+        label: "Local LM Studio",
+        available: false,
+        endpoint: "http://127.0.0.1:1234/v1",
+        models: [],
+        error: errorMessage || "Could not query the local runtime.",
+        description: "Uses models loaded locally through LM Studio.",
+      },
+      {
+        id: "openrouter",
+        label: "OpenRouter",
         available: true,
         endpoint: "https://openrouter.ai/api/v1",
+        models: [],
+        requiresApiKey: true,
+        description: "Hosted routing across many models.",
+      },
+      {
+        id: "groq",
+        label: "Groq",
+        available: true,
+        endpoint: "https://api.groq.com/openai/v1",
+        models: [],
+        requiresApiKey: true,
+        description: "Hosted OpenAI-compatible inference.",
+      },
+      {
+        id: "hugging-face",
+        label: "Hugging Face Inference Providers",
+        available: true,
+        endpoint: "https://router.huggingface.co/v1",
+        models: [],
+        requiresApiKey: true,
+        description: "Hosted inference providers for Hugging Face models.",
+      },
+      {
+        id: "openai-compatible",
+        label: "Custom OpenAI-compatible endpoint",
+        available: true,
+        endpoint: "",
         models: [],
         description: "Allows the use of a local or remote server compatible with chat completions.",
       },
@@ -1082,22 +1195,22 @@ function renderAiProviderNote(provider) {
     return;
   }
 
-  if (provider.id === "ollama") {
+  if (provider.id === "ollama" || provider.id === "lm-studio") {
     const modelNames = (provider.models || []).map((model) => model.name);
     elements.aiProviderNote.innerHTML = `
-      <strong>Local Ollama</strong>
-      <p>Detected endpoint: <code>${escapeHtml(provider.endpoint || "http://127.0.0.1:11434")}</code>.</p>
+      <strong>${escapeHtml(provider.label)}</strong>
+      <p>Detected endpoint: <code>${escapeHtml(provider.endpoint || "not configured")}</code>.</p>
       <p>${provider.available ? `Models found: ${escapeHtml(modelNames.join(", ") || "none.")}` : `The local runtime did not respond. ${escapeHtml(provider.error || "")}`}</p>
-      <p>If the model you want to test does not appear, enter the runtime-exposed name manually, for example <code>openllama:8b</code>.</p>
+      <p>If the model is not listed, enter the runtime-exposed identifier manually, for example <code>openllama:8b</code>.</p>
     `;
     return;
   }
 
   elements.aiProviderNote.innerHTML = `
-    <strong>OpenAI-compatible endpoint</strong>
-    <p>Use a local or remote server. This covers free or remote providers and local runtimes that expose a compatible API.</p>
-    <p>Suggested default endpoint: <code>${escapeHtml(provider.endpoint || "https://openrouter.ai/api/v1")}</code>.</p>
-    <p>In this mode, the prototype does not download weights by itself; it only sends prompts to the configured endpoint.</p>
+    <strong>${escapeHtml(provider.label)}</strong>
+    <p>${escapeHtml(provider.description || "Use a local or remote chat-completions endpoint.")}</p>
+    <p>Suggested endpoint: <code>${escapeHtml(provider.endpoint || "enter the endpoint manually")}</code>.</p>
+    <p>${provider.requiresApiKey ? "An API key is required by this provider." : "The endpoint may use an optional API key depending on its server configuration."}</p>
   `;
 }
 
@@ -1112,8 +1225,8 @@ function syncAiStatusChip() {
     return;
   }
 
-  if (provider?.available === false && config.provider === "ollama") {
-    setStatus("aiStatus", "Ollama unavailable", "is-error");
+  if (provider?.available === false && (config.provider === "ollama" || config.provider === "lm-studio")) {
+    setStatus("aiStatus", `${provider.label} unavailable`, "is-error");
     return;
   }
 
@@ -1122,17 +1235,17 @@ function syncAiStatusChip() {
     return;
   }
 
-  if (config.provider === "openai-compatible" && !config.endpoint) {
+  if (!config.endpoint) {
     setStatus("aiStatus", "Endpoint pending", "is-warning");
     return;
   }
 
-  if (config.provider === "ollama") {
-    setStatus("aiStatus", "Ollama ready", "is-ready");
+  if (provider?.requiresApiKey && !config.apiKey) {
+    setStatus("aiStatus", "API key pending", "is-warning");
     return;
   }
 
-  setStatus("aiStatus", "Endpoint configured", "is-ready");
+  setStatus("aiStatus", `${provider?.label || "Provider"} ready`, "is-ready");
 }
 
 function buildModelOptions(models, selectedModel, providerId) {

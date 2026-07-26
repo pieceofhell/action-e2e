@@ -33,10 +33,14 @@ async function runGeneratedTests({
 
     const reportPath = path.join(resultsDirectory, "playwright-results.json");
     const report = await readJson(reportPath).catch(() => null);
-    const parsedReport = parsePlaywrightReport(report);
+    const parsedReport = parsePlaywrightReport(report, { runDirectory });
 
     await writeText(path.join(resultsDirectory, "stdout.log"), playwrightExecution.stdout);
     await writeText(path.join(resultsDirectory, "stderr.log"), playwrightExecution.stderr);
+    await writeText(
+      path.join(resultsDirectory, "visual-evidence.json"),
+      `${JSON.stringify(buildVisualEvidenceIndex(parsedReport), null, 2)}\n`
+    );
 
     return {
       runtime: {
@@ -97,7 +101,7 @@ async function runPlaywrightCli({ prototypeRoot, runDirectory, baseUrl }) {
   });
 }
 
-function parsePlaywrightReport(report) {
+function parsePlaywrightReport(report, { runDirectory } = {}) {
   if (!report) {
     return {
       summary: {
@@ -114,7 +118,7 @@ function parsePlaywrightReport(report) {
   const tests = [];
 
   for (const suite of report.suites || []) {
-    collectSuiteTests(suite, tests);
+    collectSuiteTests(suite, tests, { runDirectory });
   }
 
   const summary = {
@@ -128,12 +132,13 @@ function parsePlaywrightReport(report) {
   return {
     summary,
     tests,
+    visualEvidence: buildVisualEvidenceIndex({ tests }),
   };
 }
 
-function collectSuiteTests(suite, collector) {
+function collectSuiteTests(suite, collector, context) {
   for (const childSuite of suite.suites || []) {
-    collectSuiteTests(childSuite, collector);
+    collectSuiteTests(childSuite, collector, context);
   }
 
   for (const spec of suite.specs || []) {
@@ -144,11 +149,66 @@ function collectSuiteTests(suite, collector) {
       file: spec.file || "",
       status: lastResult.status || "unknown",
       durationMs: lastResult.duration || 0,
-      error: lastResult.error?.message || null,
+      error: extractResultError(lastResult),
+      evidence: normalizeAttachments(lastResult.attachments, context.runDirectory),
     });
   }
 }
 
+function extractResultError(result) {
+  if (result?.error?.message) return result.error.message;
+  const messages = (result?.errors || [])
+    .map((error) => error?.message || error?.value || "")
+    .filter(Boolean);
+  return messages.length ? messages.join("\n\n") : null;
+}
+
+function normalizeAttachments(attachments, runDirectory) {
+  if (!Array.isArray(attachments)) return [];
+
+  return attachments
+    .map((attachment) => {
+      const absolutePath = String(attachment?.path || "");
+      const relativePath = toSafeRelativePath(absolutePath, runDirectory);
+      if (!relativePath) return null;
+
+      const kind = classifyEvidence(attachment);
+      return {
+        name: String(attachment?.name || kind),
+        kind,
+        contentType: String(attachment?.contentType || ""),
+        relativePath,
+      };
+    })
+    .filter(Boolean);
+}
+
+function toSafeRelativePath(absolutePath, runDirectory) {
+  if (!absolutePath || !runDirectory) return "";
+  const relativePath = path.relative(runDirectory, absolutePath);
+  if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) return "";
+  return relativePath.split(path.sep).join("/");
+}
+
+function classifyEvidence(attachment) {
+  const contentType = String(attachment?.contentType || "").toLowerCase();
+  const name = String(attachment?.name || "").toLowerCase();
+  if (contentType.startsWith("image/") || /screenshot/.test(name)) return "screenshot";
+  if (contentType.startsWith("video/") || /video/.test(name)) return "video";
+  if (/trace/.test(name) || /zip/.test(contentType)) return "trace";
+  return "attachment";
+}
+
+function buildVisualEvidenceIndex(report) {
+  return (report.tests || []).map((test) => ({
+    title: test.title,
+    status: test.status,
+    evidence: test.evidence || [],
+  }));
+}
+
 module.exports = {
+  buildVisualEvidenceIndex,
+  parsePlaywrightReport,
   runGeneratedTests,
 };

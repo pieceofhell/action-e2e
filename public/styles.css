@@ -585,6 +585,66 @@ select:focus {
   text-decoration: underline;
 }
 
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.evidence-card {
+  overflow: hidden;
+  border: 1px solid rgba(38, 32, 24, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.evidence-card--image {
+  margin: 0;
+}
+
+.evidence-card img,
+.evidence-card video {
+  display: block;
+  width: 100%;
+  min-height: 156px;
+  max-height: 232px;
+  object-fit: cover;
+  background: #1d1a17;
+}
+
+.evidence-card figcaption,
+.evidence-card__meta,
+.evidence-card--file {
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+}
+
+.evidence-card a {
+  color: var(--brand);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.evidence-card a:hover {
+  text-decoration: underline;
+}
+
+.evidence-card__type {
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.evidence-card--file p {
+  margin: 0;
+  color: var(--muted);
+  word-break: break-word;
+}
+
 .toast {
   position: fixed;
   right: 20px;
