@@ -1,0 +1,269 @@
+{
+  "experiment": "dopa-favorites-historical-bug",
+  "protocol": "historical-paired-multimodal-poc-v2",
+  "startedAt": "2026-08-23T13:06:59.023Z",
+  "completedAt": "2026-08-23T13:08:28.740Z",
+  "model": "gemma3:12b",
+  "campaign": {
+    "objective": "general",
+    "visionEnabled": true,
+    "blindOnly": true
+  },
+  "groundTruth": {
+    "fixCommit": "93105f8",
+    "parentCommit": "a0e881f",
+    "description": "The Favorites view must not recommend opening the Favorites view itself.",
+    "disclosureToBlindModel": false
+  },
+  "blindModelAssessment": {
+    "mode": "blind",
+    "model": "gemma3:12b",
+    "evidenceMode": "screenshot+structured-state",
+    "objective": "general",
+    "hypotheses": [
+      {
+        "title": "Inconsistent Heart Icon State",
+        "observedEvidence": "The screenshot shows a heart icon with the text 'Seu coração ainda está leve' below it. The heart appears to be in an empty/unfilled state, despite this being the 'Favoritos' (Favorites) page.",
+        "expectedBehavior": "Given that this is the Favorites page, the heart icon should visually represent saved items and potentially have a filled or active appearance. Alternatively, if no favorites are present, a clear visual cue indicating emptiness should be provided, but it shouldn’t mimic an active state.",
+        "risk": "medium",
+        "confidence": "high",
+        "oracle": "The heart icon on the Favoritos page should either display as filled/active when favorites exist, or clearly indicate that there are no saved items (e.g., greyed out with a tooltip). If no favorites exist, the visual cue should not resemble an active state."
+      },
+      {
+        "title": "'Abrir meus favoritos' Button Redundancy",
+        "observedEvidence": "The page title is 'Favoritos', and the user arrived on this page by clicking a top-level 'Favoritos' control. A button labeled 'Abrir meus favoritos' exists further down the page.",
+        "expectedBehavior": "Given that the user has already navigated to the Favorites page, a button explicitly stating 'Open my favorites' is redundant and potentially confusing. The button should either be removed or its label changed to reflect an alternative action (e.g., 'Manage Favorites').",
+        "risk": "low",
+        "confidence": "medium",
+        "oracle": "The 'Abrir meus favoritos' button on the Favoritos page should either be absent, or its text should describe a different action than navigating to the current page."
+      },
+      {
+        "title": "Discrepancy in Navigation Labels",
+        "observedEvidence": "The bottom navigation bar displays labels like 'Início', 'Comidas', 'Favoritos', 'Pedidos', and 'Perfil'. The label 'Comidas' (Foods) appears out of context within a shopping/favorites application.",
+        "expectedBehavior": "Navigation labels should accurately reflect the sections of the application. 'Comidas' is an unexpected category in this context and suggests a potential localization or content error.",
+        "risk": "low",
+        "confidence": "medium",
+        "oracle": "The navigation bar labels should be relevant to the application’s functionality, with 'Comidas' replaced by a more appropriate label (e.g., 'Ofertas', 'Categorias', or similar)."
+      }
+    ],
+    "reviews": [
+      {
+        "title": "Inconsistent Heart Icon State",
+        "decision": "accept",
+        "reason": "The observed evidence and expected behavior clearly align. The screenshot depicts a heart icon in an ambiguous state on the Favorites page, which contradicts the expectation of a filled/active appearance when favorites exist or a clear indication of emptiness. The suggested oracle provides a testable condition for this inconsistency.",
+        "suggestedOracle": "Verify that the heart icon on the Favoritos page accurately reflects the presence or absence of saved items (filled/active if present, clearly empty if absent)."
+      },
+      {
+        "title": "'Abrir meus favoritos' Button Redundancy",
+        "decision": "accept",
+        "reason": "The observed evidence and expected behavior are consistent. The button's label is redundant given the user's current location on the Favorites page. The suggested oracle provides a testable condition for this redundancy.",
+        "suggestedOracle": "Verify that the 'Abrir meus favoritos' button either does not exist or its text describes an action other than navigating to the current page."
+      },
+      {
+        "title": "Discrepancy in Navigation Labels",
+        "decision": "accept",
+        "reason": "The observed evidence and expected behavior are consistent. The presence of 'Comidas' is unexpected within a shopping application, indicating a potential error. The suggested oracle provides a testable condition for this discrepancy.",
+        "suggestedOracle": "Verify that all navigation bar labels accurately reflect the sections of the application; replace 'Comidas' with an appropriate label."
+      }
+    ],
+    "matchedGroundTruth": true
+  },
+  "blindOracleAssessment": {
+    "mode": "blind-hypothesis-to-oracle",
+    "model": "gemma3:12b",
+    "skipped": false,
+    "hypothesis": {
+      "title": "'Abrir meus favoritos' Button Redundancy",
+      "observedEvidence": "The page title is 'Favoritos', and the user arrived on this page by clicking a top-level 'Favoritos' control. A button labeled 'Abrir meus favoritos' exists further down the page.",
+      "expectedBehavior": "Given that the user has already navigated to the Favorites page, a button explicitly stating 'Open my favorites' is redundant and potentially confusing. The button should either be removed or its label changed to reflect an alternative action (e.g., 'Manage Favorites').",
+      "risk": "low",
+      "confidence": "medium",
+      "oracle": "The 'Abrir meus favoritos' button on the Favoritos page should either be absent, or its text should describe a different action than navigating to the current page."
+    },
+    "plan": {
+      "title": "'Abrir meus favoritos' Button Redundancy - Browser Plan",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Início"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "compiledPlan": {
+      "title": "'Abrir meus favoritos' Button Redundancy - Browser Plan",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Início"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Início"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ],
+      "errors": []
+    },
+    "repairUsed": false,
+    "pairedExecutionCompatible": true
+  },
+  "issueInformedAssessment": null,
+  "pairedExecution": {
+    "confirmed": true,
+    "classification": "historical-bug-reproduced",
+    "buggyOutcome": "failed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "a0e881f",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4391"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve",
+          "Salve agora. Volte quando bater vontade."
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Abrir meus favoritos",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine SEU ESPAÇO, DO SEU JEITO Salve agora. Volte quando bater vontade. Use os favoritos para montar coleções pessoais e reencontrar rapidamente tudo o que chamou sua atenção. Abrir meus favoritos Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos remained visible inside the Favorites view.",
+        "status": "failed",
+        "passed": false
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/buggy-favorites.png"
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "93105f8",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4392"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve"
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos was absent inside the Favorites view.",
+        "status": "passed",
+        "passed": true
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/fixed-favorites.png"
+    }
+  },
+  "interpretation": "The paired oracle reproduced the historical bug, and the blind model independently proposed the same defect from interface evidence."
+}

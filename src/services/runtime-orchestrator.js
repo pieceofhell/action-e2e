@@ -62,10 +62,10 @@ async function startTargetRuntime({ targetProjectPath, runtimeConfig }) {
       throw new Error("External mode requires an explicit base URL.");
     }
 
-    await waitForUrl(runtimeConfig.baseUrl, 20000);
+    const reachableBaseUrl = await waitForUrl(runtimeConfig.baseUrl, 20000);
     return {
       mode: "external",
-      baseUrl: runtimeConfig.baseUrl,
+      baseUrl: reachableBaseUrl,
       startCommand: "",
       stop: async () => {},
     };
@@ -133,6 +133,7 @@ async function startCommandServer({ cwd, startCommand, baseUrl }) {
   const child = spawn(startCommand, {
     cwd,
     shell: true,
+    env: buildTargetEnvironment(),
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
@@ -141,63 +142,139 @@ async function startCommandServer({ cwd, startCommand, baseUrl }) {
   let stderr = "";
 
   child.stdout.on("data", (chunk) => {
-    stdout += chunk.toString();
+    stdout = appendProcessOutput(stdout, chunk);
   });
 
   child.stderr.on("data", (chunk) => {
-    stderr += chunk.toString();
+    stderr = appendProcessOutput(stderr, chunk);
   });
 
   child.on("error", (error) => {
     stderr += `\n${error.message}`;
   });
 
-  await waitForUrl(baseUrl, 60000);
+  try {
+    // Modern dev servers can spend over a minute compiling on their first cold start.
+    const reachableBaseUrl = await waitForUrl(baseUrl, 180000, {
+      child,
+      getProcessOutput: () => `${stdout}\n${stderr}`,
+    });
 
-  return {
-    mode: "command",
-    baseUrl,
-    startCommand,
-    stdout,
-    stderr,
-    stop: async () => {
-      if (child.exitCode !== null) {
-        return;
-      }
-
-      if (process.platform === "win32") {
-        await runShellCommand(`taskkill /pid ${child.pid} /T /F`, {
-          cwd,
-          label: "Stopping target project process",
-          timeoutMs: 15000,
-          tolerateFailure: true,
-        });
-        return;
-      }
-
-      child.kill("SIGTERM");
-    },
-  };
+    return {
+      mode: "command",
+      baseUrl: reachableBaseUrl,
+      startCommand,
+      stdout,
+      stderr,
+      stop: () => stopProcessTree(child, cwd),
+    };
+  } catch (error) {
+    await stopProcessTree(child, cwd);
+    throw error;
+  }
 }
 
-async function waitForUrl(baseUrl, timeoutMs) {
+async function stopProcessTree(child, cwd) {
+  if (!child || child.exitCode !== null || !child.pid) return;
+
+  if (process.platform === "win32") {
+    await runShellCommand(`taskkill /pid ${child.pid} /T /F`, {
+      cwd,
+      label: "Stopping target project process",
+      timeoutMs: 15000,
+      tolerateFailure: true,
+    });
+    return;
+  }
+
+  child.kill("SIGTERM");
+}
+
+async function waitForUrl(baseUrl, timeoutMs, { child = null, getProcessOutput = null } = {}) {
   const startedAt = Date.now();
   let lastError = null;
 
   while (Date.now() - startedAt < timeoutMs) {
-    try {
-      const response = await fetch(baseUrl, { redirect: "manual" });
-      if (response.status < 500) {
-        return;
+    if (child && child.exitCode !== null) {
+      throw new Error(buildEarlyExitMessage(child.exitCode, getProcessOutput?.()));
+    }
+
+    const announcedUrls = extractAnnouncedLoopbackUrls(getProcessOutput?.());
+    const candidates = [...new Set([
+      ...announcedUrls,
+      ...buildLoopbackUrlCandidates(baseUrl),
+    ])];
+
+    for (const candidate of candidates) {
+      try {
+        const response = await fetch(candidate, { redirect: "manual" });
+        if (response.status < 500) {
+          return candidate;
+        }
+      } catch (error) {
+        lastError = error;
       }
-    } catch (error) {
-      lastError = error;
     }
 
     await delay(800);
   }
 
-  throw new Error(`The URL ${baseUrl} did not respond within the expected time. ${lastError ? `Last error: ${lastError.message}` : ""}`);
+  const diagnostics = sanitizeProcessOutput(getProcessOutput?.());
+  throw new Error([
+    `The URL ${baseUrl} did not respond within the expected time.`,
+    lastError ? `Last error: ${lastError.message}.` : "",
+    diagnostics ? `Startup output: ${diagnostics}` : "",
+  ].filter(Boolean).join(" "));
+}
+
+function buildLoopbackUrlCandidates(baseUrl) {
+  let parsed;
+
+  try {
+    parsed = new URL(baseUrl);
+  } catch {
+    return [baseUrl];
+  }
+
+  if (!["localhost", "127.0.0.1", "[::1]", "::1"].includes(parsed.hostname)) {
+    return [parsed.toString().replace(/\/$/, "")];
+  }
+
+  return ["localhost", "127.0.0.1", "[::1]"].map((hostname) => {
+    const host = hostname === "[::1]" ? `[::1]${parsed.port ? `:${parsed.port}` : ""}` : `${hostname}${parsed.port ? `:${parsed.port}` : ""}`;
+    return `${parsed.protocol}//${host}${parsed.pathname}${parsed.search}`.replace(/\/$/, "");
+  });
+}
+
+function extractAnnouncedLoopbackUrls(output) {
+  const normalized = stripAnsi(String(output || ""));
+  const matches = normalized.match(/https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d{2,5}/gi) || [];
+  return [...new Set(matches.map((value) => value.replace(/\/$/, "")))];
+}
+
+function buildEarlyExitMessage(exitCode, output) {
+  const diagnostics = sanitizeProcessOutput(output);
+  return [
+    `The target start command exited before its URL became available (exit code ${exitCode ?? "unknown"}).`,
+    diagnostics ? `Startup output: ${diagnostics}` : "",
+  ].filter(Boolean).join(" ");
+}
+
+function appendProcessOutput(current, chunk) {
+  return `${current}${chunk.toString()}`.slice(-12000);
+}
+
+function sanitizeProcessOutput(output) {
+  return stripAnsi(String(output || ""))
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, " ")
+    .replace(/((?:api[_ -]?key|authorization|token|password|secret)\s*[=:]\s*)[^\s,;]+/gi, "$1[REDACTED]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(-2400);
+}
+
+function stripAnsi(value) {
+  return value.replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "");
 }
 
 async function runShellCommand(command, { cwd, label, timeoutMs, tolerateFailure = false }) {
@@ -205,6 +282,7 @@ async function runShellCommand(command, { cwd, label, timeoutMs, tolerateFailure
     const child = spawn(command, {
       cwd,
       shell: true,
+      env: buildTargetEnvironment(),
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
     });
@@ -261,7 +339,16 @@ function delay(timeout) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
+function buildTargetEnvironment(environment = process.env) {
+  return Object.fromEntries(
+    Object.entries(environment).filter(([key]) => !key.toUpperCase().startsWith("E2P_AUTH_"))
+  );
+}
+
 module.exports = {
+  buildLoopbackUrlCandidates,
+  buildTargetEnvironment,
+  extractAnnouncedLoopbackUrls,
   maybeInstallTargetProject,
   normalizeRuntimeConfig,
   resolveWorkingDirectory,

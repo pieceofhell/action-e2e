@@ -1,0 +1,283 @@
+{
+  "experiment": "dopa-favorites-historical-bug",
+  "protocol": "historical-paired-oracle-poc-v1",
+  "startedAt": "2026-08-22T21:33:54.523Z",
+  "completedAt": "2026-08-22T21:34:59.176Z",
+  "model": "qwen2.5-coder:7b",
+  "groundTruth": {
+    "fixCommit": "93105f8",
+    "parentCommit": "a0e881f",
+    "description": "The Favorites view must not recommend opening the Favorites view itself.",
+    "disclosureToBlindModel": false
+  },
+  "blindModelAssessment": {
+    "mode": "blind",
+    "model": "qwen2.5-coder:7b",
+    "hypotheses": [
+      {
+        "title": "The 'Abrir favoritos' button is duplicated in the navigation bar.",
+        "observedEvidence": "The 'Abrir favoritos' (Open favorites) button appears twice in the navigation bar: once under 'Favoritos' and once at the end of the list.",
+        "expectedBehavior": "There should be only one 'Abrir favoritos' button, ideally placed under a more descriptive label like 'Meus Favoritos' (My Favorites).",
+        "risk": "This could lead to user confusion or accidental clicks on the wrong button.",
+        "confidence": "high",
+        "oracle": "Clicking on both instances of 'Abrir favoritos' and observing if they perform the same action."
+      },
+      {
+        "title": "The 'Favoritos' section is not clearly separated from other sections in the navigation bar.",
+        "observedEvidence": "The 'Favoritos' (Favorites) section is not visually distinct from other sections like 'Tudo' (Everything), '⌘ Tecnologia' (⌘ Technology), etc., which could lead to user confusion.",
+        "expectedBehavior": "The 'Favoritos' section should be clearly marked and separated from other sections, perhaps with a different color or icon.",
+        "risk": "Users might not realize that 'Favoritos' is a distinct section, leading to missed opportunities for saving items.",
+        "confidence": "medium",
+        "oracle": "Hovering over the 'Favoritos' section and observing if it highlights differently from other sections."
+      },
+      {
+        "title": "The 'Abrir favoritos' button does not immediately open the favorites page upon clicking.",
+        "observedEvidence": "After clicking on the 'Abrir favoritos' (Open favorites) button, no immediate action is taken to open the favorites page. Instead, the navigation bar remains unchanged.",
+        "expectedBehavior": "Clicking on the 'Abrir favoritos' button should immediately navigate to the favorites page.",
+        "risk": "Users might not know where to find their saved items if they do not see a visual indication of navigation.",
+        "confidence": "low",
+        "oracle": "Clicking on the 'Abrir favoritos' button and observing if it redirects to the '/favoritos' (Favorites) page."
+      }
+    ],
+    "reviews": [
+      {
+        "title": "The 'Abrir favoritos' button is duplicated in the navigation bar.",
+        "decision": "accept",
+        "reason": "The evidence shows that the 'Abrir favoritos' button appears twice, which contradicts the expected behavior of having only one instance. This could lead to user confusion or accidental clicks on the wrong button.",
+        "suggestedOracle": "Clicking on both instances of 'Abrir favoritos' and observing if they perform the same action."
+      },
+      {
+        "title": "The 'Favoritos' section is not clearly separated from other sections in the navigation bar.",
+        "decision": "accept",
+        "reason": "The evidence indicates that the 'Favoritos' section does not visually distinguish itself from other sections, which could lead to user confusion. This risk is medium as it might result in missed opportunities for saving items.",
+        "suggestedOracle": "Hovering over the 'Favoritos' section and observing if it highlights differently from other sections."
+      },
+      {
+        "title": "The 'Abrir favoritos' button does not immediately open the favorites page upon clicking.",
+        "decision": "reject",
+        "reason": "There is no evidence to support this hypothesis. The observed behavior shows that clicking on the 'Abrir favoritos' button does not navigate to the favorites page, but there is no indication of an error or unexpected behavior.",
+        "suggestedOracle": "Clicking on the 'Abrir favoritos' button and observing if it redirects to the '/favoritos' (Favorites) page."
+      }
+    ],
+    "matchedGroundTruth": false
+  },
+  "issueInformedAssessment": {
+    "mode": "issue-informed",
+    "model": "qwen2.5-coder:7b",
+    "issue": "When the user is already viewing Favorites, the interface must not recommend opening Favorites again.",
+    "plan": {
+      "title": "Issue Reproduction Plan",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ],
+      "errors": []
+    },
+    "repairUsed": true,
+    "attempts": [
+      {
+        "response": {
+          "title": "Issue Reproduction Plan",
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": false,
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ],
+          "errors": [
+            "The plan must assert that Abrir meus favoritos is absent in the Favorites view."
+          ]
+        }
+      },
+      {
+        "response": {
+          "title": "Issue Reproduction Plan",
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": true,
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ],
+          "errors": []
+        }
+      }
+    ],
+    "pairedExecutionCompatible": true
+  },
+  "pairedExecution": {
+    "confirmed": true,
+    "classification": "historical-bug-reproduced",
+    "buggyOutcome": "failed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "a0e881f",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4391"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve",
+          "Salve agora. Volte quando bater vontade."
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Abrir meus favoritos",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine SEU ESPAÇO, DO SEU JEITO Salve agora. Volte quando bater vontade. Use os favoritos para montar coleções pessoais e reencontrar rapidamente tudo o que chamou sua atenção. Abrir meus favoritos Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos remained visible inside the Favorites view.",
+        "status": "failed",
+        "passed": false
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/buggy-favorites.png"
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "93105f8",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4392"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve"
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos was absent inside the Favorites view.",
+        "status": "passed",
+        "passed": true
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/fixed-favorites.png"
+    }
+  },
+  "interpretation": "The paired oracle reproduced the historical bug, but the blind model did not independently identify the ground-truth defect in this run."
+}

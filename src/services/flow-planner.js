@@ -1,4 +1,12 @@
-function generateFlowPlan(inspection) {
+const { normalizeAuthConfig, toPublicAuthMetadata } = require("./auth-config");
+
+function generateFlowPlan(inspection, { authConfig } = {}) {
+  const normalizedAuth = normalizeAuthConfig(authConfig || inspection.liveExploration?.access || {});
+
+  if (normalizedAuth.mode === "authenticated") {
+    return buildAuthenticatedFlowPlan(inspection, normalizedAuth);
+  }
+
   const flows = [];
   const safeButtons = collectSafeAutomationButtons(inspection);
   const primaryHeading = pickPrimaryHeading(inspection);
@@ -95,8 +103,74 @@ function generateFlowPlan(inspection) {
 
   return {
     mode: "heuristic",
+    access: toPublicAuthMetadata(normalizedAuth),
     summary: "Candidate flows and baseline criteria were generated from project signals, with emphasis on safe automation and later semantic refinement by the model.",
     flows: dedupeFlows(flows).slice(0, 8),
+  };
+}
+
+function buildAuthenticatedFlowPlan(inspection, authConfig) {
+  const observedRoutes = inspection.liveExploration?.status === "completed"
+    ? inspection.liveExploration.routes || []
+    : [];
+  const configuredRouteEvidence = authConfig.allowedPaths
+    .filter((routePath) => !routePath.endsWith("/*"))
+    .map((routePath) => ({ path: routePath, headings: [], title: "" }));
+  const routeEvidence = observedRoutes.length
+    ? observedRoutes
+    : configuredRouteEvidence.length
+      ? configuredRouteEvidence
+      : [{ path: authConfig.initialPath, headings: [], title: "" }];
+
+  const flows = routeEvidence.slice(0, 5).map((route, index) => {
+    const routePath = route.path || authConfig.initialPath;
+    const heading = route.headings?.[0] || "";
+    const routeLabel = heading || route.title || routePath;
+
+    return {
+      id: `authenticated-read-${slugifyFragment(routePath || String(index + 1))}`,
+      title: `Authenticated read-only view: ${routeLabel}`,
+      confidence: heading ? "high" : observedRoutes.length ? "medium" : "low",
+      summary: `Verify that an authenticated user can reach ${routePath} and inspect its interface without changing application data.`,
+      accessMode: "authenticated-read-only",
+      sourceSignals: [
+        heading ? `Live authenticated exploration observed the heading "${heading}".` : `The read-only allowlist includes ${routePath}.`,
+        "The session is prepared by a trusted authentication adapter rather than model-generated code.",
+      ],
+      assumptions: [
+        "The configured profile has permission to view this route.",
+        "No create, update, publish, send, upload, or delete operation is necessary for this flow.",
+      ],
+      prohibitedEffects: ["create", "update", "publish", "send", "upload", "delete"],
+      criteria: [
+        {
+          title: "Authenticated route is reachable",
+          given: "an isolated authenticated read-only session has been verified",
+          when: `the user navigates to ${routePath}`,
+          then: "the application renders the protected route instead of returning to the guest entry point",
+        },
+        {
+          title: "Protected content is observable without mutation",
+          given: `the protected route ${routePath} is open`,
+          when: "the user observes its visible interface",
+          then: heading
+            ? `the heading "${heading}" is visible and no mutating request is delivered`
+            : "the page body is visible and no mutating request is delivered",
+        },
+      ],
+      blueprint: {
+        kind: "authenticated-read-only",
+        routePath,
+        expectedHeading: heading,
+      },
+    };
+  });
+
+  return {
+    mode: "authenticated-read-only",
+    access: toPublicAuthMetadata(authConfig),
+    summary: "Authenticated candidate flows are restricted to approved read-only routes and will be rendered as validated action plans for the trusted executor.",
+    flows,
   };
 }
 
@@ -508,14 +582,16 @@ function collectSafeAutomationButtons(inspection) {
   const liveButtons = inspection.liveExploration?.status === "completed"
     ? (inspection.liveExploration.routes?.[0]?.buttons || []).map((button) => {
         const text = button.text || button.id || button.dataTestId || "";
+        const accessibleName = button.ariaLabel || text;
         return {
           text,
+          ariaLabel: button.ariaLabel || "",
           id: button.id || null,
           dataTool: button.dataTestId || null,
           target: button.id
             ? { strategy: "id", value: button.id }
-            : text
-              ? { strategy: "roleText", role: "button", value: text }
+            : accessibleName
+              ? { strategy: "roleText", role: "button", value: accessibleName }
               : null,
         };
       })
@@ -526,7 +602,7 @@ function collectSafeAutomationButtons(inspection) {
   const seen = new Set();
 
   for (const button of merged) {
-    const key = `${button.text || ""}|${button.id || ""}|${button.dataTool || ""}`;
+    const key = `${button.ariaLabel || button.text || ""}|${button.id || ""}|${button.dataTool || ""}`;
     if (!key || seen.has(key)) {
       continue;
     }

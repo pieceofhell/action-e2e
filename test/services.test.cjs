@@ -1,9 +1,373 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { normalizeAiConfig } = require("../src/services/llm-provider");
-const { parsePlaywrightReport } = require("../src/services/test-runner");
-const { hasLiveEvidence, validateAiTestBody } = require("../src/services/test-generator");
-const { recommendRuntime } = require("../src/services/project-inspector");
+const fs = require("node:fs");
+const http = require("node:http");
+const path = require("node:path");
+const cheerio = require("cheerio");
+const { normalizeAiConfig, requestStructuredJson, supportsVisionInput } = require("../src/services/llm-provider");
+const { parsePlaywrightReport, validateRunPaths } = require("../src/services/test-runner");
+const { buildObservedJourneySpecContent, compiledClickLocator, hasLiveEvidence, validateAiTestBody } = require("../src/services/test-generator");
+const { detectAppType, recommendRuntime } = require("../src/services/project-inspector");
+const { generateFlowPlan } = require("../src/services/flow-planner");
+const {
+  buildRestrictedChildEnvironment,
+  getAuthConfigurationStatus,
+  normalizeAuthConfig,
+  redactSecrets,
+  resolveAuthSecrets,
+  toPublicAuthMetadata,
+} = require("../src/services/auth-config");
+const { validateAuthenticatedActionPlan } = require("../src/services/read-only-policy");
+const {
+  buildLoopbackUrlCandidates,
+  buildTargetEnvironment,
+  extractAnnouncedLoopbackUrls,
+  startTargetRuntime,
+} = require("../src/services/runtime-orchestrator");
+const { createOperationTracker } = require("../src/services/operation-tracker");
+const {
+  buildBaselineResult,
+  classifyExplorationAction,
+  estimateAdaptiveExplorationBudget,
+  validateAgentDecision,
+} = require("../src/services/agentic-explorer");
+const { mergeAiFlows, validateInsightPayload } = require("../src/services/ai-workflows");
+const { buildInsights } = require("../src/services/insight-builder");
+const { requireAiForStage, requireCompletedAiExploration } = require("../src/services/pipeline-policy");
+
+test("constrains model-guided exploration to safe evidence-grounded actions", () => {
+  const product = classifyExplorationAction({ kind: "click", role: "button", name: "View Aurora product details" });
+  const search = classifyExplorationAction({ kind: "fill", role: "input", name: "Search products", inputType: "search" });
+  const checkout = classifyExplorationAction({ kind: "click", role: "button", name: "Proceed to checkout" });
+  const clearCart = classifyExplorationAction({ kind: "click", role: "button", name: "Clear cart" });
+  const apiKey = classifyExplorationAction({ kind: "fill", role: "input", name: "Paste your Canvas API key", inputType: "text" });
+
+  assert.equal(product.safe, true);
+  assert.equal(search.safe, true);
+  assert.equal(checkout.safe, false);
+  assert.equal(clearCart.safe, false);
+  assert.equal(apiKey.safe, false);
+
+  const allowed = [{ id: "e2p-3", kind: "click", role: "button", name: "View Aurora product details", safe: true }];
+  assert.equal(validateAgentDecision({ decision: "act", actionId: "e2p-3", rationale: "Inspect product details" }, allowed).actionId, "e2p-3");
+  const legacyMismatch = validateAgentDecision({ action: "fill", actionId: "e2p-3", rationale: "Inspect product details" }, allowed);
+  assert.equal(legacyMismatch.action, "click");
+  assert.match(legacyMismatch.protocolCorrection, /executed the catalog kind click/);
+  const inventedVerb = validateAgentDecision({ decision: "explore", actionId: "e2p-3", rationale: "Inspect product details" }, allowed);
+  assert.equal(inventedVerb.action, "click");
+  assert.match(inventedVerb.protocolCorrection, /executed the catalog kind click/);
+  assert.throws(
+    () => validateAgentDecision({ action: "click", actionId: "invented" }, allowed),
+    /not present in the current safe action set/
+  );
+
+  const boundaryInput = [{
+    id: "e2p-boundary",
+    kind: "fill",
+    role: "input",
+    name: "New task",
+    safe: true,
+    boundaryProbe: true,
+  }];
+  assert.throws(
+    () => validateAgentDecision({ decision: "act", actionId: "e2p-boundary", value: "Learn React" }, boundaryInput),
+    /single-character boundary probe/
+  );
+  assert.equal(
+    validateAgentDecision({ decision: "act", actionId: "e2p-boundary", value: "g" }, boundaryInput).value,
+    "g"
+  );
+});
+
+test("adapts exploration budgets to observed interface complexity", () => {
+  const action = (id, kind = "click") => ({ id, kind, role: "button", name: `Action ${id}`, safe: true });
+  const simple = estimateAdaptiveExplorationBudget({
+    current: { actions: [action("one")] },
+    states: [{ actions: [action("one")] }],
+    hardMaxSteps: 20,
+    hardMaxDurationMs: 180000,
+  });
+  const richActions = Array.from({ length: 24 }, (_, index) => action(`rich-${index + 1}`));
+  const rich = estimateAdaptiveExplorationBudget({
+    current: { actions: richActions },
+    states: [{ actions: richActions }, { actions: richActions.slice(10) }, { actions: richActions.slice(15) }],
+    hardMaxSteps: 20,
+    hardMaxDurationMs: 180000,
+  });
+
+  assert.equal(simple.stepLimit, 2);
+  assert.ok(rich.stepLimit > simple.stepLimit);
+  assert.equal(rich.stepLimit, 20);
+  assert.ok(rich.durationMs > simple.durationMs);
+});
+
+test("keeps general text-boundary probing in the model exploration contract", () => {
+  const source = fs.readFileSync(path.join(__dirname, "..", "src", "services", "agentic-explorer.js"), "utf8");
+  assert.match(source, /ordinary QA boundary probing/);
+  assert.match(source, /declares no minimum length/);
+  assert.match(source, /expected visible outcome/);
+});
+
+test("labels non-model live inspection as a baseline instead of AI exploration", () => {
+  const baseline = buildBaselineResult({
+    path: "/",
+    title: "Shop",
+    headings: ["Products"],
+    buttons: [{ text: "Open cart" }],
+    inputs: [],
+    actions: [],
+    visibleTextExcerpt: "Products and cart",
+  });
+
+  assert.equal(baseline.strategy, "baseline-dom-scan");
+  assert.equal(baseline.usedModel, false);
+  assert.equal(baseline.metrics.completedActions, 0);
+});
+
+test("accepts novel model-authored flows only with traceable live state evidence", () => {
+  const merged = mergeAiFlows([], [{
+    id: "product-favorite-journey",
+    title: "Review and favorite a product",
+    summary: "Open a product and preserve it in the favorites view.",
+    confidence: "high",
+    evidenceStateIds: ["state-1", "unknown-state"],
+    sourceSignals: ["Product modal and favorite control observed"],
+    criteria: [{
+      title: "Favorite from details",
+      given: "the product catalog is visible",
+      when: "the user opens a product and marks it as favorite",
+      then: "the product appears in the favorites view",
+    }],
+  }], {
+    agenticExploration: {
+      states: [{ id: "state-1", fingerprint: "favorite-state" }],
+      steps: [{
+        status: "completed",
+        afterFingerprint: "favorite-state",
+        action: { name: "Favorite Aurora product" },
+        rationale: "Preserve the product in favorites",
+      }],
+    },
+  });
+
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].blueprint.kind, "model-observed-journey");
+  assert.deepEqual(merged[0].evidenceStateIds, ["state-1"]);
+});
+
+test("rejects a model flow whose cited state was produced by an unrelated action", () => {
+  const merged = mergeAiFlows([], [{
+    id: "remove-cart-item",
+    title: "Remove item from cart",
+    evidenceStateIds: ["state-2"],
+    sourceSignals: ["Cart"],
+    criteria: [{ title: "Remove", given: "the cart is open", when: "the user removes an item", then: "the item disappears" }],
+  }], {
+    agenticExploration: {
+      states: [{ id: "state-2", fingerprint: "details-state" }],
+      steps: [{
+        status: "completed",
+        afterFingerprint: "details-state",
+        action: { name: "Open Nebula product details" },
+        rationale: "Inspect product information",
+      }],
+    },
+  });
+
+  assert.equal(merged.length, 0);
+});
+
+test("rejects cross-project commerce flows from Janvas interface evidence", () => {
+  const merged = mergeAiFlows([], [{
+    id: "product-details-view",
+    title: "View Product Details",
+    evidenceStateIds: ["state-2"],
+    sourceSignals: ["product-details-page-loaded"],
+    criteria: [
+      { title: "Product title", given: "a product page", when: "the page loads", then: "the product title is displayed" },
+      { title: "Product price", given: "a product page", when: "the page loads", then: "the product price is displayed" },
+    ],
+  }], {
+    agenticExploration: {
+      states: [{
+        id: "state-2",
+        fingerprint: "janvas-connected-form",
+        title: "Janvas",
+        headings: ["Connect your Canvas account"],
+        buttons: ["Show", "Save key and connect"],
+        visibleTextExcerpt: "Canvas URL Privacy policy",
+      }],
+      steps: [{
+        status: "completed",
+        afterFingerprint: "janvas-connected-form",
+        action: { name: "Start with Janvas" },
+        rationale: "Open the Canvas connection form",
+      }],
+    },
+  }, {
+    project: { name: "canvas-wrapper-test" },
+    projectSynopsis: "A Canvas learning platform wrapper named Janvas.",
+    uiHints: { headings: [{ text: "Welcome to Janvas" }] },
+  });
+
+  assert.equal(merged.length, 0);
+});
+
+test("stops the default pipeline when no AI model is configured", () => {
+  assert.throws(
+    () => requireAiForStage({ provider: "heuristic" }, "flow planning"),
+    /AI-first pipeline stopped during flow planning/
+  );
+});
+
+test("stops after incomplete or faulty model-guided exploration", () => {
+  assert.throws(
+    () => requireCompletedAiExploration({ liveExploration: { status: "failed" } }, "flow planning"),
+    /live interface exploration must complete/
+  );
+  assert.throws(
+    () => requireCompletedAiExploration({
+      liveExploration: {
+        status: "completed",
+        agenticExploration: {
+          usedModel: true,
+          status: "completed",
+          metrics: { completedActions: 2, invalidDecisions: 1, failedActions: 0 },
+        },
+      },
+    }, "flow planning"),
+    /invalid model decision/
+  );
+});
+
+test("rejects insight text that contradicts AI-derived provenance or completed exploration", () => {
+  const context = {
+    generationModes: ["model-journey-compiled"],
+    exploration: { status: "completed", modelGuided: true },
+  };
+
+  assert.throws(
+    () => validateInsightPayload({ insights: ["The deterministic smoke test passed."] }, context),
+    /contradicted test provenance/
+  );
+  assert.equal(validateInsightPayload({ insights: ["The model-authored smoke journey passed."] }, context), true);
+  assert.throws(
+    () => validateInsightPayload({ limitations: ["Live exploration is unavailable."] }, context),
+    /contradicted the recorded completed live exploration/
+  );
+  assert.equal(validateInsightPayload({
+    limitations: ["Exploration completed, but coverage beyond the observed routes cannot be confirmed."],
+  }, context), true);
+  assert.equal(validateInsightPayload({ insights: ["Three model-derived journeys passed."] }, context), true);
+});
+
+test("keeps objective result context aligned with AI-first provenance", () => {
+  const insights = buildInsights({
+    inspection: {
+      ai: { label: "Local Ollama / qwen3:8b" },
+      warnings: [],
+      detection: { confidence: "high", appType: "web-app" },
+    },
+    approvedFlows: [{ id: "flow-1" }],
+    report: { summary: { total: 1, passed: 1, failed: 0, skipped: 0 } },
+    runtime: { mode: "static" },
+    auth: { mode: "guest" },
+  });
+  const text = JSON.stringify(insights);
+
+  assert.doesNotMatch(text, /heuristic|fallback|deterministic/i);
+  assert.match(text, /model-authored tests/);
+  assert.match(text, /recorded live-interface journey/);
+});
+
+test("tracks operation milestones with monotonic progress", () => {
+  const tracker = createOperationTracker({ maxEvents: 4 });
+  const reporter = tracker.begin({
+    id: "operation-feedback-001",
+    kind: "exploration",
+    label: "Exploring a sample project",
+  });
+
+  reporter.update({ phase: "target-startup", message: "Starting target runtime...", progress: 35 });
+  reporter.update({ phase: "browser-startup", message: "Launching browser...", progress: 20 });
+  reporter.update({
+    phase: "route-observation",
+    message: "Observing the first route...",
+    progress: 72,
+    detail: {
+      type: "exploration",
+      status: "observed",
+      step: 1,
+      maxSteps: 20,
+      visualPreviewAllowed: true,
+      screenshotDataUrl: "data:image/jpeg;base64,YWJj",
+      action: { id: "safe-action", kind: "click", name: "Open details", rationale: "Inspect details" },
+      state: { path: "/products", headings: ["Products"], buttons: ["Open details"] },
+    },
+  });
+  reporter.update({ phase: "exploration-summary", message: "Summarizing observed states...", progress: 80 });
+  reporter.complete("Exploration completed.");
+
+  const operation = tracker.get(reporter.id);
+  assert.equal(operation.status, "completed");
+  assert.equal(operation.progress, 100);
+  assert.equal(operation.events.length, 4);
+  assert.equal(operation.events.at(-3).progress, 72);
+  assert.equal(operation.detail.action.name, "Open details");
+  assert.equal(operation.detail.screenshotDataUrl, "data:image/jpeg;base64,YWJj");
+  assert.equal(operation.events.at(-3).detail.screenshotDataUrl, "");
+  assert.equal(operation.events.at(-2).detail, null);
+  assert.equal(operation.events.at(-1).message, "Exploration completed.");
+});
+
+test("rejects malformed operation identifiers", () => {
+  const tracker = createOperationTracker();
+  assert.throws(
+    () => tracker.begin({ id: "../unsafe", kind: "test", label: "Unsafe" }),
+    /Invalid operation identifier/
+  );
+});
+
+test("exposes an accessible live activity monitor wired to server progress", () => {
+  const html = fs.readFileSync(path.resolve(__dirname, "../public/index.html"), "utf8");
+  const appSource = fs.readFileSync(path.resolve(__dirname, "../public/app.js"), "utf8");
+
+  assert.match(html, /id="activityMonitor"[^>]+aria-live="polite"/);
+  assert.match(html, /role="progressbar"/);
+  assert.match(html, /id="explorationViewer"[^>]+aria-label="Live interface exploration viewer"/);
+  assert.match(html, /id="explorationToggleButton"[^>]+hidden/);
+  assert.match(appSource, /function renderExplorationViewer\(activity\)/);
+  assert.match(appSource, /adaptive budget \$\{detail\.maxSteps \|\| 1\}/);
+  assert.doesNotMatch(appSource, /Decision \$\{detail\.step \|\| 1\} of \$\{detail\.maxSteps/);
+  assert.match(appSource, /\/api\/operations\/\$\{encodeURIComponent\(operationId\)\}/);
+  assert.match(appSource, /setInterval\(\(\) => \{\s*void pollActivity\(operationId\)/s);
+});
+
+test("keeps project guidance inside the modal and exploration activity sticky", () => {
+  const html = fs.readFileSync(path.resolve(__dirname, "../public/index.html"), "utf8");
+  const css = fs.readFileSync(path.resolve(__dirname, "../public/styles.css"), "utf8");
+  const appSource = fs.readFileSync(path.resolve(__dirname, "../public/app.js"), "utf8");
+  const $ = cheerio.load(html);
+
+  assert.equal($(".pipeline-band").length, 0);
+  assert.equal($(".hero__meta").length, 0);
+  assert.equal($("main #aiUsagePanel").length, 0);
+  assert.equal($("#howItWorksDialog #aiUsagePanel").length, 1);
+  assert.equal($("#activityMonitor").parent().hasClass("activity-dock"), true);
+  assert.equal($("#howItWorksDialog").attr("aria-labelledby"), "howItWorksTitle");
+  assert.equal($("#howItWorksDialog .workflow-guide > li").length, 8);
+  assert.equal($("#bugDiscoveryPanel").length, 1);
+  assert.equal($("button").filter((index, element) => !/\b(button|icon-button)\b/.test($(element).attr("class") || "")).length, 0);
+
+  assert.match(css, /\.activity-dock\s*\{[^}]*position:\s*sticky/s);
+  assert.match(css, /\.exploration-viewer\s*\{[^}]*display:\s*grid/s);
+  assert.match(css, /\.button\s*\{[^}]*min-height:\s*46px[^}]*padding:\s*12px 20px/s);
+  assert.match(appSource, /howItWorksDialog\.showModal\(\)/);
+  assert.match(appSource, /howItWorksDialog\.close\(\)/);
+  assert.match(appSource, /function renderBugDiscovery\(\)/);
+  assert.match(appSource, /Observed facts/);
+  assert.match(appSource, /Expected behavior &mdash; inference/);
+});
 
 test("normalizes local and hosted provider configurations", () => {
   const ollama = normalizeAiConfig({
@@ -22,6 +386,94 @@ test("normalizes local and hosted provider configurations", () => {
   assert.equal(ollama.enabled, true);
   assert.equal(groqWithoutKey.enabled, false);
   assert.equal(lmStudio.endpoint, "http://127.0.0.1:1234/v1");
+});
+
+test("enables screenshot input only for a vision model served on loopback", async () => {
+  const server = http.createServer((request, response) => {
+    response.writeHead(200, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ capabilities: ["completion", "vision"] }));
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const address = server.address();
+    assert.equal(await supportsVisionInput({
+      provider: "ollama",
+      endpoint: `http://127.0.0.1:${address.port}`,
+      model: "qwen2.5vl:7b",
+    }), true);
+    assert.equal(await supportsVisionInput({
+      provider: "openai-compatible",
+      endpoint: "https://models.example.test/v1",
+      model: "vision-model",
+    }), false);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("sends vision evidence to Ollama without exposing a local file path", async () => {
+  let requestBody;
+  const server = http.createServer((request, response) => {
+    let body = "";
+    request.on("data", (chunk) => { body += chunk; });
+    request.on("end", () => {
+      requestBody = JSON.parse(body);
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ message: { content: '{"accepted":true}' } }));
+    });
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const address = server.address();
+    const image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+    const result = await requestStructuredJson({
+      aiConfig: { provider: "ollama", endpoint: `http://127.0.0.1:${address.port}`, model: "vision-test" },
+      systemPrompt: "Inspect the image.",
+      userPrompt: "Return JSON.",
+      images: [`data:image/png;base64,${image}`],
+    });
+
+    assert.deepEqual(result, { accepted: true });
+    assert.equal(requestBody.messages[1].images[0], image);
+    assert.equal(requestBody.options.num_ctx, 16384);
+    assert.equal(requestBody.options.num_predict, 3200);
+    assert.doesNotMatch(JSON.stringify(requestBody), /[A-Z]:\\/i);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("formats vision evidence for OpenAI-compatible multimodal providers", async () => {
+  let requestBody;
+  const server = http.createServer((request, response) => {
+    let body = "";
+    request.on("data", (chunk) => { body += chunk; });
+    request.on("end", () => {
+      requestBody = JSON.parse(body);
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ choices: [{ message: { content: '{"accepted":true}' } }] }));
+    });
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const address = server.address();
+    const image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+    const result = await requestStructuredJson({
+      aiConfig: { provider: "openai-compatible", endpoint: `http://127.0.0.1:${address.port}`, model: "vision-test" },
+      systemPrompt: "Inspect the image.",
+      userPrompt: "Return JSON.",
+      images: [image],
+    });
+
+    assert.deepEqual(result, { accepted: true });
+    assert.equal(requestBody.messages[1].content[0].type, "text");
+    assert.match(requestBody.messages[1].content[1].image_url.url, /^data:image\/png;base64,/);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
 
 test("keeps Playwright evidence and multi-error failures in the parsed report", () => {
@@ -56,8 +508,25 @@ test("keeps Playwright evidence and multi-error failures in the parsed report", 
   assert.equal(parsed.tests[0].evidence[0].relativePath, "results/test-artifacts/login.png");
 });
 
+test("counts Playwright timeouts as execution failures", () => {
+  const parsed = parsePlaywrightReport({
+    suites: [{
+      specs: [{
+        title: "Slow model-authored journey",
+        file: "slow.spec.cjs",
+        tests: [{ results: [{ status: "timedOut", duration: 30000, errors: [{ message: "Test timeout" }] }] }],
+      }],
+      suites: [],
+    }],
+    stats: { duration: 30000 },
+  }, { runDirectory: "C:\\prototype-runs\\sample-run" });
+
+  assert.equal(parsed.summary.failed, 1);
+  assert.equal(parsed.tests[0].status, "timedOut");
+});
+
 test("requires live exploration before model-authored tests and rejects generic role selectors", () => {
-  assert.equal(hasLiveEvidence({ liveExploration: { status: "completed", routes: [{ path: "/" }] } }), true);
+  assert.equal(hasLiveEvidence({ liveExploration: { status: "completed", routes: [{ path: "/" }], agenticExploration: { usedModel: true, status: "completed" } } }), true);
   assert.equal(hasLiveEvidence({ liveExploration: { status: "not-attempted", routes: [] } }), false);
 
   assert.throws(
@@ -77,7 +546,7 @@ test("requires live exploration before model-authored tests and rejects generic 
 
   assert.throws(
     () => validateAiTestBody("await expect(page.getByText('Welcome')).toBeVisible();", { uiHints: { buttons: [], headings: [] } }),
-    /did not navigate with openHome/
+    /call openHome\(page\) exactly once/
   );
 
   assert.throws(
@@ -86,6 +555,38 @@ test("requires live exploration before model-authored tests and rejects generic 
       { uiHints: { buttons: [], headings: [], inputs: [] }, liveExploration: { routes: [{ inputs: [{ label: 'Task title:', placeholder: '' }] }] } }
     ),
     /without a matching observed placeholder/
+  );
+
+  assert.throws(
+    () => validateAiTestBody(
+      "await openHome(page);\npage.getByRole('button', { name: 'Cart' }).click();\nawait expect(page.locator('body')).toBeVisible();",
+      { uiHints: { buttons: [{ text: "Cart" }], headings: [], inputs: [] }, liveExploration: { routes: [{ path: "/", inputs: [] }] } }
+    ),
+    /must be awaited/
+  );
+
+  assert.throws(
+    () => validateAiTestBody(
+      "await openHome(page);\nawait expect(page).toHaveURL(/\\/cart/);",
+      { uiHints: { buttons: [], headings: [], inputs: [] }, liveExploration: { routes: [{ path: "/", inputs: [] }] } }
+    ),
+    /unobserved URL fragment/
+  );
+
+  assert.throws(
+    () => validateAiTestBody(
+      "await openHome(page);\nawait expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();",
+      {
+        uiHints: { buttons: [{ text: "Submit" }], headings: [], inputs: [] },
+        liveExploration: {
+          agenticExploration: {
+            states: [{ id: "state-1", buttons: ["Start with Janvas"], headings: ["Welcome to Janvas"], inputs: [] }],
+          },
+        },
+      },
+      { evidenceStateIds: ["state-1"] }
+    ),
+    /unobserved button name: Submit/
   );
 });
 
@@ -105,4 +606,303 @@ test("infers a safe command runtime from the selected application manifest", () 
   assert.equal(runtime.baseUrl, "http://127.0.0.1:3105");
   assert.equal(runtime.workingDirectory, "apps/web");
   assert.equal(runtime.source, "package-manifest");
+});
+
+test("derives the base URL from the selected start script only", () => {
+  const runtime = recommendRuntime({
+    files: [{ relativePath: "package-lock.json" }],
+    manifestCandidate: {
+      entry: { relativePath: "package.json" },
+      manifest: {
+        scripts: {
+          dev: "webpack serve --open --config webpack.dev.js",
+          serve: "http-server ./dist -p 7002",
+        },
+      },
+    },
+    framework: "React",
+    readmeExcerpt: "",
+  });
+
+  assert.equal(runtime.startCommand, "npm run dev");
+  assert.equal(runtime.baseUrl, "http://127.0.0.1:8080");
+});
+
+test("recognizes Vinext and recommends its localhost development endpoint", () => {
+  const runtime = recommendRuntime({
+    files: [{ relativePath: "package-lock.json" }],
+    manifestCandidate: {
+      entry: { relativePath: "package.json" },
+      manifest: {
+        scripts: { dev: "vinext dev" },
+        devDependencies: { vinext: "0.0.50" },
+      },
+    },
+    framework: "Vinext",
+    readmeExcerpt: "npm install\nnpm run dev",
+  });
+
+  assert.equal(runtime.startCommand, "npm run dev");
+  assert.equal(runtime.baseUrl, "http://localhost:3000");
+  assert.equal(runtime.workingDirectory, ".");
+});
+
+test("prioritizes the documented commerce domain over incidental authentication helpers", () => {
+  const appType = detectAppType({
+    readmeExcerpt: "A mobile-first shopping showcase where users browse products and build a cart.",
+    packageManifest: { private: true, scripts: { dev: "vinext dev" } },
+    relevantFiles: [{ relativePath: "app/chatgpt-auth.ts", excerpt: "export function auth() {}" }],
+    uiHints: { canvases: [], headings: [], buttons: [], forms: [], inputs: [], links: [] },
+  });
+
+  assert.equal(appType, "commerce");
+});
+
+test("uses the observed accessible name for live button locators", () => {
+  const plan = generateFlowPlan({
+    detection: { confidence: "high", appType: "commerce" },
+    uiHints: { headings: [], buttons: [], links: [], inputs: [], forms: [], canvases: [], statusElements: [] },
+    liveExploration: {
+      status: "completed",
+      routes: [{
+        path: "/",
+        headings: ["Store"],
+        buttons: [{ text: "Cart", ariaLabel: "Open cart with 0 items", id: "", dataTestId: "" }],
+        links: [],
+        inputs: [],
+        formsCount: 0,
+      }],
+    },
+  });
+
+  assert.equal(plan.flows[0].blueprint.buttons[0].target.value, "Open cart with 0 items");
+});
+
+test("compiles repeated accessible links to an explicit observed occurrence", () => {
+  const secondCartLink = compiledClickLocator({
+    kind: "click",
+    role: "link",
+    name: "Cart",
+    accessibleIndex: 1,
+    accessibleCount: 2,
+  }, [], "currentPage");
+  const legacyCartLink = compiledClickLocator({
+    kind: "click",
+    role: "link",
+    name: "Cart",
+  }, [], "currentPage");
+
+  assert.equal(secondCartLink, 'currentPage.getByRole("link", { name: "Cart", exact: true }).nth(1)');
+  assert.equal(legacyCartLink, 'currentPage.getByRole("link", { name: "Cart", exact: true }).first()');
+});
+
+test("compiles a failed text submission through its terminal action and expected outcome", () => {
+  const fingerprint = "same-after-submit";
+  const source = buildObservedJourneySpecContent({
+    id: "flow-boundary",
+    title: "Create a one-character item",
+    evidenceStateIds: ["state-2"],
+  }, {
+    liveExploration: {
+      agenticExploration: {
+        states: [{ id: "state-1", fingerprint: "initial", headings: ["todos"], buttons: [] }, { id: "state-2", fingerprint, headings: ["todos"], buttons: [] }],
+        steps: [
+          { status: "completed", afterFingerprint: fingerprint, action: { kind: "fill", name: "New task", value: "a", testId: "text-input" } },
+          { status: "completed", afterFingerprint: fingerprint, expectedOutcome: "A new item labeled a should appear", action: { kind: "press", name: "Press Enter in New task", testId: "text-input" } },
+        ],
+      },
+    },
+  });
+
+  assert.match(source, /getByTestId\("text-input"\)\.fill\("a"\)/);
+  assert.match(source, /getByTestId\("text-input"\)\.press\("Enter"\)/);
+  assert.match(source, /getByText\("a", \{ exact: true \}\)\.first\(\)/);
+});
+
+test("builds loopback fallbacks and reads the URL announced by a dev server", () => {
+  const candidates = buildLoopbackUrlCandidates("http://127.0.0.1:3000");
+  const announced = extractAnnouncedLoopbackUrls("\u001b[32mLocal:\u001b[0m http://localhost:3001/");
+
+  assert.deepEqual(candidates, [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://[::1]:3000",
+  ]);
+  assert.deepEqual(announced, ["http://localhost:3001"]);
+});
+
+test("reports an early command exit with sanitized startup diagnostics", { timeout: 10000 }, async () => {
+  await assert.rejects(
+    startTargetRuntime({
+      targetProjectPath: path.resolve(__dirname, ".."),
+      runtimeConfig: {
+        mode: "command",
+        startCommand: "node -e \"console.error('vinext startup failed token=do-not-print'); process.exit(3)\"",
+        baseUrl: "http://127.0.0.1:65530",
+        workingDirectory: ".",
+      },
+    }),
+    (error) => {
+      assert.match(error.message, /exited before its URL became available/);
+      assert.match(error.message, /vinext startup failed/);
+      assert.doesNotMatch(error.message, /do-not-print/);
+      assert.match(error.message, /token=\[REDACTED\]/);
+      return true;
+    }
+  );
+});
+
+test("keeps long UI surfaces friendly to Firefox compositing", () => {
+  const css = fs.readFileSync(path.resolve(__dirname, "../public/styles.css"), "utf8");
+  const appSource = fs.readFileSync(path.resolve(__dirname, "../public/app.js"), "utf8");
+
+  assert.doesNotMatch(css, /backdrop-filter\s*:/);
+  assert.match(css, /\.background-grid\s*\{[^}]*position:\s*absolute/s);
+  assert.match(css, /content-visibility:\s*auto/);
+  assert.match(css, /contain-intrinsic-size:\s*auto\s+680px/);
+  assert.match(appSource, /provider:\s*"ollama"/);
+  assert.match(appSource, /qwen3:8b/);
+  assert.doesNotMatch(appSource, /heuristic reading was preserved/);
+});
+
+test("resolves authenticated profiles from environment references without exposing values", () => {
+  const environment = {
+    E2P_AUTH_SAMPLE_SECRET: "runtime-only-value",
+  };
+  const config = normalizeAuthConfig({
+    mode: "authenticated",
+    adapter: "cookie-session",
+    profileId: "sample",
+    secretEnvVar: "E2P_AUTH_SAMPLE_SECRET",
+    cookieName: "sample-session",
+    initialPath: "/private",
+    allowedPaths: ["/private"],
+  });
+
+  const status = getAuthConfigurationStatus(config, environment);
+  const resolved = resolveAuthSecrets(config, environment);
+  const metadata = toPublicAuthMetadata(config);
+
+  assert.equal(status.configured, true);
+  assert.equal(resolved.values.secret, "runtime-only-value");
+  assert.equal(JSON.stringify(status).includes("runtime-only-value"), false);
+  assert.equal(JSON.stringify(metadata).includes("E2P_AUTH_SAMPLE_SECRET"), false);
+  assert.equal(JSON.stringify(metadata).includes("runtime-only-value"), false);
+  resolved.dispose();
+  assert.equal(resolved.values.secret, "");
+});
+
+test("rejects unsafe secret references and redacts credential material", () => {
+  assert.throws(
+    () => normalizeAuthConfig({
+      mode: "authenticated",
+      secretEnvVar: "UNRELATED_TOKEN",
+    }),
+    /E2P_AUTH_/
+  );
+
+  const redacted = redactSecrets(
+    "Authorization: Bearer sensitive-value password=sensitive-value",
+    ["sensitive-value"]
+  );
+  assert.equal(redacted.includes("sensitive-value"), false);
+  assert.match(redacted, /\[REDACTED\]/);
+});
+
+test("keeps authentication secrets out of target and Playwright child environments", () => {
+  const environment = {
+    PATH: "C:\\tools",
+    SYSTEMROOT: "C:\\Windows",
+    E2P_AUTH_SAMPLE_SECRET: "do-not-forward",
+    JANVAS_ACCEPTANCE_TEST_MODE: "1",
+    UNRELATED_VALUE: "not-for-playwright",
+  };
+
+  const targetEnvironment = buildTargetEnvironment(environment);
+  const playwrightEnvironment = buildRestrictedChildEnvironment({ TARGET_BASE_URL: "http://127.0.0.1:3000" }, environment);
+
+  assert.equal(targetEnvironment.E2P_AUTH_SAMPLE_SECRET, undefined);
+  assert.equal(targetEnvironment.JANVAS_ACCEPTANCE_TEST_MODE, "1");
+  assert.equal(playwrightEnvironment.E2P_AUTH_SAMPLE_SECRET, undefined);
+  assert.equal(playwrightEnvironment.UNRELATED_VALUE, undefined);
+  assert.equal(playwrightEnvironment.TARGET_BASE_URL, "http://127.0.0.1:3000");
+});
+
+test("accepts only constrained authenticated read-only actions", () => {
+  const access = {
+    allowedPaths: ["/profile", "/inbox/*"],
+  };
+  const plan = validateAuthenticatedActionPlan({
+    id: "profile-read",
+    title: "Read profile",
+    actions: [
+      { type: "navigate", path: "/profile" },
+      { type: "assert-heading", text: "Profile" },
+      { type: "capture", name: "final" },
+    ],
+  }, access);
+
+  assert.equal(plan.actions.length, 3);
+  assert.throws(
+    () => validateAuthenticatedActionPlan({
+      id: "unsafe",
+      title: "Unsafe",
+      actions: [{ type: "click", text: "Delete" }],
+    }, access),
+    /not allowed/
+  );
+  assert.throws(
+    () => validateAuthenticatedActionPlan({
+      id: "external",
+      title: "External",
+      actions: [{ type: "navigate", path: "/admin" }],
+    }, access),
+    /outside the read-only allowlist/
+  );
+});
+
+test("builds authenticated plans only from approved read-only routes", () => {
+  const inspection = {
+    detection: { confidence: "high", appType: "dashboard" },
+    uiHints: { headings: [], buttons: [], links: [], inputs: [], canvases: [], statusElements: [] },
+    liveExploration: {
+      status: "completed",
+      routes: [
+        { path: "/profile", headings: ["Profile"], buttons: [], inputs: [] },
+        { path: "/inbox", headings: ["Inbox"], buttons: [], inputs: [] },
+      ],
+    },
+  };
+  const plan = generateFlowPlan(inspection, {
+    authConfig: {
+      mode: "authenticated",
+      adapter: "cookie-session",
+      secretEnvVar: "E2P_AUTH_SAMPLE_SECRET",
+      initialPath: "/profile",
+      allowedPaths: ["/profile", "/inbox"],
+    },
+  });
+
+  assert.equal(plan.mode, "authenticated-read-only");
+  assert.equal(plan.flows.length, 2);
+  assert.equal(plan.flows.every((flow) => flow.blueprint.kind === "authenticated-read-only"), true);
+  assert.equal(plan.flows.every((flow) => flow.prohibitedEffects.includes("delete")), true);
+});
+
+test("rejects execution paths outside the generated run root", () => {
+  const prototypeRoot = "C:\\prototype";
+  validateRunPaths({
+    prototypeRoot,
+    runDirectory: "C:\\prototype\\prototype-runs\\safe-run",
+    resultsDirectory: "C:\\prototype\\prototype-runs\\safe-run\\results",
+  });
+
+  assert.throws(
+    () => validateRunPaths({
+      prototypeRoot,
+      runDirectory: "C:\\outside\\unsafe-run",
+      resultsDirectory: "C:\\outside\\unsafe-run\\results",
+    }),
+    /child of the prototype-runs directory/
+  );
 });

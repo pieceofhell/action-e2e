@@ -1,0 +1,581 @@
+{
+  "status": "completed",
+  "mode": "blind-model-guided",
+  "evidenceMode": "multimodal",
+  "model": "qwen2.5vl:7b",
+  "reviewerModel": "qwen2.5vl:7b",
+  "provider": "ollama",
+  "summary": "4 evidence-grounded potential defect(s) require human validation.",
+  "analyzedStateCount": 20,
+  "analyzedBatchCount": 20,
+  "hypotheses": [
+    {
+      "id": "bug-hypothesis-ah21t6",
+      "confirmationStatus": "hypothesis",
+      "title": "Movie Selection and Price Update",
+      "objectiveDescription": "The user selects a movie, expecting the price to update accordingly.",
+      "affectedFlow": "Movie selection flow",
+      "preconditions": [
+        "User is on the movie selection page",
+        "User has not selected any seats"
+      ],
+      "reproductionSteps": [
+        "Navigate to the movie selection page.",
+        "Select 'Joker ($12)' from the dropdown menu."
+      ],
+      "observed": {
+        "result": "The price remains at $0, despite selecting a different movie.",
+        "facts": [
+          {
+            "statement": "Movie selection is correctly reflected in the UI",
+            "evidenceRefs": [
+              "state-1"
+            ]
+          },
+          {
+            "statement": "Price does not update when a new movie is selected",
+            "evidenceRefs": [
+              "state-1",
+              "state-2"
+            ]
+          },
+          {
+            "statement": "After Avengers: Endgame ($10) Joker ($12) Toy Story 4 ($8) The Lion King ($9), no structured interface change was observed despite the recorded expectation: The selected movie changes, reflecting in the total price.",
+            "evidenceRefs": [
+              "state-1"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "result": "The price should reflect $12, as the user has now selected 'Joker ($12)'.",
+        "justification": "Based on project documentation and expected functionality of a booking system.",
+        "source": "project-documentation"
+      },
+      "severity": "medium",
+      "confidence": "high",
+      "evidenceStateIds": [
+        "state-1",
+        "state-2"
+      ],
+      "evidence": {
+        "screenshots": [
+          {
+            "stateId": "state-1",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-1-viewport-1.jpg",
+            "fileName": "state-1-viewport-1.jpg",
+            "viewportIndex": 1
+          },
+          {
+            "stateId": "state-2",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-2-viewport-1.jpg",
+            "fileName": "state-2-viewport-1.jpg",
+            "viewportIndex": 1
+          }
+        ],
+        "executedActions": [
+          {
+            "step": 1,
+            "action": {
+              "kind": "select",
+              "name": "Avengers: Endgame ($10) Joker ($12) Toy Story 4 ($8) The Lion King ($9)",
+              "context": "",
+              "role": "input",
+              "value": "Joker ($12)",
+              "label": "",
+              "placeholder": "",
+              "options": [
+                {
+                  "label": "Avengers: Endgame ($10)",
+                  "value": "10",
+                  "selected": true
+                },
+                {
+                  "label": "Joker ($12)",
+                  "value": "12",
+                  "selected": false
+                },
+                {
+                  "label": "Toy Story 4 ($8)",
+                  "value": "8",
+                  "selected": false
+                },
+                {
+                  "label": "The Lion King ($9)",
+                  "value": "9",
+                  "selected": false
+                }
+              ],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "movie",
+              "visualSelector": "",
+              "visualIndex": -1
+            },
+            "changed": false
+          },
+          {
+            "step": 2,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 3",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 2
+            },
+            "changed": true
+          },
+          {
+            "step": 3,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 4",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 3
+            },
+            "changed": true
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      "requiresHumanValidation": true,
+      "criticReview": {
+        "verdict": "retain",
+        "reason": "The price remains at $0 even after selecting 'Joker ($12)' from the dropdown menu.",
+        "confidence": "high",
+        "evidenceAssessment": "supports-anomaly",
+        "actionExecuted": true,
+        "expectationGrounded": true,
+        "evidenceSufficient": true,
+        "expectationSatisfied": false,
+        "observedOutcome": ""
+      }
+    },
+    {
+      "id": "bug-hypothesis-15i05gv",
+      "confirmationStatus": "hypothesis",
+      "title": "Seat Selection Confusion",
+      "objectiveDescription": "The user is attempting to select seats for a movie booking.",
+      "affectedFlow": "Movie Seat Booking",
+      "preconditions": [
+        "User has selected 'Joker ($12)' as the movie",
+        "User has clicked on an available seat"
+      ],
+      "reproductionSteps": [
+        "Select 'Joker ($12)' from the dropdown menu.",
+        "Click on a seat to mark it as 'Selected'.",
+        "Verify that the total price updates correctly."
+      ],
+      "observed": {
+        "result": "The selected seat is marked as 'Selected', but the total price does not update accordingly.",
+        "facts": [
+          {
+            "statement": "Seat 3 was clicked and marked as 'Selected'.",
+            "evidenceRefs": [
+              "state-2"
+            ]
+          },
+          {
+            "statement": "The total price remains at $12 instead of updating to reflect the selection of an additional seat.",
+            "evidenceRefs": [
+              "state-2"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "result": "The total price should update to $24, reflecting the selection of two seats.",
+        "justification": "Based on the project documentation and user interface conventions, selecting a second seat should increase the total price by the movie's price ($12).",
+        "source": "cross-state-consistency"
+      },
+      "severity": "medium",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-2"
+      ],
+      "evidence": {
+        "screenshots": [
+          {
+            "stateId": "state-2",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-2-viewport-1.jpg",
+            "fileName": "state-2-viewport-1.jpg",
+            "viewportIndex": 1
+          }
+        ],
+        "executedActions": [
+          {
+            "step": 2,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 3",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 2
+            },
+            "changed": true
+          },
+          {
+            "step": 3,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 4",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 3
+            },
+            "changed": true
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      "requiresHumanValidation": true,
+      "criticReview": {
+        "verdict": "retain",
+        "reason": "The total price did not update to $24 after selecting an additional seat.",
+        "confidence": "medium",
+        "evidenceAssessment": "supports-anomaly",
+        "actionExecuted": true,
+        "expectationGrounded": true,
+        "evidenceSufficient": true,
+        "expectationSatisfied": false,
+        "observedOutcome": "..."
+      }
+    },
+    {
+      "id": "bug-hypothesis-1kvzbkp",
+      "confirmationStatus": "hypothesis",
+      "title": "Seat Selection Confusion",
+      "objectiveDescription": "The user is attempting to select seats for a movie booking.",
+      "affectedFlow": "Movie Seat Booking",
+      "preconditions": [
+        "User has selected 'Joker ($12)' as the movie",
+        "User has clicked on seat 5 and then seat 6"
+      ],
+      "reproductionSteps": [
+        "Select 'Joker ($12)' from the dropdown menu.",
+        "Click on an available seat to select it (e.g., seat 5).",
+        "Click again on another available seat to continue selecting seats for booking."
+      ],
+      "observed": {
+        "result": "The selected seats are not being correctly occupied or counted, and the total price does not reflect the correct number of seats.",
+        "facts": [
+          {
+            "statement": "Seat 5 is marked as 'Selected' but not 'Occupied'.",
+            "evidenceRefs": [
+              "state-6"
+            ]
+          },
+          {
+            "statement": "Seat 6 is marked as 'Selected' and 'Occupied', which seems incorrect.",
+            "evidenceRefs": [
+              "state-7"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "result": "All selected seats should be correctly marked as 'Occupied' with the total price reflecting the number of seats selected.",
+        "justification": "The project documentation states that users can select and deselect seats, but it does not specify how seat selection is visually represented or updated in real-time.",
+        "source": "project-documentation"
+      },
+      "severity": "medium",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-6",
+        "state-7"
+      ],
+      "evidence": {
+        "screenshots": [
+          {
+            "stateId": "state-6",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-6-viewport-1.jpg",
+            "fileName": "state-6-viewport-1.jpg",
+            "viewportIndex": 1
+          },
+          {
+            "stateId": "state-7",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-7-viewport-1.jpg",
+            "fileName": "state-7-viewport-1.jpg",
+            "viewportIndex": 1
+          }
+        ],
+        "executedActions": [
+          {
+            "step": 6,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 5",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 4
+            },
+            "changed": true
+          },
+          {
+            "step": 7,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 6",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 5
+            },
+            "changed": true
+          },
+          {
+            "step": 8,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 7",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 6
+            },
+            "changed": true
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      "requiresHumanValidation": true,
+      "criticReview": {
+        "verdict": "retain",
+        "reason": "The selected seats are not being correctly marked as 'Occupied' or counted, and the total price does not reflect the correct number of seats.",
+        "confidence": "high",
+        "evidenceAssessment": "supports-anomaly",
+        "actionExecuted": true,
+        "expectationGrounded": true,
+        "evidenceSufficient": true,
+        "expectationSatisfied": false,
+        "observedOutcome": "..."
+      }
+    },
+    {
+      "id": "bug-hypothesis-1kycgkw",
+      "confirmationStatus": "hypothesis",
+      "title": "Seat Selection Confusion",
+      "objectiveDescription": "The user is selecting seats for a movie booking.",
+      "affectedFlow": "Movie Seat Booking",
+      "preconditions": [
+        "User has selected the movie 'Joker' with price $12",
+        "User is attempting to select additional seats"
+      ],
+      "reproductionSteps": [
+        "Navigate to the movie seat selection page.",
+        "Select the movie 'Joker' from the dropdown menu.",
+        "Click on an available seat (e.g., Interactive seat 9) and then another available seat (e.g., Interactive seat 10)."
+      ],
+      "observed": {
+        "result": "The system displays a confirmation of selected seats but does not update the total price correctly, showing $120 instead of $108.",
+        "facts": [
+          {
+            "statement": "The user has selected two additional seats (Interactive seat 9 and Interactive seat 10).",
+            "evidenceRefs": [
+              "state-10"
+            ]
+          },
+          {
+            "statement": "The total price displayed is incorrect at $120.",
+            "evidenceRefs": [
+              "state-11"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "result": "The system should update the total price to reflect the correct number of seats selected, which would be $108 for two additional seats.",
+        "justification": "This expectation is based on the project documentation and user interface conventions. The total price should be calculated as 9 (previously selected) + 2 = 11 seats at a price of $12 each.",
+        "source": "project-documentation"
+      },
+      "severity": "medium",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-10",
+        "state-11"
+      ],
+      "evidence": {
+        "screenshots": [
+          {
+            "stateId": "state-10",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-10-viewport-1.jpg",
+            "fileName": "state-10-viewport-1.jpg",
+            "viewportIndex": 1
+          },
+          {
+            "stateId": "state-11",
+            "artifactUrl": "/artifacts/movie-seat-booking-2026-08-23T23-46-05-586Z/artifacts/exploration/state-11-viewport-1.jpg",
+            "fileName": "state-11-viewport-1.jpg",
+            "viewportIndex": 1
+          }
+        ],
+        "executedActions": [
+          {
+            "step": 10,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 9",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 8
+            },
+            "changed": true
+          },
+          {
+            "step": 11,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 10",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 9
+            },
+            "changed": true
+          },
+          {
+            "step": 12,
+            "action": {
+              "kind": "click",
+              "name": "Interactive seat 11",
+              "context": "",
+              "role": "visual",
+              "value": "",
+              "label": "",
+              "placeholder": "",
+              "options": [],
+              "targetBlank": false,
+              "testId": "",
+              "domId": "",
+              "visualSelector": ".seat:not(.occupied)",
+              "visualIndex": 10
+            },
+            "changed": true
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      "requiresHumanValidation": true,
+      "criticReview": {
+        "verdict": "retain",
+        "reason": "The total price displayed is incorrect at $120 instead of the expected $108 for two additional seats.",
+        "confidence": "high",
+        "evidenceAssessment": "supports-anomaly",
+        "actionExecuted": true,
+        "expectationGrounded": true,
+        "evidenceSufficient": true,
+        "expectationSatisfied": false,
+        "observedOutcome": ""
+      }
+    }
+  ],
+  "rejectedHypotheses": [
+    {
+      "id": "bug-hypothesis-p1apus",
+      "title": "Seat Selection Confusion",
+      "reason": "The user has selected seat 12, and the system displays that 13 seats are selected for $156. This contradicts the expected behavior of displaying only one seat (seat 12) as selected.",
+      "verdict": "reject",
+      "authorConfidence": "medium",
+      "authorSeverity": "medium",
+      "reviewerConfidence": "high",
+      "evidenceAssessment": "insufficient",
+      "actionExecuted": true,
+      "expectationGrounded": false,
+      "evidenceSufficient": true,
+      "expectationSatisfied": false,
+      "observedOutcome": ""
+    }
+  ],
+  "screening": {
+    "candidates": 5,
+    "retained": 4,
+    "rejected": 1,
+    "criticRole": "conservative-model-reviewer"
+  },
+  "diagnostics": {
+    "consoleErrors": 0,
+    "pageErrors": 0
+  },
+  "limitations": [
+    "A retained item is a hypothesis, not a confirmed application defect.",
+    "Expected behavior may be inferred from documentation, cross-state consistency, interface conventions, or model judgment.",
+    "States not reached during model-guided exploration were not evaluated.",
+    "Visual and semantic model judgments can be wrong even when their evidence references are valid."
+  ],
+  "errors": [],
+  "generatedAt": "2026-08-24T00:37:29.537Z"
+}

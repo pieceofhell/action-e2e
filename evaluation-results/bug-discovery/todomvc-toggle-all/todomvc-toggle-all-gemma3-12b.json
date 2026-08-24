@@ -1,0 +1,189 @@
+{
+  "experiment": "todomvc-toggle-all-historical-bug",
+  "protocol": "blind-multimodal-historical-pair-v1",
+  "model": "gemma3:12b",
+  "groundTruth": {
+    "fixCommit": "9386c868",
+    "parentCommit": "64ee2028",
+    "disclosureToModel": false,
+    "description": "Bulk completion must keep each checkbox synchronized with its completed item state."
+  },
+  "blindAssessment": {
+    "mode": "blind",
+    "evidenceMode": "screenshot+structured-browser-state",
+    "hypotheses": [
+      {
+        "title": "Toggle-All checkbox state inconsistency after second click",
+        "observedEvidence": "The trajectory indicates the 'toggle-all' checkbox was clicked twice, returning it to its initial state. The checkpoint data confirms this: `toggleAllChecked` is false and `activeCountText` is '2 items left'. However, the screenshot shows the toggle-all checkbox in an unchecked state, which aligns with the final state but doesn’t directly reflect the intermediate states during the clicks.",
+        "expectedBehavior": "The application should visually represent the current state of the 'toggle-all' checkbox after each click. If it is clicked twice and returns to its initial state (unchecked), the visual representation should match that state.",
+        "confidence": "medium",
+        "oracle": "Visually inspect the toggle-all checkbox after two clicks; it must be in an unchecked state."
+      },
+      {
+        "title": "Active Count Text Discrepancy",
+        "observedEvidence": "The checkpoint data shows `activeCountText` as '2 items left' after the second click. This aligns with the screenshot, but it’s worth verifying that this text accurately reflects the number of active (incomplete) tasks.",
+        "expectedBehavior": "The displayed count of active items should always match the actual number of incomplete todo items in the list.",
+        "confidence": "low",
+        "oracle": "Count the number of incomplete todo items and verify that the `activeCountText` matches."
+      },
+      {
+        "title": "Checkbox Checked State Discrepancy",
+        "observedEvidence": "The checkpoint data shows `checkboxChecked` as false for both tasks after the second click. The screenshot visually confirms this, but it's important to ensure this state is consistent with the application’s logic.",
+        "expectedBehavior": "The checkbox checked state should accurately reflect whether a task is complete or incomplete.",
+        "confidence": "low",
+        "oracle": "Visually inspect each todo item's checkbox and confirm its checked state matches the expected completion status."
+      }
+    ],
+    "matchedGroundTruth": false
+  },
+  "pairedExecution": {
+    "confirmed": false,
+    "classification": "bug-not-detected",
+    "buggyOutcome": "passed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "64ee2028",
+      "trajectory": [
+        "Created First task",
+        "Created Second task",
+        "Clicked the toggle-all checkbox",
+        "Clicked the toggle-all checkbox again"
+      ],
+      "checkpoints": [
+        {
+          "label": "two-active-items",
+          "toggleAllChecked": false,
+          "activeCountText": "2 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": false,
+              "checkboxChecked": false
+            },
+            {
+              "text": "Second task",
+              "completedClass": false,
+              "checkboxChecked": false
+            }
+          ]
+        },
+        {
+          "label": "after-first-toggle-all",
+          "toggleAllChecked": true,
+          "activeCountText": "0 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": true,
+              "checkboxChecked": true
+            },
+            {
+              "text": "Second task",
+              "completedClass": true,
+              "checkboxChecked": true
+            }
+          ]
+        },
+        {
+          "label": "after-second-toggle-all",
+          "toggleAllChecked": false,
+          "activeCountText": "2 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": false,
+              "checkboxChecked": false
+            },
+            {
+              "text": "Second task",
+              "completedClass": false,
+              "checkboxChecked": false
+            }
+          ]
+        }
+      ],
+      "oracle": {
+        "id": "todo-checkbox-matches-completed-state",
+        "expected": "Every item checkbox equals the item's completed state after repeated bulk toggles.",
+        "actual": "Checkboxes and completed item states remained synchronized.",
+        "status": "passed",
+        "passed": true
+      },
+      "evidence": "evaluation-results/bug-discovery/todomvc-toggle-all/evidence/buggy-after-second-toggle-all.png"
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "9386c868",
+      "trajectory": [
+        "Created First task",
+        "Created Second task",
+        "Clicked the toggle-all checkbox",
+        "Clicked the toggle-all checkbox again"
+      ],
+      "checkpoints": [
+        {
+          "label": "two-active-items",
+          "toggleAllChecked": false,
+          "activeCountText": "2 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": false,
+              "checkboxChecked": false
+            },
+            {
+              "text": "Second task",
+              "completedClass": false,
+              "checkboxChecked": false
+            }
+          ]
+        },
+        {
+          "label": "after-first-toggle-all",
+          "toggleAllChecked": true,
+          "activeCountText": "0 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": true,
+              "checkboxChecked": true
+            },
+            {
+              "text": "Second task",
+              "completedClass": true,
+              "checkboxChecked": true
+            }
+          ]
+        },
+        {
+          "label": "after-second-toggle-all",
+          "toggleAllChecked": false,
+          "activeCountText": "2 items left",
+          "todos": [
+            {
+              "text": "First task",
+              "completedClass": false,
+              "checkboxChecked": false
+            },
+            {
+              "text": "Second task",
+              "completedClass": false,
+              "checkboxChecked": false
+            }
+          ]
+        }
+      ],
+      "oracle": {
+        "id": "todo-checkbox-matches-completed-state",
+        "expected": "Every item checkbox equals the item's completed state after repeated bulk toggles.",
+        "actual": "Checkboxes and completed item states remained synchronized.",
+        "status": "passed",
+        "passed": true
+      },
+      "evidence": "evaluation-results/bug-discovery/todomvc-toggle-all/evidence/fixed-after-second-toggle-all.png"
+    }
+  }
+}

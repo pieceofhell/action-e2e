@@ -1,12 +1,10 @@
 # Action E2E Prototype - Status Report
 
-Date: 2026-07-26
+Updated: 2026-08-11
 
 ## Executive Summary
 
-The prototype is a local, functional implementation of the proposed pipeline for AI-assisted E2E test generation. It accepts a local web project, inspects available evidence, proposes user flows and acceptance criteria, requires human approval, produces isolated Playwright artifacts, executes them, and presents the results with visual evidence.
-
-The current repository is on commit `389d88e` (`Add visual evidence and multi-provider support`). The working tree was clean before this report was added.
+The prototype is a local, functional implementation of the proposed pipeline for AI-assisted E2E test generation. It accepts a local web project, inspects available evidence, supports guest or authenticated read-only access, proposes user flows and acceptance criteria, requires human approval, produces isolated Playwright artifacts, executes them, and presents the results with visual evidence.
 
 ## What Is Implemented
 
@@ -14,11 +12,12 @@ The current repository is on commit `389d88e` (`Add visual evidence and multi-pr
 | --- | --- | --- |
 | 1. Project selection | Local directory input and Windows folder-picker endpoint | The target path is explicit before analysis begins. |
 | 2. Project inspection | README, manifests, directory structure, relevant source excerpts, UI hints, and nested package-manifest detection | Detects framework, language, probable runtime, warnings, and confidence. |
-| 3. User-flow proposal | Heuristic planner plus optional model refinement | Candidate flows are grounded in detected routes, forms, actions, canvas elements, and live exploration when available. |
-| 4. Acceptance criteria | Structured Given/When/Then criteria shown as editable text | The reviewer can change and approve each flow before any test is produced. |
-| 5. Test generation | Playwright specs generated in an isolated run directory | The selected model can author a test body; syntax and safety checks enforce a deterministic fallback when needed. |
-| 6. Test execution | Runtime orchestration for `static`, `command`, and `external` targets | The target is started or served locally and tested without changing its original source files. |
-| 7. Result consolidation | Playwright JSON parsing, logs, insights, screenshots, videos, and traces | Each test result is associated with inspectable evidence, including passing tests. |
+| 3. Access mode | Guest path or trusted environment-backed authenticated adapter | Credentials remain outside the browser, model, generated files, and artifacts. |
+| 4. User-flow proposal | Heuristic planner plus optional model refinement | Candidate flows are grounded in detected routes, forms, actions, canvas elements, and live exploration when available. |
+| 5. Acceptance criteria | Structured Given/When/Then criteria shown as editable text | The reviewer can change and approve each flow before any test is produced. |
+| 6. Test generation | Guest Playwright specs or authenticated constrained action plans | Unsafe model output is rejected and deterministic fallback remains available. |
+| 7. Test execution | Guest CLI or trusted authenticated executor | The target is started locally; authenticated mutations are blocked at the network layer. |
+| 8. Result consolidation | Reports, insights, policy status, secret scan, and access-aware visual evidence | Guest runs retain screenshot/video/trace; authenticated runs retain scanned post-authentication screenshots. |
 
 ## Model Support
 
@@ -36,16 +35,63 @@ Model-assisted output is never accepted silently. The model can refine inspectio
 
 ### Automated checks
 
-Command executed on 2026-07-26:
+Command executed after the authenticated-flow implementation:
 
 ```text
 npm.cmd test
 ```
 
-Result: 2 of 2 tests passed.
+Result: **21 of 21 tests passed**.
 
 - Provider normalization: validates local and hosted configuration requirements.
 - Playwright report parsing: validates preservation of screenshots, videos, traces, and execution errors.
+- Authentication configuration, redaction, disposal, environment isolation, constrained actions, route planning, and artifact scanning.
+- Real Chromium authenticated execution with an automatic `POST` blocked before reaching a temporary target server.
+- Real Chromium suppression of a screenshot when the target visibly renders a canary credential, with no credential bytes persisted.
+- Complete guest generation and Playwright execution regression.
+- Vinext runtime inference, loopback fallback, announced-URL parsing, sanitized early-exit diagnostics, and Firefox compositing safeguards.
+- Exact accessible-name locator generation from live interface evidence.
+
+### End-to-end run: Dopa
+
+- Target: `C:\Users\henri\Documents\dopa`.
+- Detection: Vinext, TypeScript, commerce, high confidence.
+- Runtime: `npm run dev` at `http://localhost:3000`.
+- Live exploration: completed with one route, eight headings, visible actions, and one search input.
+- Run ID: `dopa-2026-08-11T23-26-07-771Z`.
+- Runtime health: healthy, with no development overlay detected.
+- Result: **1 passed, 0 failed** in 2,926 ms.
+- Evidence: screenshot, video, and Playwright trace.
+- Cleanup: port 3000 released after execution.
+- Target validation: Vinext build passed, Dopa's 6/6 internal tests passed, and ESLint reported no errors.
+- Residual target risk: Dopa's dependency audit reports four high-severity advisories in the Next.js/PostCSS/Sharp chain. The complete automated fix changes the exact Next.js version, so it was not forced without a separate compatibility upgrade.
+
+Firefox 150 validation kept local heuristics selected despite an available Ollama runtime. Loading Dopa through the UI took 396 ms, compared with 25.1 seconds when the previous automatic Ollama selection invoked model inference. No browser-console errors were observed.
+
+### Guest regression through the E2P HTTP service
+
+- Run ID: `action-e2e-prototype-2026-08-11T22-38-45-149Z`.
+- Access: guest.
+- Result: **1 passed, 0 failed**.
+- Duration: 1,064 ms.
+- Evidence: screenshot, video, and Playwright trace.
+- Authentication data: none.
+
+This run used the public `/api/tests/generate` and protected `/api/tests/run` service flow against a disposable local page, confirming that the original guest execution branch remains operational after the authenticated-flow changes.
+
+### Authenticated end-to-end run: Janvas
+
+- Run ID: `canvas-wrapper-test-2026-08-11T22-45-34-579Z`.
+- Access: `janvas-canvas-token`, authenticated read-only.
+- Routes: `/profile` and `/inbox`.
+- Session: verified.
+- Result: **2 passed, 0 failed**.
+- Duration: 3,226 ms.
+- Evidence: two post-authentication screenshots.
+- Network policy: two external image requests blocked; zero mutating requests delivered.
+- Secret scan: passed across 15 files; quarantine released.
+- Credential source: random runtime-only canary through an environment reference; no real institutional credential used.
+- Runtime: the Janvas development server was supervised independently and supplied to E2P as an external local URL.
 
 ### End-to-end run: Janvas / Canvas Wrapper
 
@@ -98,7 +144,8 @@ The prototype demonstrates more than test execution:
 ## Current Scope and Limitations
 
 - The validation currently emphasizes safe smoke and interaction tests; richer domain assertions remain a planned evolution.
-- A project with authentication, external APIs, or complex startup requirements may need manual runtime configuration.
+- Interactive MFA and CAPTCHA are not automated; a pre-established session may use the session-cookie adapter.
+- Authenticated flows intentionally support navigation and observation rather than state-changing interactions.
 - The current machine did not have an active Ollama or LM Studio model during the validation runs. Their adapters are implemented and covered by configuration tests, but the concrete E2E runs above used the local heuristic layer.
 - Execution artifacts are intentionally ignored by Git because videos and traces are generated data. The run identifiers and file paths above make the local evidence directly traceable.
 

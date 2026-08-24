@@ -1,7 +1,10 @@
 const path = require("path");
-const { createRunDirectory, writeJson, writeText } = require("./artifact-store");
-const { normalizeAiConfig, requestTextResponse } = require("./llm-provider");
+const { createRunDirectory, ensureDirectory, writeJson, writeText } = require("./artifact-store");
+const { normalizeAiConfig, requestStructuredJson, requestTextResponse } = require("./llm-provider");
 const { normalizeRuntimeConfig } = require("./runtime-orchestrator");
+const { normalizeAuthConfig, toPublicAuthMetadata } = require("./auth-config");
+const { validateAuthenticatedActionPlan } = require("./read-only-policy");
+const { isExplicitBaseline, requireAiForStage, requireCompletedAiExploration } = require("./pipeline-policy");
 
 async function generateTestBundle({
   prototypeRoot,
@@ -10,30 +13,58 @@ async function generateTestBundle({
   approvedFlows,
   runtimeConfig,
   aiConfig,
+  authConfig,
+  onProgress = () => {},
 }) {
+  onProgress({ phase: "artifact-workspace", message: "Creating an isolated workspace for generated artifacts...", progress: 8 });
   const runsRoot = path.join(prototypeRoot, "prototype-runs");
-  const run = await createRunDirectory(runsRoot, projectPath);
+  const run = await resolveRunWorkspace({ runsRoot, projectPath, inspection });
   const normalizedRuntime = normalizeRuntimeConfig(inspection.runtime, runtimeConfig);
   const normalizedAi = normalizeAiConfig(aiConfig);
+  const normalizedAuth = normalizeAuthConfig(authConfig);
+  requireAiForStage(aiConfig, "test generation");
+  const baselineMode = isExplicitBaseline(aiConfig);
+  if (!baselineMode) {
+    requireCompletedAiExploration(inspection, "test generation");
+  }
 
   await writeJson(path.join(run.runDirectory, "inspection.json"), inspection);
   await writeJson(path.join(run.runDirectory, "approved-flows.json"), approvedFlows);
   await writeJson(path.join(run.runDirectory, "runtime-config.json"), normalizedRuntime);
+  onProgress({ phase: "approved-input", message: `Validated ${approvedFlows.length} approved flow(s) and the runtime configuration.`, progress: 16 });
+
+  if (normalizedAuth.mode === "authenticated") {
+    return generateAuthenticatedBundle({
+      run,
+      inspection,
+      approvedFlows,
+      normalizedRuntime,
+      normalizedAi,
+      normalizedAuth,
+      onProgress,
+    });
+  }
 
   const generatedTests = [];
 
-  for (const flow of approvedFlows) {
+  for (const [index, flow] of approvedFlows.entries()) {
     const specFileName = `${sanitizeFileName(flow.id)}.spec.cjs`;
     const specFilePath = path.join(run.testsDirectory, specFileName);
 
     let content = "";
-    let generationMode = "heuristic";
+    let generationMode = baselineMode ? "explicit-baseline" : "model-assisted";
     let generationNote = "";
 
-    content = buildHeuristicSpecContent(flow);
-
-    if (normalizedAi.enabled && hasLiveEvidence(inspection)) {
+    if (baselineMode) {
+      content = buildHeuristicSpecContent(flow);
+      generationNote = "Explicit baseline mode rendered this test without model inference.";
+    } else {
       try {
+        onProgress({
+          phase: "model-test-authoring",
+          message: `Asking the selected model to author test ${index + 1} of ${approvedFlows.length}: ${flow.title}`,
+          progress: 20 + Math.round((index / approvedFlows.length) * 60),
+        });
         content = await buildSpecContentWithAi({
           flow,
           inspection,
@@ -44,15 +75,23 @@ async function generateTestBundle({
         generationMode = "model-assisted";
         generationNote = "The selected model authored the Playwright body from approved criteria and observed evidence; structural validation ran before the file was saved.";
       } catch (error) {
-        generationMode = "deterministic-fallback";
-        generationNote = `The model-generated test was rejected or unavailable (${error.message}). A deterministic, evidence-grounded test was used instead.`;
+        const compiledJourney = buildObservedJourneySpecContent(flow, inspection);
+        if (compiledJourney) {
+          content = compiledJourney;
+          generationMode = "model-journey-compiled";
+          generationNote = `The free-form model draft was rejected (${error.message}). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback.`;
+        } else {
+          throw new Error(`AI-first test generation stopped for "${flow.title}": ${error.message} No successfully executed model journey could be compiled for this flow.`);
+        }
       }
-    } else if (normalizedAi.enabled) {
-      generationMode = "deterministic-live-evidence-required";
-      generationNote = "A model is configured, but no completed live exploration is available. The deterministic generator was used to avoid authoring selectors from static evidence alone.";
     }
 
     await writeText(specFilePath, content);
+    onProgress({
+      phase: "test-validation",
+      message: `Validated and saved test ${index + 1} of ${approvedFlows.length}: ${flow.title}`,
+      progress: 20 + Math.round(((index + 1) / approvedFlows.length) * 60),
+    });
 
     generatedTests.push({
       flowId: flow.id,
@@ -70,8 +109,10 @@ async function generateTestBundle({
     approvedFlows,
     normalizedRuntime,
     generatedTests,
+    access: toPublicAuthMetadata(normalizedAuth),
   }));
   await writeJson(path.join(run.runDirectory, "generated-tests.json"), generatedTests);
+  onProgress({ phase: "artifact-index", message: "Writing the Playwright configuration and artifact index...", progress: 94 });
 
   return {
     runId: run.runId,
@@ -80,8 +121,169 @@ async function generateTestBundle({
     resultsDirectory: run.resultsDirectory,
     artifactBaseUrl: `/artifacts/${run.runId}`,
     runtimeConfig: normalizedRuntime,
+    access: toPublicAuthMetadata(normalizedAuth),
     generatedTests,
   };
+}
+
+async function resolveRunWorkspace({ runsRoot, projectPath, inspection }) {
+  const existingRunId = String(inspection?.liveExploration?.artifactRun?.runId || "");
+  if (!/^[a-z0-9-]+$/i.test(existingRunId)) {
+    return createRunDirectory(runsRoot, projectPath);
+  }
+
+  const runDirectory = path.join(runsRoot, existingRunId);
+  const run = {
+    runId: existingRunId,
+    runDirectory,
+    testsDirectory: path.join(runDirectory, "tests"),
+    resultsDirectory: path.join(runDirectory, "results"),
+    artifactsDirectory: path.join(runDirectory, "artifacts"),
+  };
+  await Promise.all([
+    ensureDirectory(run.runDirectory),
+    ensureDirectory(run.testsDirectory),
+    ensureDirectory(run.resultsDirectory),
+    ensureDirectory(run.artifactsDirectory),
+  ]);
+  return run;
+}
+
+async function generateAuthenticatedBundle({
+  run,
+  inspection,
+  approvedFlows,
+  normalizedRuntime,
+  normalizedAi,
+  normalizedAuth,
+  onProgress = () => {},
+}) {
+  const access = toPublicAuthMetadata(normalizedAuth);
+  const generatedTests = [];
+  const actionPlans = [];
+
+  for (const [index, flow] of approvedFlows.entries()) {
+    let actionPlan;
+    let generationMode = "model-assisted-structured";
+    let generationNote = "";
+
+    if (!normalizedAi.enabled) {
+      actionPlan = buildDeterministicAuthenticatedPlan(flow, access);
+      generationMode = "explicit-baseline";
+      generationNote = "Explicit baseline mode created a schema-validated read-only action plan.";
+    } else {
+      try {
+        onProgress({
+          phase: "model-action-planning",
+          message: `Asking the selected model for read-only action plan ${index + 1} of ${approvedFlows.length}: ${flow.title}`,
+          progress: 20 + Math.round((index / approvedFlows.length) * 60),
+        });
+        actionPlan = await buildAuthenticatedPlanWithAi({
+          flow,
+          inspection,
+          access,
+          aiConfig: normalizedAi,
+        });
+        generationMode = "model-assisted-structured";
+        generationNote = "The selected model proposed a constrained action plan; E2P validated every action and route before saving it.";
+      } catch (error) {
+        throw new Error(`AI-first authenticated test generation stopped for "${flow.title}": ${error.message}`);
+      }
+    }
+
+    const fileName = `${sanitizeFileName(flow.id)}.actions.json`;
+    await writeJson(path.join(run.testsDirectory, fileName), actionPlan);
+    onProgress({
+      phase: "action-plan-validation",
+      message: `Validated and saved read-only action plan ${index + 1} of ${approvedFlows.length}.`,
+      progress: 20 + Math.round(((index + 1) / approvedFlows.length) * 60),
+    });
+    actionPlans.push(actionPlan);
+    generatedTests.push({
+      flowId: flow.id,
+      title: flow.title,
+      fileName,
+      generationMode,
+      generationNote,
+    });
+  }
+
+  await writeJson(path.join(run.runDirectory, "auth-metadata.json"), access);
+  await writeText(path.join(run.runDirectory, "README.md"), buildRunReadme({
+    inspection,
+    approvedFlows,
+    normalizedRuntime,
+    generatedTests,
+    access,
+  }));
+  await writeJson(path.join(run.runDirectory, "generated-tests.json"), generatedTests);
+  onProgress({ phase: "artifact-index", message: "Writing the authenticated artifact index...", progress: 94 });
+
+  return {
+    runId: run.runId,
+    runDirectory: run.runDirectory,
+    testsDirectory: run.testsDirectory,
+    resultsDirectory: run.resultsDirectory,
+    artifactBaseUrl: `/artifacts/${run.runId}`,
+    runtimeConfig: normalizedRuntime,
+    access,
+    generatedTests,
+    actionPlans,
+  };
+}
+
+function buildDeterministicAuthenticatedPlan(flow, access) {
+  const routePath = flow.blueprint?.routePath || access.initialPath;
+  const actions = [
+    { type: "navigate", path: routePath },
+    { type: "assert-body" },
+  ];
+
+  if (flow.blueprint?.expectedHeading) {
+    actions.push({ type: "assert-heading", text: flow.blueprint.expectedHeading });
+  }
+
+  actions.push({ type: "assert-url", path: routePath });
+  actions.push({ type: "capture", name: "authenticated-read-only" });
+
+  return validateAuthenticatedActionPlan({
+    id: flow.id,
+    title: flow.title,
+    actions,
+  }, access);
+}
+
+async function buildAuthenticatedPlanWithAi({ flow, inspection, access, aiConfig }) {
+  const payload = await requestStructuredJson({
+    aiConfig,
+    systemPrompt: [
+      "You create a constrained, read-only browser action plan for an authenticated E2E test.",
+      "Return raw JSON with an actions array.",
+      "Allowed action types are navigate, assert-body, assert-heading, assert-text, assert-url, and capture.",
+      "Use only relative paths from access.allowedPaths and text observed in liveEvidence.",
+      "Do not click, fill, submit, evaluate code, read credentials, inspect cookies, call APIs, or navigate to another origin.",
+      "Use at most eight actions and include navigation, an assertion, and capture.",
+      "Format: {\"actions\":[{\"type\":\"navigate\",\"path\":\"/...\"},{\"type\":\"assert-body\"},{\"type\":\"capture\",\"name\":\"final\"}]}",
+    ].join(" "),
+    userPrompt: JSON.stringify({
+      access,
+      flow: {
+        id: flow.id,
+        title: flow.title,
+        summary: flow.summary,
+        blueprint: flow.blueprint,
+        criteria: flow.criteria,
+      },
+      liveEvidence: summarizeVisibleEvidence(inspection).liveExploration,
+    }, null, 2),
+    timeoutMs: 120000,
+  });
+
+  return validateAuthenticatedActionPlan({
+    id: flow.id,
+    title: flow.title,
+    actions: payload.actions,
+  }, access);
 }
 
 function buildPlaywrightConfig() {
@@ -89,7 +291,7 @@ function buildPlaywrightConfig() {
 
 module.exports = {
   testDir: path.join(__dirname, "tests"),
-  timeout: 30000,
+  timeout: 60000,
   fullyParallel: false,
   retries: 0,
   reporter: [
@@ -108,7 +310,7 @@ module.exports = {
 `;
 }
 
-function buildRunReadme({ inspection, approvedFlows, normalizedRuntime, generatedTests }) {
+function buildRunReadme({ inspection, approvedFlows, normalizedRuntime, generatedTests, access }) {
   return `# Automatically generated execution
 
 ## Inspected project
@@ -122,6 +324,8 @@ function buildRunReadme({ inspection, approvedFlows, normalizedRuntime, generate
 ## Execution strategy
 
 - Mode: ${normalizedRuntime.mode}
+- Access: ${access?.mode || "guest"}
+- Authentication adapter: ${access?.adapter || "none"}
 - Suggested install command: ${normalizedRuntime.installCommand || "not applicable"}
 - Suggested start command: ${normalizedRuntime.startCommand || "not applicable"}
 - Base URL: ${normalizedRuntime.baseUrl}
@@ -133,6 +337,8 @@ ${approvedFlows.map((flow) => `- ${flow.title}`).join("\n")}
 ## Generated tests
 
 ${generatedTests.map((testFile) => `- ${testFile.title} (${testFile.generationMode})`).join("\n")}
+
+${access?.mode === "authenticated" ? "Authenticated artifacts contain profile metadata and read-only actions only. Credential values and secret references are intentionally excluded." : ""}
 `;
 }
 
@@ -149,13 +355,18 @@ async function buildSpecContentWithAi({
     "Do not return Markdown fences.",
     "Assume the file already imports test and expect from @playwright/test.",
     "Assume the wrapper already defines openHome(page) and pauseForUi(page).",
+    "Call await openHome(page); exactly once as the first statement. Every Playwright action such as click, fill, goto, and wait must be awaited.",
     "Use only evidence present in the provided context.",
     "Do not invent routes, selectors, labels, buttons, or inputs that are not grounded in the context.",
     "Prefer safe, non-destructive smoke coverage.",
+    "When the approved flow is supported by a model-guided journey, reproduce the relevant observed action sequence and assert the resulting state instead of reducing it to a landing-page smoke check.",
     "Use Playwright syntax only. Valid examples include await expect(locator).toBeVisible(), await locator.click(), and await locator.fill('value').",
     "Never use shouldBeVisible, should(), Cypress APIs, Selenium APIs, WebDriver APIs, or absolute page.goto URLs.",
     "Prefer openHome(page) and relative routes over hardcoded full URLs.",
     "Prefer page.getByRole, page.getByLabel, page.getByText, and evidence-grounded page.getByPlaceholder calls.",
+    "Accessible names can be repeated in navigation landmarks such as headers and footers. Scope the locator when the evidence provides a landmark; otherwise make the selected occurrence explicit with first() so Playwright does not fail on an ambiguous strict locator.",
+    "Treat observed button names as accessible role names: use page.getByRole('button', { name: 'Observed name' }), not getByLabel for buttons.",
+    "Do not assert a URL change unless that exact path was observed after the corresponding action. Drawers and dialogs often keep the current URL.",
     "When a live form field has a visible label, use page.getByLabel with that label. Do not treat a field label as a placeholder unless the observed placeholder explicitly matches it.",
     "If you are uncertain, prefer visibility and navigation assertions over risky form submission or native system dialogs.",
     "Do not click controls that likely open file pickers, folder dialogs, uploads, authentication, checkout, destructive actions, or require unavailable project-specific input.",
@@ -168,7 +379,7 @@ async function buildSpecContentWithAi({
     detection: inspection.detection,
     runtime: normalizedRuntime,
     visibleEvidence: summarizeVisibleEvidence(inspection),
-    interactionGuardrails: buildInteractionGuardrails(inspection),
+    interactionGuardrails: buildInteractionGuardrails(inspection, flow),
     approvedFlow: {
       id: flow.id,
       title: flow.title,
@@ -176,6 +387,8 @@ async function buildSpecContentWithAi({
       confidence: flow.confidence,
       sourceSignals: flow.sourceSignals,
       assumptions: flow.assumptions,
+      evidenceStateIds: flow.evidenceStateIds || [],
+      blueprint: flow.blueprint || null,
       criteriaText: flow.criteriaText || formatCriteriaText(flow.criteria),
     },
     neighboringFlows: approvedFlows
@@ -187,28 +400,36 @@ async function buildSpecContentWithAi({
       })),
   };
 
-  const rawBody = await requestTextResponse({
-    aiConfig,
-    systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: JSON.stringify(promptContext, null, 2),
-      },
-    ],
-    timeoutMs: 210000,
-  });
+  const messages = [{
+    role: "user",
+    content: JSON.stringify(promptContext, null, 2),
+  }];
+  let lastError = null;
 
-  const normalizedBody = normalizeAiTestBody(rawBody);
-  if (!normalizedBody) {
-    throw new Error("The model did not return a usable test body.");
+  for (let attempt = 0; attempt < 1; attempt += 1) {
+    const rawBody = await requestTextResponse({
+      aiConfig,
+      systemPrompt,
+      messages,
+      timeoutMs: 210000,
+    });
+    const normalizedBody = normalizeAiTestBody(rawBody);
+
+    try {
+      if (!normalizedBody) {
+        throw new Error("The model did not return a usable test body.");
+      }
+      validateAiTestBody(normalizedBody, inspection, flow);
+      const source = wrapSpecSource(flow.title, normalizedBody);
+      validateGeneratedSpecSource(source);
+      return source;
+    } catch (error) {
+      lastError = error;
+      messages.push({ role: "assistant", content: String(rawBody).slice(-3500) });
+    }
   }
 
-  validateAiTestBody(normalizedBody, inspection);
-
-  const source = wrapSpecSource(flow.title, normalizedBody);
-  validateGeneratedSpecSource(source);
-  return source;
+  throw lastError || new Error("The model did not return a valid Playwright test body.");
 }
 
 function summarizeVisibleEvidence(inspection) {
@@ -241,6 +462,33 @@ function summarizeVisibleEvidence(inspection) {
             canvasesCount: route.canvasesCount || 0,
             visibleTextExcerpt: String(route.visibleTextExcerpt || "").slice(0, 280),
           })),
+          modelGuidedJourney: inspection.liveExploration.agenticExploration
+            ? {
+                strategy: inspection.liveExploration.agenticExploration.strategy,
+                model: inspection.liveExploration.agenticExploration.model,
+                metrics: inspection.liveExploration.agenticExploration.metrics,
+                states: (inspection.liveExploration.agenticExploration.states || []).slice(0, 8).map((state) => ({
+                  id: state.id,
+                  path: state.path,
+                  headings: state.headings,
+                  buttons: state.buttons,
+                  inputs: state.inputs,
+                  inputDetails: state.inputDetails || [],
+                  dialogsCount: state.dialogsCount,
+                  visibleTextExcerpt: String(state.visibleTextExcerpt || "").slice(0, 500),
+                })),
+                completedActions: (inspection.liveExploration.agenticExploration.steps || [])
+                  .filter((step) => step.status === "completed")
+                  .slice(0, 8)
+                  .map((step) => ({
+                    step: step.step,
+                    action: step.action,
+                    rationale: step.rationale,
+                    changed: step.changed,
+                    observedAfter: step.observedAfter,
+                  })),
+              }
+            : null,
         }
       : {
           status: inspection.liveExploration?.status || "not-attempted",
@@ -251,20 +499,37 @@ function summarizeVisibleEvidence(inspection) {
 }
 
 function normalizeAiTestBody(rawText) {
-  const stripped = stripCodeFences(String(rawText || "").trim());
+  const withoutThinking = String(rawText || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<analysis>[\s\S]*?<\/analysis>/gi, "")
+    .trim();
+  const stripped = stripCodeFences(withoutThinking);
   if (!stripped) {
     return "";
   }
 
   const wrappedMatch = stripped.match(/test\s*\([\s\S]*?async\s*\(\s*\{\s*page\s*\}\s*\)\s*=>\s*\{([\s\S]*?)\}\s*\)\s*;?\s*$/);
   if (wrappedMatch) {
-    return wrappedMatch[1].trim();
+    return ensureHomeNavigation(wrappedMatch[1].trim());
   }
 
-  return stripped.trim();
+  return ensureHomeNavigation(stripped.trim());
 }
 
-function validateAiTestBody(body, inspection) {
+function ensureHomeNavigation(body) {
+  if (!body || /await\s+openHome\(\s*page\s*\)/.test(body)) {
+    return body;
+  }
+
+  const relativeHome = /await\s+page\.goto\(\s*["']\/["']\s*\)\s*;?/;
+  if (relativeHome.test(body)) {
+    return body.replace(relativeHome, "await openHome(page);");
+  }
+
+  return `await openHome(page);\n${body}`;
+}
+
+function validateAiTestBody(body, inspection, flow = null) {
   const forbiddenPatterns = [
     { pattern: /\btest\s*\(/, message: "The model returned a complete test declaration instead of a single test body." },
     { pattern: /\.locator\(\s*["']text=/i, message: "The model used a raw text-engine selector instead of an evidence-grounded locator." },
@@ -275,6 +540,10 @@ function validateAiTestBody(body, inspection) {
     { pattern: /\bwebdriver\b/i, message: "The model referenced WebDriver instead of Playwright." },
     { pattern: /\bdriver\./i, message: "The model used a non-Playwright driver API." },
     { pattern: /page\.goto\(\s*["']https?:\/\//i, message: "The model hardcoded an absolute URL instead of using openHome(page) or a relative route." },
+    { pattern: /page\.(?:hover|locator)\(\s*["']\.[^"']+["']/i, message: "The model used a CSS class selector that was not grounded in observed evidence." },
+    { pattern: /page\.hover\s*\(/i, message: "The model used a hover selector that was not grounded in observed evidence." },
+    { pattern: /\bwindow\./i, message: "The model referenced browser globals outside Playwright's page context." },
+    { pattern: /\.toHaveCount\s*\(/i, message: "The model asserted an element count that was not grounded in observed evidence." },
   ];
 
   for (const rule of forbiddenPatterns) {
@@ -283,14 +552,68 @@ function validateAiTestBody(body, inspection) {
     }
   }
 
+  validateAwaitedActions(body);
+  validateObservedUrlAssertions(body, inspection);
+
   if (!/await\s+expect\s*\(/.test(body)) {
     throw new Error("The generated test body did not include clear Playwright assertions or navigation.");
   }
 
   validateNavigationOrder(body);
   validateRoleSpecificity(body);
-  validateInputLocatorGrounding(body, inspection);
-  validateInteractionLines(body, inspection);
+  validateRoleNameGrounding(body, inspection, flow);
+  validateInputLocatorGrounding(body, inspection, flow);
+  validateTextLocatorGrounding(body, inspection, flow);
+  validateInteractionLines(body, inspection, flow);
+}
+
+function validateAwaitedActions(body) {
+  const lines = String(body || "").split("\n");
+  const openHomeCalls = lines.filter((line) => /\bopenHome\(\s*page\s*\)/.test(line));
+  if (openHomeCalls.length !== 1) {
+    throw new Error("The model must call openHome(page) exactly once.");
+  }
+
+  for (const line of lines) {
+    const normalized = line.trim();
+    if (!normalized || normalized.startsWith("//")) continue;
+    const invokesAsyncAction = /\bopenHome\(\s*page\s*\)|\.(?:click|fill|goto|waitFor|waitForTimeout|waitForLoadState|press|selectOption|check|uncheck)\s*\(/.test(normalized);
+    if (invokesAsyncAction && !/^await\b/.test(normalized)) {
+      throw new Error("Every Playwright navigation and interaction must be awaited.");
+    }
+  }
+}
+
+function validateObservedUrlAssertions(body, inspection) {
+  if (!/toHaveURL\s*\(/.test(body)) return;
+  const observedPaths = uniqueStrings([
+    "/",
+    ...(inspection?.liveExploration?.routes || []).map((route) => route.path || "/"),
+    ...(inspection?.liveExploration?.agenticExploration?.states || []).map((state) => state.path || "/"),
+  ]);
+  const assertedFragments = [...String(body).matchAll(/toHaveURL\s*\(\s*\/([^/]+)\//g)]
+    .map((match) => match[1].replace(/\\\//g, "/"));
+  for (const fragment of assertedFragments) {
+    if (fragment && !observedPaths.some((pathValue) => pathValue.includes(fragment))) {
+      throw new Error(`The model asserted an unobserved URL fragment: ${fragment}.`);
+    }
+  }
+}
+
+function validateTextLocatorGrounding(body, inspection, flow = null) {
+  const evidenceCorpus = collectFlowEvidenceStates(inspection, flow).flatMap((state) => [
+      ...(state.headings || []),
+      ...(state.buttons || []),
+      ...(state.overlayTexts || []),
+      state.visibleTextExcerpt || "",
+    ]).join(" ").toLowerCase();
+  const textCalls = String(body || "").matchAll(/getByText\(\s*["']([^"']+)["']/gi);
+  for (const match of textCalls) {
+    const value = match[1].trim().toLowerCase();
+    if (value && !evidenceCorpus.includes(value)) {
+      throw new Error(`The model used getByText('${match[1]}') without matching observed text.`);
+    }
+  }
 }
 
 function validateNavigationOrder(body) {
@@ -315,8 +638,25 @@ function validateRoleSpecificity(body) {
   }
 }
 
-function validateInputLocatorGrounding(body, inspection) {
-  const knownPlaceholders = collectKnownInputValues(inspection, "placeholder");
+function validateRoleNameGrounding(body, inspection, flow = null) {
+  const states = collectFlowEvidenceStates(inspection, flow);
+  const knownByRole = {
+    button: uniqueStrings(states.flatMap((state) => state.buttons || [])),
+    link: uniqueStrings(states.flatMap((state) => (state.actions || []).filter((action) => action.role === "link").map((action) => action.name))),
+    heading: uniqueStrings(states.flatMap((state) => state.headings || [])),
+  };
+  const roleCalls = String(body || "").matchAll(/getByRole\(\s*["'](button|link|heading)["']\s*,\s*\{\s*name\s*:\s*["']([^"']+)["']/gi);
+  for (const match of roleCalls) {
+    const role = match[1].toLowerCase();
+    const name = match[2].trim().toLowerCase();
+    if (name && !knownByRole[role].some((candidate) => candidate.toLowerCase() === name)) {
+      throw new Error(`The model used an unobserved ${role} name: ${match[2]}.`);
+    }
+  }
+}
+
+function validateInputLocatorGrounding(body, inspection, flow = null) {
+  const knownPlaceholders = collectKnownInputValues(inspection, "placeholder", flow);
   const placeholderCalls = String(body || "").matchAll(/getByPlaceholder\(\s*["']([^"']+)["']/gi);
 
   for (const match of placeholderCalls) {
@@ -326,7 +666,7 @@ function validateInputLocatorGrounding(body, inspection) {
     }
   }
 
-  const knownLabels = collectKnownInputValues(inspection, "label");
+  const knownLabels = collectKnownInputValues(inspection, "label", flow);
   const labelCalls = String(body || "").matchAll(/getByLabel\(\s*["']([^"']+)["']/gi);
 
   for (const match of labelCalls) {
@@ -337,19 +677,27 @@ function validateInputLocatorGrounding(body, inspection) {
   }
 }
 
-function collectKnownInputValues(inspection, field) {
-  const staticValues = (inspection?.uiHints?.inputs || []).map((input) => input?.[field] || "");
-  const liveValues = (inspection?.liveExploration?.routes || [])
-    .flatMap((route) => route?.inputs || [])
-    .map((input) => input?.[field] || "");
+function collectKnownInputValues(inspection, field, flow = null) {
+  const relevantStates = collectFlowEvidenceStates(inspection, flow);
+  const stateValues = relevantStates.flatMap((state) => (state.inputDetails || []).map((input) => input?.[field] || ""));
+  if (field === "label") {
+    stateValues.push(...relevantStates.flatMap((state) => state?.inputs || []));
+  }
+  return uniqueStrings(stateValues);
+}
 
-  return uniqueStrings([...staticValues, ...liveValues]);
+function collectFlowEvidenceStates(inspection, flow) {
+  const states = inspection?.liveExploration?.agenticExploration?.states || [];
+  const requested = new Set(flow?.evidenceStateIds || flow?.blueprint?.evidenceStateIds || []);
+  return requested.size ? states.filter((state) => requested.has(state.id)) : states;
 }
 
 function hasLiveEvidence(inspection) {
   return inspection?.liveExploration?.status === "completed"
     && Array.isArray(inspection.liveExploration.routes)
-    && inspection.liveExploration.routes.length > 0;
+    && inspection.liveExploration.routes.length > 0
+    && inspection.liveExploration.agenticExploration?.usedModel === true
+    && inspection.liveExploration.agenticExploration?.status === "completed";
 }
 
 function uniqueStrings(items) {
@@ -361,11 +709,9 @@ function stripCodeFences(text) {
   return fencedMatch ? fencedMatch[1].trim() : text.trim();
 }
 
-function buildInteractionGuardrails(inspection) {
-  const buttonLabels = [
-    ...(inspection.uiHints.buttons || []).map((button) => button.text || button.id || button.dataTool || ""),
-    ...((inspection.liveExploration?.summary?.uniqueButtons) || []),
-  ]
+function buildInteractionGuardrails(inspection, flow = null) {
+  const buttonLabels = collectFlowEvidenceStates(inspection, flow)
+    .flatMap((state) => state.buttons || [])
     .map((label) => String(label || "").trim())
     .filter(Boolean);
 
@@ -374,8 +720,8 @@ function buildInteractionGuardrails(inspection) {
       ...(inspection.uiHints.headings || []).map((heading) => heading.text || ""),
       ...((inspection.liveExploration?.summary?.uniqueHeadings) || []),
     ]).slice(0, 10),
-    safeButtons: uniqueStrings(buttonLabels.filter((label) => !isUnsafeActionLabel(label))).slice(0, 10),
-    unsafeButtons: uniqueStrings(buttonLabels.filter((label) => isUnsafeActionLabel(label))).slice(0, 10),
+    safeButtons: uniqueStrings(buttonLabels.filter((label) => !isUnsafeActionLabel(label))).slice(0, 60),
+    unsafeButtons: uniqueStrings(buttonLabels.filter((label) => isUnsafeActionLabel(label))).slice(0, 30),
   };
 }
 
@@ -396,8 +742,8 @@ function uniqueStrings(items) {
   return output;
 }
 
-function validateInteractionLines(body, inspection) {
-  const guardrails = buildInteractionGuardrails(inspection);
+function validateInteractionLines(body, inspection, flow = null) {
+  const guardrails = buildInteractionGuardrails(inspection, flow);
   const lines = String(body || "").split("\n");
 
   for (let index = 0; index < lines.length; index += 1) {
@@ -428,22 +774,35 @@ function validateInteractionLines(body, inspection) {
 }
 
 function wrapSpecSource(title, body) {
-  const helperBlock = `const { test, expect } = require("@playwright/test");
-
-async function openHome(page) {
-  await page.goto("/");
-  await page.waitForLoadState("domcontentloaded");
-}
-
-async function pauseForUi(page, timeout = 160) {
-  await page.waitForTimeout(timeout);
-}
-`;
+  const helperBlock = buildGuestHelperBlock();
 
   return `${helperBlock}
 test(${jsString(title)}, async ({ page }) => {
 ${indent(body, 2)}
 });
+`;
+}
+
+function buildGuestHelperBlock() {
+  return `const { test, expect } = require("@playwright/test");
+
+async function openHome(page) {
+  await page.context().route("**/*", async (route) => {
+    if (!["GET", "HEAD", "OPTIONS"].includes(route.request().method().toUpperCase())) {
+      await route.abort("blockedbyclient");
+      return;
+    }
+    await route.continue();
+  });
+  await page.goto("/");
+  await page.waitForLoadState("domcontentloaded");
+  await page.waitForTimeout(5000);
+  await expect(page.locator("vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay")).toHaveCount(0);
+}
+
+async function pauseForUi(page, timeout = 160) {
+  await page.waitForTimeout(timeout);
+}
 `;
 }
 
@@ -456,17 +815,7 @@ function validateGeneratedSpecSource(source) {
 }
 
 function buildHeuristicSpecContent(flow) {
-  const helperBlock = `const { test, expect } = require("@playwright/test");
-
-async function openHome(page) {
-  await page.goto("/");
-  await page.waitForLoadState("domcontentloaded");
-}
-
-async function pauseForUi(page, timeout = 160) {
-  await page.waitForTimeout(timeout);
-}
-`;
+  const helperBlock = buildGuestHelperBlock();
 
   const body = buildFlowBody(flow);
 
@@ -475,6 +824,105 @@ test(${jsString(flow.title)}, async ({ page }) => {
 ${indent(body, 2)}
 });
 `;
+}
+
+function buildObservedJourneySpecContent(flow, inspection) {
+  const exploration = inspection?.liveExploration?.agenticExploration;
+  const requestedStateIds = flow.evidenceStateIds || flow.blueprint?.evidenceStateIds || [];
+  if (!exploration || !requestedStateIds.length) return "";
+
+  const states = exploration.states || [];
+  const targetIndex = Math.max(...requestedStateIds.map((id) => states.findIndex((state) => state.id === id)));
+  if (targetIndex < 0) return "";
+
+  const targetState = states[targetIndex];
+  const allSteps = exploration.steps || [];
+  const targetStepIndex = allSteps.findLastIndex((step) => step.status === "completed" && step.afterFingerprint === targetState.fingerprint);
+  if (targetStepIndex < 0) return "";
+  const journeySteps = allSteps
+    .slice(0, targetStepIndex + 1)
+    .filter((step) => step.status === "completed")
+    .slice(0, 20);
+  if (!journeySteps.length) return "";
+
+  const lines = ["await openHome(page);", "let currentPage = page;"];
+  for (const step of journeySteps) {
+    const action = step.action || {};
+    if (action.kind === "click" && action.name) {
+      if (action.targetBlank) {
+        lines.push("const popupPromise = currentPage.waitForEvent('popup');");
+        lines.push(`await ${compiledClickLocator(action, states, "currentPage")}.click();`);
+        lines.push("currentPage = await popupPromise;");
+        lines.push("await currentPage.waitForLoadState('domcontentloaded');");
+      } else {
+        lines.push(`await ${compiledClickLocator(action, states, "currentPage")}.click();`);
+      }
+      lines.push("await pauseForUi(currentPage, 300);");
+    } else if (action.kind === "fill" && action.name && action.value) {
+      const locator = compiledInputLocator(action, "currentPage");
+      lines.push(`await ${locator}.fill(${jsString(action.value)});`);
+      lines.push("await pauseForUi(currentPage, 300);");
+    } else if (action.kind === "select" && action.name && action.value) {
+      const locator = compiledInputLocator(action, "currentPage", "combobox");
+      lines.push(`await ${locator}.selectOption(${jsString(action.value)});`);
+      lines.push("await pauseForUi(currentPage, 300);");
+    } else if (action.kind === "press" && action.name) {
+      const locator = compiledInputLocator(action, "currentPage");
+      lines.push(`await ${locator}.press("Enter");`);
+      lines.push("await pauseForUi(currentPage, 300);");
+    }
+  }
+
+  const terminalStep = journeySteps.at(-1);
+  const priorFill = [...journeySteps].reverse().find((step) => step.action?.kind === "fill" && step.action?.value);
+  const expectsCreatedText = terminalStep?.action?.kind === "press"
+    && /\b(appear|add(?:ed)?|creat(?:e|ed)|display(?:ed)?|list(?:ed)?|submitted?)\b/i.test(terminalStep.expectedOutcome || "")
+    && priorFill?.action?.value;
+  const assertedButton = (targetState.buttons || []).find((label) => label && !isUnsafeActionLabel(label));
+  if (expectsCreatedText) {
+    lines.push(`await expect(currentPage.getByText(${jsString(priorFill.action.value)}, { exact: true }).first()).toBeVisible();`);
+  } else if (assertedButton) {
+    lines.push(`await expect(currentPage.getByRole("button", { name: ${jsString(assertedButton)}, exact: true })).toBeVisible();`);
+  } else if ((targetState.headings || []).length) {
+    lines.push(`await expect(currentPage.getByRole("heading", { name: ${jsString(targetState.headings[0])}, exact: true })).toBeVisible();`);
+  } else {
+    lines.push("await expect(currentPage.locator('body')).toBeVisible();");
+  }
+
+  const source = wrapSpecSource(flow.title, lines.join("\n"));
+  validateGeneratedSpecSource(source);
+  return source;
+}
+
+function compiledClickLocator(action, states, pageVariable = "page") {
+  if (action.testId) {
+    return `${pageVariable}.getByTestId(${jsString(action.testId)})`;
+  }
+  if (action.domId) {
+    return `${pageVariable}.locator(${jsString(`#${escapeCssIdentifier(action.domId)}`)})`;
+  }
+  if (action.visualSelector && Number.isInteger(action.visualIndex) && action.visualIndex >= 0) {
+    return `${pageVariable}.locator(${jsString(action.visualSelector)}).nth(${action.visualIndex})`;
+  }
+  const role = action.role === "link" ? "link" : "button";
+  const accessibleLocator = `${pageVariable}.getByRole(${jsString(role)}, { name: ${jsString(action.name)}, exact: true })`;
+  if (Number.isInteger(action.accessibleIndex) && action.accessibleIndex >= 0) {
+    return `${accessibleLocator}.nth(${action.accessibleIndex})`;
+  }
+  return `${accessibleLocator}.first()`;
+}
+
+function compiledInputLocator(action, pageVariable = "page", fallbackRole = "textbox") {
+  if (action.testId) return `${pageVariable}.getByTestId(${jsString(action.testId)})`;
+  if (action.domId) return `${pageVariable}.locator(${jsString(`#${escapeCssIdentifier(action.domId)}`)})`;
+  if (action.placeholder) return `${pageVariable}.getByPlaceholder(${jsString(action.placeholder)}, { exact: true })`;
+  if (action.label) return `${pageVariable}.getByLabel(${jsString(action.label)}, { exact: true })`;
+  const name = action.name.replace(/^Press Enter in /i, "");
+  return `${pageVariable}.getByRole(${jsString(fallbackRole)}, { name: ${jsString(name)}, exact: true })`;
+}
+
+function escapeCssIdentifier(value) {
+  return String(value).replace(/([^a-zA-Z0-9_-])/g, "\\$1");
 }
 
 function buildFlowBody(flow) {
@@ -733,7 +1181,7 @@ function locatorCode(target) {
     case "dataTool":
       return `page.locator(${jsString(`[data-tool="${target.value}"]`)})`;
     case "roleText":
-      return `page.getByRole(${jsString(target.role)}, { name: ${regexCode(target.value)} })`;
+      return `page.getByRole(${jsString(target.role)}, { name: ${jsString(target.value)}, exact: true })`;
     case "text":
       return `page.getByText(${jsString(target.value)}, { exact: true })`;
     case "href":
@@ -794,6 +1242,8 @@ function indent(text, spaces) {
 }
 
 module.exports = {
+  buildObservedJourneySpecContent,
+  compiledClickLocator,
   generateTestBundle,
   hasLiveEvidence,
   validateAiTestBody,

@@ -1,0 +1,23 @@
+{
+  "protocol": "independent-blind-critic-v1",
+  "discoveryModel": "gemma3:12b",
+  "criticModel": "qwen2.5vl:7b",
+  "disclosureToCritic": {
+    "issue": false,
+    "source": false,
+    "fixedRevision": false,
+    "groundTruth": false
+  },
+  "reviews": [
+    {
+      "title": "'Favoritos' Navigation Inconsistency: Active State vs. Bottom Bar",
+      "decision": "accept-with-correction",
+      "supportedCoreClaim": "The 'Favoritos' view is active, but the bottom navigation bar highlights the 'Favoritos' icon.",
+      "unsupportedClaims": [
+        "'Explorar a vitrine' and 'Abrir meus favoritos' are confusing calls to action."
+      ],
+      "correctedExpectedBehavior": "If the user is already in the 'Favoritos' view, the bottom navigation bar should not highlight the 'Favoritos' icon. Instead, it should reflect a non-active state.",
+      "executableOracle": "After clicking on the 'Favoritos' control at the top of the page or within the bottom navigation bar, verify that the highlighted status in the bottom navigation changes accordingly."
+    }
+  ]
+}

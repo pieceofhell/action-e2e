@@ -1,0 +1,129 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-23T23-43-05-925Z\\playwright.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-23T23-43-05-925Z/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-23T23-43-05-925Z/results/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-23T23-43-05-925Z/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-23T23-43-05-925Z\\results\\playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "semantic-id.spec.cjs",
+      "file": "semantic-id.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Adding a New Todo Item in React TodoMVC",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7365,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-23T23:45:38.040Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-23T23-43-05-925Z\\results\\test-artifacts\\semantic-id-Adding-a-New-Todo-Item-in-React-TodoMVC\\test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-23T23-43-05-925Z\\results\\test-artifacts\\semantic-id-Adding-a-New-Todo-Item-in-React-TodoMVC\\video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-23T23-43-05-925Z\\results\\test-artifacts\\semantic-id-Adding-a-New-Todo-Item-in-React-TodoMVC\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15d3ab1349c3a473730e-c640a802c70cae94533d",
+          "file": "semantic-id.spec.cjs",
+          "line": 21,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-23T23:45:37.405Z",
+    "duration": 8656.863,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

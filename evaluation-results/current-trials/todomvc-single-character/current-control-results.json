@@ -1,0 +1,40 @@
+{
+  "targetCommit": "ff43b02e59dfa604386bb382034b2cd07c2bcd8a",
+  "sourceRun": "react-2026-08-24T00-05-01-252Z",
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 7429.977
+  },
+  "tests": [
+    {
+      "title": "Entering a New Todo Item",
+      "file": "flow-1.spec.cjs",
+      "status": "passed",
+      "durationMs": 6519,
+      "error": null,
+      "evidence": [
+        {
+          "name": "screenshot",
+          "kind": "screenshot",
+          "contentType": "image/png",
+          "relativePath": "results/test-artifacts/flow-1-Entering-a-New-Todo-Item/test-finished-1.png"
+        },
+        {
+          "name": "video",
+          "kind": "video",
+          "contentType": "video/webm",
+          "relativePath": "results/test-artifacts/flow-1-Entering-a-New-Todo-Item/video.webm"
+        },
+        {
+          "name": "trace",
+          "kind": "trace",
+          "contentType": "application/zip",
+          "relativePath": "results/test-artifacts/flow-1-Entering-a-New-Todo-Item/trace.zip"
+        }
+      ]
+    }
+  ]
+}

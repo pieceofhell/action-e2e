@@ -1,0 +1,467 @@
+{
+  "id": "form-validator",
+  "name": "Form Validator",
+  "projectPath": "C:\\Users\\henri\\Documents\\action-e2e-validation-targets\\vanillawebprojects\\form-validator",
+  "model": "qwen3:8b",
+  "protocol": "ai-first-fail-fast-v1",
+  "status": "stopped",
+  "startedAt": "2026-08-15T23:31:53.104Z",
+  "stages": {
+    "staticInspection": {
+      "framework": "Static web application",
+      "appType": "authentication",
+      "runtime": {
+        "mode": "static",
+        "supportedForExecution": true,
+        "installCommand": "",
+        "startCommand": "",
+        "baseUrl": "auto",
+        "workingDirectory": ".",
+        "source": "static-file-detection",
+        "notes": "The application appears to be static. The prototype can serve it internally without changing the original project."
+      }
+    },
+    "understanding": {
+      "synopsis": "A simple client-side form validation project that checks for required fields, input length, valid email format, and matching passwords. The form includes UI elements for user input and displays error messages under each input field.",
+      "capabilities": [
+        "Client-side form validation",
+        "Display error messages under specific inputs",
+        "Check required fields",
+        "Validate email format using regex",
+        "Ensure password fields match"
+      ],
+      "provider": "Local Ollama / qwen3:8b"
+    },
+    "exploration": {
+      "status": "failed",
+      "terminationReason": "invalid-model-decision",
+      "metrics": {
+        "requestedStepLimit": 20,
+        "requestedDurationMs": 180000,
+        "completedActions": 2,
+        "changedStates": 1,
+        "uniqueStates": 2,
+        "invalidDecisions": 1,
+        "failedActions": 0,
+        "coverageAreas": [
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "durationMs": 6179
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Enter username",
+            "role": "input",
+            "value": "testuser123",
+            "label": "Username",
+            "placeholder": "Enter username",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "username",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Filling the username field to test input validation and form interaction.",
+          "expectedOutcome": "The username field should display the entered value, and the form may show validation feedback if required.",
+          "beforeFingerprint": "caf7a2063c40adad",
+          "afterFingerprint": "2c0bda7437155b27",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Form Validator",
+            "headings": [
+              "Register With Us"
+            ],
+            "buttons": [
+              "Submit"
+            ],
+            "inputs": [
+              "Username",
+              "Email",
+              "Password",
+              "Confirm Password"
+            ],
+            "inputDetails": [
+              {
+                "label": "Username",
+                "placeholder": "Enter username",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Email",
+                "placeholder": "Enter email",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Password",
+                "placeholder": "Enter password",
+                "name": "",
+                "type": "password"
+              },
+              {
+                "label": "Confirm Password",
+                "placeholder": "Enter password again",
+                "name": "",
+                "type": "password"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-1pinju0",
+                "kind": "fill",
+                "role": "input",
+                "name": "testuser123",
+                "options": [],
+                "label": "Username",
+                "placeholder": "Enter username",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "username",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1pinju0-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Username",
+                "options": [],
+                "label": "Username",
+                "placeholder": "Enter username",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "username",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-l9eav9",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter email",
+                "options": [],
+                "label": "Email",
+                "placeholder": "Enter email",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "email",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-l9eav9-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Email",
+                "options": [],
+                "label": "Email",
+                "placeholder": "Enter email",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "email",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1ft0fwh",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter password",
+                "options": [],
+                "label": "Password",
+                "placeholder": "Enter password",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "password",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1t5ej5p",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter password again",
+                "options": [],
+                "label": "Confirm Password",
+                "placeholder": "Enter password again",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "password2",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-gk2uu7",
+                "kind": "click",
+                "role": "visual",
+                "name": "Submit",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".form button",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Register With Us Username Email Password Confirm Password Submit"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "testuser123",
+            "role": "input",
+            "value": "testuser123",
+            "label": "Username",
+            "placeholder": "Enter username",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "username",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Filling the username field with a test value to simulate user input.",
+          "expectedOutcome": "The username field should display the entered value 'testuser123'.",
+          "beforeFingerprint": "2c0bda7437155b27",
+          "afterFingerprint": "2c0bda7437155b27",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "Form Validator",
+            "headings": [
+              "Register With Us"
+            ],
+            "buttons": [
+              "Submit"
+            ],
+            "inputs": [
+              "Username",
+              "Email",
+              "Password",
+              "Confirm Password"
+            ],
+            "inputDetails": [
+              {
+                "label": "Username",
+                "placeholder": "Enter username",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Email",
+                "placeholder": "Enter email",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Password",
+                "placeholder": "Enter password",
+                "name": "",
+                "type": "password"
+              },
+              {
+                "label": "Confirm Password",
+                "placeholder": "Enter password again",
+                "name": "",
+                "type": "password"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-1pinju0",
+                "kind": "fill",
+                "role": "input",
+                "name": "testuser123",
+                "options": [],
+                "label": "Username",
+                "placeholder": "Enter username",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "username",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1pinju0-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Username",
+                "options": [],
+                "label": "Username",
+                "placeholder": "Enter username",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "username",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-l9eav9",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter email",
+                "options": [],
+                "label": "Email",
+                "placeholder": "Enter email",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "email",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-l9eav9-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Email",
+                "options": [],
+                "label": "Email",
+                "placeholder": "Enter email",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "email",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1ft0fwh",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter password",
+                "options": [],
+                "label": "Password",
+                "placeholder": "Enter password",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "password",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1t5ej5p",
+                "kind": "fill",
+                "role": "input",
+                "name": "Enter password again",
+                "options": [],
+                "label": "Confirm Password",
+                "placeholder": "Enter password again",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "password2",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-gk2uu7",
+                "kind": "click",
+                "role": "visual",
+                "name": "Submit",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".form button",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Register With Us Username Email Password Confirm Password Submit"
+          }
+        },
+        {
+          "step": 3,
+          "status": "invalid-model-decision",
+          "proposedAction": "fill",
+          "proposedActionId": "username",
+          "error": "The model selected an action that was not present in the current safe action set."
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "Register With Us"
+          ],
+          "buttons": [
+            "Submit"
+          ],
+          "inputs": [
+            "Username",
+            "Email",
+            "Password",
+            "Confirm Password"
+          ]
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "Register With Us"
+          ],
+          "buttons": [
+            "Submit"
+          ],
+          "inputs": [
+            "Username",
+            "Email",
+            "Password",
+            "Confirm Password"
+          ]
+        }
+      ]
+    }
+  },
+  "failedStage": "model-guided live exploration",
+  "error": "Model-guided exploration failed at decision 3: The model selected an action that was not present in the current safe action set.",
+  "durationMs": 11796,
+  "completedAt": "2026-08-15T23:32:04.900Z"
+}

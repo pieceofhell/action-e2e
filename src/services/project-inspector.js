@@ -24,8 +24,9 @@ const IGNORED_DIRECTORIES = new Set([
   "target",
 ]);
 
-async function inspectProject(projectPath) {
+async function inspectProject(projectPath, { onProgress = () => {} } = {}) {
   const resolvedProjectPath = path.resolve(projectPath);
+  onProgress({ phase: "directory-scan", message: "Scanning the project structure and relevant files...", progress: 10 });
   const stat = await fs.stat(resolvedProjectPath).catch(() => null);
 
   if (!stat || !stat.isDirectory()) {
@@ -34,6 +35,7 @@ async function inspectProject(projectPath) {
 
   const files = [];
   await walkProject(resolvedProjectPath, resolvedProjectPath, 0, files);
+  onProgress({ phase: "manifest-analysis", message: `Indexed ${files.length} file(s); reading manifests and dependencies...`, progress: 26 });
 
   const extensionCounts = countExtensions(files);
   const packageJsonEntries = files.filter((file) => path.basename(file.relativePath) === "package.json");
@@ -47,9 +49,12 @@ async function inspectProject(projectPath) {
   const rootManifest = manifestCandidates.find((candidate) => candidate.entry.relativePath === "package.json") || null;
   const primaryManifestCandidate = choosePrimaryManifest(manifestCandidates) || rootManifest;
   const packageManifest = primaryManifestCandidate?.manifest || null;
+  onProgress({ phase: "documentation", message: "Reading project documentation and representative source files...", progress: 38 });
   const readmeExcerpt = readmeEntry ? await readTextExcerpt(readmeEntry.absolutePath) : "";
   const relevantFiles = await readRelevantFiles(files, resolvedProjectPath);
+  onProgress({ phase: "interface-signals", message: "Extracting routes, controls, forms, and interface signals...", progress: 50 });
   const uiHints = await extractUiHints(htmlCandidates, resolvedProjectPath);
+  onProgress({ phase: "technology-detection", message: "Inferring the application type, framework, language, and start command...", progress: 61 });
   const framework = detectFramework(packageManifest, files);
   const primaryLanguage = detectPrimaryLanguage(extensionCounts, packageManifest);
   const appType = detectAppType({
@@ -80,6 +85,8 @@ async function inspectProject(projectPath) {
     uiHints,
     files,
   });
+
+  onProgress({ phase: "inspection-summary", message: "Building the initial project understanding and confidence report...", progress: 68 });
 
   return {
     project: {
@@ -202,7 +209,9 @@ function detectFramework(packageManifest, files) {
     ...(packageManifest?.dependencies || {}),
     ...(packageManifest?.devDependencies || {}),
   };
+  const scriptText = Object.values(packageManifest?.scripts || {}).join(" ");
 
+  if (dependencies.vinext || /\bvinext\b/i.test(scriptText)) return "Vinext";
   if (dependencies.next) return "Next.js";
   if (dependencies.react) return "React";
   if (dependencies.vue) return "Vue";
@@ -216,6 +225,7 @@ function detectFramework(packageManifest, files) {
 }
 
 function detectAppType({ readmeExcerpt, packageManifest, relevantFiles, uiHints }) {
+  const readmeText = String(readmeExcerpt || "").toLowerCase();
   const combinedText = [
     readmeExcerpt,
     relevantFiles.map((file) => `${file.relativePath} ${file.excerpt || ""}`).join("\n"),
@@ -231,12 +241,13 @@ function detectAppType({ readmeExcerpt, packageManifest, relevantFiles, uiHints 
     return "graphics-canvas";
   }
 
-  if (/\b(login|sign in|senha|password|autentica|auth|entrar)\b/.test(combinedText)) {
-    return "authentication";
+  const commercePattern = /\b(cart|checkout|carrinho|vitrine|produto|product|compra|shopping|pedido)\b/;
+  if (commercePattern.test(readmeText) || commercePattern.test(combinedText)) {
+    return "commerce";
   }
 
-  if (/\b(cart|checkout|produto|product|compra|pedido)\b/.test(combinedText)) {
-    return "commerce";
+  if (/\b(login|sign in|senha|password|autentica|auth|entrar)\b/.test(combinedText)) {
+    return "authentication";
   }
 
   if (/\b(dashboard|painel|analytics|chart|relat[oÃ³]rio)\b/.test(combinedText)) {
@@ -282,13 +293,15 @@ function recommendRuntime({ files, manifestCandidate, framework, readmeExcerpt }
   }
 
   if (hasPackageJson && (scripts.dev || scripts.start || scripts.preview)) {
-    const startCommand = scripts.dev ? `${packageManager} run dev` : scripts.start ? `${packageManager} run start` : `${packageManager} run preview`;
+    const selectedScriptName = scripts.dev ? "dev" : scripts.start ? "start" : "preview";
+    const selectedScript = scripts[selectedScriptName];
+    const startCommand = `${packageManager} run ${selectedScriptName}`;
     return {
       mode: "command",
       supportedForExecution: true,
       installCommand,
       startCommand,
-      baseUrl: guessBaseUrl(framework, scripts),
+      baseUrl: guessBaseUrl(framework, selectedScript),
       workingDirectory,
       source: "package-manifest",
       notes: `Command and base URL were inferred from ${manifestCandidate?.entry?.relativePath || "package.json"}. The interface allows manual review before execution.`,
@@ -344,17 +357,21 @@ function manifestWorkingDirectory(manifestCandidate) {
   return directory === "." ? "." : directory;
 }
 
-function guessBaseUrl(framework, scripts) {
-  const scriptText = Object.values(scripts || {}).join(" ").toLowerCase();
-  const explicitUrl = scriptText.match(/https?:\/\/(?:127\.0\.0\.1|localhost):(\d{2,5})/i);
+function guessBaseUrl(framework, selectedScript) {
+  const scriptText = String(selectedScript || "").toLowerCase();
+  const prefersLocalhost = framework === "Vinext" || framework === "Vite" || /\b(?:vinext|vite)\b/.test(scriptText);
+  const loopbackHost = prefersLocalhost ? "localhost" : "127.0.0.1";
+  const explicitUrl = scriptText.match(/https?:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}/i);
   const explicitPort = scriptText.match(/(?:--port|\-p|port=)\s*(?:=\s*)?(\d{2,5})/i);
 
-  if (explicitUrl) return `http://127.0.0.1:${explicitUrl[1]}`;
-  if (explicitPort) return `http://127.0.0.1:${explicitPort[1]}`;
+  if (explicitUrl) return explicitUrl[0];
+  if (explicitPort) return `http://${loopbackHost}:${explicitPort[1]}`;
 
-  if (/5173/.test(scriptText) || framework === "Vite") return "http://127.0.0.1:5173";
+  if (/5173/.test(scriptText) || framework === "Vite") return "http://localhost:5173";
+  if (framework === "Vinext") return "http://localhost:3000";
   if (/4200/.test(scriptText) || framework === "Angular") return "http://127.0.0.1:4200";
   if (/4173/.test(scriptText)) return "http://127.0.0.1:4173";
+  if (/webpack(?:-dev-server|\s+serve)/.test(scriptText)) return "http://127.0.0.1:8080";
   if (/8080/.test(scriptText)) return "http://127.0.0.1:8080";
   return "http://127.0.0.1:3000";
 }
@@ -891,6 +908,7 @@ function buildWarnings({ appType, runtime, readmeExcerpt, uiHints }) {
 }
 
 module.exports = {
+  detectAppType,
   inspectProject,
   recommendRuntime,
 };

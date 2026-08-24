@@ -1,0 +1,1565 @@
+{
+  "model": "qwen3:8b",
+  "status": "completed",
+  "startedAt": "2026-08-14T15:53:30.529Z",
+  "stages": {
+    "exploration": {
+      "status": "completed",
+      "strategy": "model-guided-stateful",
+      "metrics": {
+        "requestedStepLimit": 8,
+        "completedActions": 4,
+        "changedStates": 3,
+        "uniqueStates": 4,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "favorites",
+          "cart",
+          "navigation"
+        ],
+        "observedOpportunities": [
+          "product-details",
+          "search-filter",
+          "favorites",
+          "cart",
+          "navigation"
+        ],
+        "durationMs": 87970
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Começar a explorar",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Initiate exploration of product categories to uncover navigation and filtering capabilities.",
+          "expectedOutcome": "Navigate to a product catalog section with category-based product listings and filtering options.",
+          "beforeFingerprint": "9a719e08fad9de06",
+          "afterFingerprint": "9a719e08fad9de06",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Nebula X16",
+              "Keypop 75",
+              "Studio Bloom",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar"
+            ],
+            "buttons": [
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Escolha da semana",
+              "Favoritar Nebula X16",
+              "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+              "Adicionar Nebula X16 ao carrinho",
+              "Som satisfatório",
+              "Favoritar Keypop 75",
+              "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-5",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "Escolha da semana",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Nebula X16",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Nebula X16 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Som satisfatório",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Keypop 75",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Keypop 75 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Novo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Studio Bloom",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaStudio BloomKit teclado + mouse sem fio4.7",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Studio Bloom ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Capitã Rubra",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Capitã Rubra ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 26 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 R$ 14.990,00 R$ 12.899,00 SOM SATISFATÓRIO TECNOLOGIA Keypop 75 Teclado mecânico · switch cr"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Explore product details by clicking on a specific product title to navigate to its dedicated page.",
+          "expectedOutcome": "The browser navigates to the Nebula X16 product details page, displaying pricing, specifications, and other product information.",
+          "beforeFingerprint": "9a719e08fad9de06",
+          "afterFingerprint": "ae5984d26852e767",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Nebula X16",
+              "Keypop 75",
+              "Studio Bloom",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar"
+            ],
+            "buttons": [
+              "Fechar produto",
+              "Favoritar produto",
+              "Adicionar ao carrinho",
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Escolha da semana",
+              "Favoritar Nebula X16",
+              "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+              "Adicionar Nebula X16 ao carrinho"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Fechar produto",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar produto",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar ao carrinho",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-5",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Escolha da semana",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Nebula X16",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Nebula X16 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Som satisfatório",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Keypop 75",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Keypop 75 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Novo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Studio Bloom",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaStudio BloomKit teclado + mouse sem fio4.7",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Studio Bloom ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 1,
+            "overlayTexts": [
+              "ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 · 1.248 avaliações Uma estação gamer potente para streams, campanhas épicas e noites inteiras no seu jogo favorito. PREÇO R$ 12.899,00 Adicionar ao carrinho"
+            ],
+            "visibleTextExcerpt": "ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 · 1.248 avaliações Uma estação gamer potente para streams, campanhas épicas e noites inteiras no seu jogo favorito. PREÇO R$ 12.899,00 Adicionar ao carrinho Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 26"
+          }
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Favoritar produto",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Test favorite functionality on the active product overlay",
+          "expectedOutcome": "Product is added to favorites",
+          "beforeFingerprint": "ae5984d26852e767",
+          "afterFingerprint": "443242180e8e5194",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Nebula X16",
+              "Keypop 75",
+              "Studio Bloom",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar"
+            ],
+            "buttons": [
+              "Fechar produto",
+              "Favoritar produto",
+              "Adicionar ao carrinho",
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Escolha da semana",
+              "Remover Nebula X16 dos favoritos",
+              "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+              "Adicionar Nebula X16 ao carrinho"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Fechar produto",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar produto",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar ao carrinho",
+                "safe": true,
+                "inOverlay": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-5",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Escolha da semana",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Remover Nebula X16 dos favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Nebula X16 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Som satisfatório",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Keypop 75",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Keypop 75 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Novo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Studio Bloom",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaStudio BloomKit teclado + mouse sem fio4.7",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Studio Bloom ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 1,
+            "overlayTexts": [
+              "ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 · 1.248 avaliações Uma estação gamer potente para streams, campanhas épicas e noites inteiras no seu jogo favorito. PREÇO R$ 12.899,00 Adicionar ao carrinho"
+            ],
+            "visibleTextExcerpt": "ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 · 1.248 avaliações Uma estação gamer potente para streams, campanhas épicas e noites inteiras no seu jogo favorito. PREÇO R$ 12.899,00 Adicionar ao carrinho Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 26"
+          }
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Adicionar ao carrinho",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Test adding Nebula X16 to cart",
+          "expectedOutcome": "Product added to cart, cart icon updates",
+          "beforeFingerprint": "443242180e8e5194",
+          "afterFingerprint": "3dec57a296a68865",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Nebula X16",
+              "Keypop 75",
+              "Studio Bloom",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar"
+            ],
+            "buttons": [
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 1 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Escolha da semana",
+              "Remover Nebula X16 dos favoritos",
+              "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+              "Adicionar Nebula X16 ao carrinho",
+              "Som satisfatório",
+              "Favoritar Keypop 75",
+              "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 1 itens",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-5",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "Escolha da semana",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "Remover Nebula X16 dos favoritos",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Nebula X16 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Som satisfatório",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Keypop 75",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Keypop 75 ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Novo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Studio Bloom",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaStudio BloomKit teclado + mouse sem fio4.7",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Studio Bloom ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Capitã Rubra",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8",
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Capitã Rubra ao carrinho",
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Dopa Carrinho 1 NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 26 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 R$ 14.990,00 R$ 12.899,00 SOM SATISFATÓRIO TECNOLOGIA Keypop 75 Teclado mecânico · switch "
+          }
+        },
+        {
+          "step": 5,
+          "status": "model-finished",
+          "rationale": "No further actions needed to explore meaningful scenarios without repeating covered intents or violating constraints."
+        }
+      ],
+      "stateSummaries": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar"
+          ],
+          "buttons": [
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Favoritar Nebula X16",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho",
+            "Som satisfatório",
+            "Favoritar Keypop 75",
+            "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+          ],
+          "dialogsCount": 0
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar"
+          ],
+          "buttons": [
+            "Fechar produto",
+            "Favoritar produto",
+            "Adicionar ao carrinho",
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Favoritar Nebula X16",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho"
+          ],
+          "dialogsCount": 1
+        },
+        {
+          "id": "state-3",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar"
+          ],
+          "buttons": [
+            "Fechar produto",
+            "Favoritar produto",
+            "Adicionar ao carrinho",
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Remover Nebula X16 dos favoritos",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho"
+          ],
+          "dialogsCount": 1
+        },
+        {
+          "id": "state-4",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar"
+          ],
+          "buttons": [
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 1 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Remover Nebula X16 dos favoritos",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho",
+            "Som satisfatório",
+            "Favoritar Keypop 75",
+            "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+          ],
+          "dialogsCount": 0
+        }
+      ],
+      "error": ""
+    },
+    "understanding": {
+      "usedModel": true,
+      "synopsis": "A web application state snapshot containing navigation history, route definitions, and UI element metadata for a multi-page interface.",
+      "confidence": "medium",
+      "capabilities": [
+        "Track user navigation history",
+        "Define and reference route metadata",
+        "Catalog UI elements (buttons, inputs, links)",
+        "Maintain contextual state information"
+      ],
+      "error": ""
+    },
+    "planning": {
+      "usedModel": true,
+      "mode": "ai-augmented",
+      "flowCount": 3,
+      "approvedFlowCount": 3,
+      "flows": [
+        {
+          "id": "review-primary-actions",
+          "title": "Verify Primary Navigation and User Actions",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-1",
+            "state-2"
+          ],
+          "criteriaCount": 2,
+          "criteria": [
+            {
+              "title": "Home Button Redirects to Main Page",
+              "given": "User is on the main interface",
+              "when": "User clicks the 'Home' button",
+              "then": "Browser navigates to '/' route"
+            },
+            {
+              "title": "Search Bar Filters Products",
+              "given": "User is on the product listing page",
+              "when": "User types 'laptop' in the search bar",
+              "then": "Product list updates to show only items matching 'laptop'"
+            }
+          ]
+        },
+        {
+          "id": "render-main-interface",
+          "title": "Validate Main Interface Rendering",
+          "confidence": "medium",
+          "evidenceStateIds": [
+            "state-1",
+            "state-3"
+          ],
+          "criteriaCount": 1,
+          "criteria": [
+            {
+              "title": "Product Grid Displays Correctly",
+              "given": "Application loads successfully",
+              "when": "User inspects the product grid section",
+              "then": "Grid contains at least 12 items with consistent spacing and alignment"
+            }
+          ]
+        },
+        {
+          "id": "generic-safe-exploration",
+          "title": "Test Safe Exploration Patterns",
+          "confidence": "low",
+          "evidenceStateIds": [
+            "state-2",
+            "state-4"
+          ],
+          "criteriaCount": 2,
+          "criteria": [
+            {
+              "title": "Product Card Hover Shows Details",
+              "given": "User hovers over a product card",
+              "when": "User maintains hover for 1 second",
+              "then": "Card displays price and rating information"
+            },
+            {
+              "title": "Scrolling Loads Infinite Content",
+              "given": "User scrolls to the bottom of the product list",
+              "when": "User continues scrolling beyond 100% of the viewport",
+              "then": "New products load dynamically into the grid"
+            }
+          ]
+        }
+      ],
+      "error": ""
+    },
+    "generation": {
+      "runId": "dopa-2026-08-14T16-07-49-311Z",
+      "runDirectory": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\dopa-2026-08-14T16-07-49-311Z",
+      "testCount": 3,
+      "modes": [
+        {
+          "title": "Verify Primary Navigation and User Actions",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model attempted to click a target that was not clearly grounded in the safe interaction hints.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        },
+        {
+          "title": "Validate Main Interface Rendering",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model asserted an element count that was not grounded in observed evidence.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        },
+        {
+          "title": "Test Safe Exploration Patterns",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model used a CSS class selector that was not grounded in observed evidence.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        }
+      ],
+      "modelAuthoredCount": 0,
+      "modelJourneyCompiledCount": 3,
+      "fallbackCount": 0
+    },
+    "execution": {
+      "summary": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 10591.183
+      },
+      "tests": [
+        {
+          "title": "Test Safe Exploration Patterns",
+          "status": "passed",
+          "durationMs": 9127,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/generic-safe-exploration-Test-Safe-Exploration-Patterns/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/generic-safe-exploration-Test-Safe-Exploration-Patterns/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/generic-safe-exploration-Test-Safe-Exploration-Patterns/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "Validate Main Interface Rendering",
+          "status": "passed",
+          "durationMs": 8602,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/render-main-interface-Validate-Main-Interface-Rendering/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/render-main-interface-Validate-Main-Interface-Rendering/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/render-main-interface-Validate-Main-Interface-Rendering/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "Verify Primary Navigation and User Actions",
+          "status": "passed",
+          "durationMs": 8505,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/review-primary-actions-Ver-53f2f-Navigation-and-User-Actions/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/review-primary-actions-Ver-53f2f-Navigation-and-User-Actions/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/review-primary-actions-Ver-53f2f-Navigation-and-User-Actions/trace.zip"
+            }
+          ]
+        }
+      ],
+      "reportPath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\dopa-2026-08-14T16-07-49-311Z\\results\\playwright-results.json"
+    }
+  },
+  "durationMs": 299739,
+  "completedAt": "2026-08-14T15:58:30.268Z",
+  "replayedGenerationAt": "2026-08-14T16:14:03.854Z",
+  "reexecutedAt": "2026-08-14T16:21:28.122Z"
+}

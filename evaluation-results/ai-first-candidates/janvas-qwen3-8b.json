@@ -1,0 +1,1144 @@
+{
+  "id": "janvas",
+  "name": "Janvas",
+  "projectPath": "C:\\Users\\henri\\Documents\\GitHub\\canvas-wrapper-test",
+  "model": "qwen3:8b",
+  "protocol": "ai-first-adaptive-v2",
+  "status": "completed",
+  "startedAt": "2026-08-16T01:42:52.655Z",
+  "stages": {
+    "staticInspection": {
+      "framework": "Next.js",
+      "appType": "dashboard",
+      "runtime": {
+        "mode": "command",
+        "supportedForExecution": true,
+        "installCommand": "bun install",
+        "startCommand": "bun run dev",
+        "baseUrl": "http://127.0.0.1:3000",
+        "workingDirectory": "apps/web",
+        "source": "package-manifest",
+        "notes": "Command and base URL were inferred from apps/web/package.json. The interface allows manual review before execution."
+      }
+    },
+    "understanding": {
+      "synopsis": "The project is a monorepo for the Janvas application, which includes a Next.js web app, a React Native mobile app, and shared utilities. The focus is on implementing an acceptance test generation workflow using large language models, as described in an industrial case study. The web app is expected to run browser tests using Playwright, and the mobile app is built with Expo.",
+      "capabilities": [
+        "Acceptance test generation using large language models",
+        "Gherkin scenario refinement for user stories",
+        "Browser test execution with Playwright",
+        "Deterministic mock Canvas provider for test stability",
+        "Cross-platform development with shared utilities"
+      ],
+      "provider": "Local Ollama / qwen3:8b"
+    },
+    "exploration": {
+      "status": "completed",
+      "terminationReason": "safe-actions-exhausted",
+      "metrics": {
+        "adaptiveStepLimit": 12,
+        "adaptiveDurationMs": 120000,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 6,
+        "changedStates": 4,
+        "uniqueStates": 4,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details",
+          "navigation"
+        ],
+        "durationMs": 20727
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Start with Janvas",
+            "role": "button",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "The 'Start with Janvas' button is the primary call-to-action on the landing page, and clicking it will lead to the next state in the user journey.",
+          "expectedOutcome": "The user will be redirected to the next page in the application, likely the onboarding or main interface.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "7620cc2a47b0538a",
+          "afterFingerprint": "a6a51504d67e206d",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Janvas",
+            "headings": [
+              "Connect your Canvas account"
+            ],
+            "buttons": [
+              "Show",
+              "Save key and connect"
+            ],
+            "inputs": [
+              "Canvas URL",
+              "Canvas API key"
+            ],
+            "inputDetails": [
+              {
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "name": "",
+                "type": "password"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-17570pf",
+                "kind": "click",
+                "role": "link",
+                "name": "Official Canvas docs",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": true,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2vuzfb",
+                "kind": "click",
+                "role": "link",
+                "name": "Privacy policy",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1ue1pq2",
+                "kind": "click",
+                "role": "button",
+                "name": "Show",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1wnwzjq",
+                "kind": "click",
+                "role": "visual",
+                "name": "Save key and connect",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".cursor-pointer",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "SECURE DEVICE SETUP Connect your Canvas account Paste your Canvas API key. It is stored securely on this device for future sessions. Saved on this device Your Canvas URL and API key stay on this device for future sessions. Connect straight to Canvas Janvas uses your institution URL directly instead of a separate sync service. Ready in about a minute Create one token in Canvas, paste it here, and you are set. How to get your API key 1. Open Canvas and go to your profile or account settings page. 2. Find the Approved Integrations section. 3. Click New Access Token or Generate Token. 4. Add a purpose if Canvas asks for it, then generate the token. 5. Copy it immediately and paste it here, becau"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Canvas URL",
+            "role": "input",
+            "value": "https://school.instructure.com",
+            "label": "Canvas URL",
+            "placeholder": "Canvas URL (for example https://school.instructure.com)",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "canvas-url",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Filling the Canvas URL input with a sample URL to simulate a user entering their institution's URL.",
+          "expectedOutcome": "The Canvas URL field should be populated with the provided URL, indicating successful input.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "a6a51504d67e206d",
+          "afterFingerprint": "a6a51504d67e206d",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "Janvas",
+            "headings": [
+              "Connect your Canvas account"
+            ],
+            "buttons": [
+              "Show",
+              "Save key and connect"
+            ],
+            "inputs": [
+              "Canvas URL",
+              "Canvas API key"
+            ],
+            "inputDetails": [
+              {
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "name": "",
+                "type": "password"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-17570pf",
+                "kind": "click",
+                "role": "link",
+                "name": "Official Canvas docs",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": true,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2vuzfb",
+                "kind": "click",
+                "role": "link",
+                "name": "Privacy policy",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1ue1pq2",
+                "kind": "click",
+                "role": "button",
+                "name": "Show",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1wnwzjq",
+                "kind": "click",
+                "role": "visual",
+                "name": "Save key and connect",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".cursor-pointer",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "SECURE DEVICE SETUP Connect your Canvas account Paste your Canvas API key. It is stored securely on this device for future sessions. Saved on this device Your Canvas URL and API key stay on this device for future sessions. Connect straight to Canvas Janvas uses your institution URL directly instead of a separate sync service. Ready in about a minute Create one token in Canvas, paste it here, and you are set. How to get your API key 1. Open Canvas and go to your profile or account settings page. 2. Find the Approved Integrations section. 3. Click New Access Token or Generate Token. 4. Add a purpose if Canvas asks for it, then generate the token. 5. Copy it immediately and paste it here, becau"
+          }
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Show",
+            "role": "button",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "The 'Show' button is likely to reveal additional information or settings related to the Canvas API key, which can help in understanding how the key is managed or used within the application.",
+          "expectedOutcome": "The 'Show' button may display details about the API key or related settings, providing insight into the secure handling of credentials.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "a6a51504d67e206d",
+          "afterFingerprint": "91d30d0dc5fd9a41",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Janvas",
+            "headings": [
+              "Connect your Canvas account"
+            ],
+            "buttons": [
+              "Hide",
+              "Save key and connect"
+            ],
+            "inputs": [
+              "Canvas URL",
+              "Canvas API key"
+            ],
+            "inputDetails": [
+              {
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "name": "",
+                "type": "text"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-17570pf",
+                "kind": "click",
+                "role": "link",
+                "name": "Official Canvas docs",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": true,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2vuzfb",
+                "kind": "click",
+                "role": "link",
+                "name": "Privacy policy",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1u8k5hj",
+                "kind": "click",
+                "role": "button",
+                "name": "Hide",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1wnwzjq",
+                "kind": "click",
+                "role": "visual",
+                "name": "Save key and connect",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".cursor-pointer",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "SECURE DEVICE SETUP Connect your Canvas account Paste your Canvas API key. It is stored securely on this device for future sessions. Saved on this device Your Canvas URL and API key stay on this device for future sessions. Connect straight to Canvas Janvas uses your institution URL directly instead of a separate sync service. Ready in about a minute Create one token in Canvas, paste it here, and you are set. How to get your API key 1. Open Canvas and go to your profile or account settings page. 2. Find the Approved Integrations section. 3. Click New Access Token or Generate Token. 4. Add a purpose if Canvas asks for it, then generate the token. 5. Copy it immediately and paste it here, becau"
+          }
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "press",
+            "name": "Press Enter in Canvas URL",
+            "role": "input",
+            "value": "",
+            "label": "Canvas URL",
+            "placeholder": "Canvas URL (for example https://school.instructure.com)",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "canvas-url",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "The 'Canvas URL' input field is visible and requires a value. Pressing Enter after filling it will submit the input, allowing us to verify the behavior of the form submission.",
+          "expectedOutcome": "The form should submit the Canvas URL, potentially leading to a new state or confirmation message.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "91d30d0dc5fd9a41",
+          "afterFingerprint": "91d30d0dc5fd9a41",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "Janvas",
+            "headings": [
+              "Connect your Canvas account"
+            ],
+            "buttons": [
+              "Hide",
+              "Save key and connect"
+            ],
+            "inputs": [
+              "Canvas URL",
+              "Canvas API key"
+            ],
+            "inputDetails": [
+              {
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "name": "",
+                "type": "text"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-17570pf",
+                "kind": "click",
+                "role": "link",
+                "name": "Official Canvas docs",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": true,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2vuzfb",
+                "kind": "click",
+                "role": "link",
+                "name": "Privacy policy",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1u8k5hj",
+                "kind": "click",
+                "role": "button",
+                "name": "Hide",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1wnwzjq",
+                "kind": "click",
+                "role": "visual",
+                "name": "Save key and connect",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".cursor-pointer",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "SECURE DEVICE SETUP Connect your Canvas account Paste your Canvas API key. It is stored securely on this device for future sessions. Saved on this device Your Canvas URL and API key stay on this device for future sessions. Connect straight to Canvas Janvas uses your institution URL directly instead of a separate sync service. Ready in about a minute Create one token in Canvas, paste it here, and you are set. How to get your API key 1. Open Canvas and go to your profile or account settings page. 2. Find the Approved Integrations section. 3. Click New Access Token or Generate Token. 4. Add a purpose if Canvas asks for it, then generate the token. 5. Copy it immediately and paste it here, becau"
+          }
+        },
+        {
+          "step": 5,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Hide",
+            "role": "button",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "The 'Hide' button is likely to hide the current input fields or overlay, which can help in understanding the UI behavior and state transitions.",
+          "expectedOutcome": "The input fields or overlay may be hidden, revealing a different state or confirming the UI's response to the 'Hide' action.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "91d30d0dc5fd9a41",
+          "afterFingerprint": "a6a51504d67e206d",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Janvas",
+            "headings": [
+              "Connect your Canvas account"
+            ],
+            "buttons": [
+              "Show",
+              "Save key and connect"
+            ],
+            "inputs": [
+              "Canvas URL",
+              "Canvas API key"
+            ],
+            "inputDetails": [
+              {
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "name": "",
+                "type": "password"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-17570pf",
+                "kind": "click",
+                "role": "link",
+                "name": "Official Canvas docs",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": true,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-2vuzfb",
+                "kind": "click",
+                "role": "link",
+                "name": "Privacy policy",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-14h4z8b-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Canvas URL",
+                "options": [],
+                "label": "Canvas URL",
+                "placeholder": "Canvas URL (for example https://school.instructure.com)",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-url",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-t7vgnb",
+                "kind": "fill",
+                "role": "input",
+                "name": "Canvas API key",
+                "options": [],
+                "label": "Canvas API key",
+                "placeholder": "Paste your Canvas API key",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "canvas-key",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1ue1pq2",
+                "kind": "click",
+                "role": "button",
+                "name": "Show",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1wnwzjq",
+                "kind": "click",
+                "role": "visual",
+                "name": "Save key and connect",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": ".cursor-pointer",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "SECURE DEVICE SETUP Connect your Canvas account Paste your Canvas API key. It is stored securely on this device for future sessions. Saved on this device Your Canvas URL and API key stay on this device for future sessions. Connect straight to Canvas Janvas uses your institution URL directly instead of a separate sync service. Ready in about a minute Create one token in Canvas, paste it here, and you are set. How to get your API key 1. Open Canvas and go to your profile or account settings page. 2. Find the Approved Integrations section. 3. Click New Access Token or Generate Token. 4. Add a purpose if Canvas asks for it, then generate the token. 5. Copy it immediately and paste it here, becau"
+          }
+        },
+        {
+          "step": 6,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Privacy policy",
+            "role": "link",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Navigating to the Privacy policy page will help explore the legal and security aspects of the application, which is relevant for understanding user data handling and compliance.",
+          "expectedOutcome": "The browser will navigate to the Privacy policy page, allowing further exploration of the application's legal and security framework.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "a6a51504d67e206d",
+          "afterFingerprint": "579c79945101fe1b",
+          "changed": true,
+          "observedAfter": {
+            "path": "/privacy",
+            "title": "Privacy Policy | Janvas",
+            "headings": [
+              "Privacy policy",
+              "What Janvas accesses",
+              "What Janvas stores on your device",
+              "How device permissions are used",
+              "How data is shared",
+              "Removing your data from this device",
+              "Contact"
+            ],
+            "buttons": [],
+            "inputs": [],
+            "inputDetails": [],
+            "actions": [],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Privacy policy Last updated: March 22, 2026 Janvas connects directly to the Canvas instance you choose and keeps the data needed to show your courses, assignments, files, messages, calendar items, and reminders on your device. This policy describes what Janvas accesses, what stays on your device, and what happens when you remove your account from the app. What Janvas accesses Janvas uses the Canvas API key and Canvas base URL that you provide to request your course data directly from your institution's Canvas service. Profile information such as your name, email address, avatar, and Canvas user metadata Course data such as subjects, assignments, quizzes, pages, files, grades, people, groups,"
+          }
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "Welcome to Janvas"
+          ],
+          "buttons": [
+            "Start with Janvas"
+          ],
+          "inputs": []
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "Connect your Canvas account"
+          ],
+          "buttons": [
+            "Show",
+            "Save key and connect"
+          ],
+          "inputs": [
+            "Canvas URL",
+            "Canvas API key"
+          ]
+        },
+        {
+          "id": "state-3",
+          "path": "/",
+          "headings": [
+            "Connect your Canvas account"
+          ],
+          "buttons": [
+            "Hide",
+            "Save key and connect"
+          ],
+          "inputs": [
+            "Canvas URL",
+            "Canvas API key"
+          ]
+        },
+        {
+          "id": "state-4",
+          "path": "/privacy",
+          "headings": [
+            "Privacy policy",
+            "What Janvas accesses",
+            "What Janvas stores on your device",
+            "How device permissions are used",
+            "How data is shared",
+            "Removing your data from this device",
+            "Contact"
+          ],
+          "buttons": [],
+          "inputs": []
+        }
+      ]
+    },
+    "planning": {
+      "mode": "ai-first",
+      "flowCount": 1,
+      "flows": [
+        {
+          "id": "semantic-id-123",
+          "title": "Navigation to Privacy Policy Page",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "criteria": [
+            {
+              "title": "Access to Privacy Policy",
+              "given": "User clicks on the Privacy policy link",
+              "when": "User is on the main application page",
+              "then": "User is redirected to the Privacy policy page with the title 'Privacy Policy | Janvas'"
+            }
+          ]
+        }
+      ]
+    },
+    "generation": {
+      "runId": "canvas-wrapper-test-2026-08-16T01-43-55-270Z",
+      "runDirectory": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\canvas-wrapper-test-2026-08-16T01-43-55-270Z",
+      "tests": [
+        {
+          "title": "Navigation to Privacy Policy Page",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model did not return useful content.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        }
+      ]
+    },
+    "execution": {
+      "summary": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 9544.693000000001
+      },
+      "tests": [
+        {
+          "title": "Navigation to Privacy Policy Page",
+          "status": "passed",
+          "durationMs": 8465,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/semantic-id-123-Navigation-to-Privacy-Policy-Page/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/semantic-id-123-Navigation-to-Privacy-Policy-Page/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/semantic-id-123-Navigation-to-Privacy-Policy-Page/trace.zip"
+            }
+          ]
+        }
+      ]
+    },
+    "insights": {
+      "overview": "Consolidated results from the experimental pipeline execution.",
+      "insights": [
+        "1 flow(s) were approved for automated test generation.",
+        "The execution consolidated 1 test(s), with 1 passed, 0 failed, and 0 skipped.",
+        "Semantic interpretation was carried out with Local Ollama / qwen3:8b, grounded in collected project evidence and the recorded live-interface journey.",
+        "The target application was started through the command \"bun run dev\", respecting the user-configured base URL.",
+        "In this run, the model-authored tests traversed the approved paths without a fatal failure, which suggests initial pipeline viability for the current scope."
+      ],
+      "limitations": [
+        "The apparent interface exposes few explicit signals. The proposed flows will have reduced confidence.",
+        "Live exploration data is not available, which limits the ability to validate UI interactions."
+      ],
+      "nextSteps": [
+        "Gradually increase the depth of the model-authored acceptance criteria toward more semantic and domain-specific checks.",
+        "Compare different models and providers to measure quality variation in flow writing, criteria generation, and insight synthesis.",
+        "Add extra instrumentation to map the real DOM structure at runtime and enrich selector generation."
+      ],
+      "ai": {
+        "provider": "ollama",
+        "model": "qwen3:8b",
+        "endpoint": "http://127.0.0.1:11434",
+        "label": "Local Ollama / qwen3:8b",
+        "stage": "insight-enrichment"
+      }
+    }
+  },
+  "durationMs": 82677,
+  "completedAt": "2026-08-16T01:44:15.332Z"
+}

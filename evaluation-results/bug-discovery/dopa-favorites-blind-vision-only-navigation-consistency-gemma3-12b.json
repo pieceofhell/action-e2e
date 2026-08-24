@@ -1,0 +1,263 @@
+{
+  "experiment": "dopa-favorites-historical-bug",
+  "protocol": "historical-paired-multimodal-poc-v2",
+  "startedAt": "2026-08-23T13:19:42.917Z",
+  "completedAt": "2026-08-23T13:20:53.208Z",
+  "model": "gemma3:12b",
+  "campaign": {
+    "objective": "navigation-consistency",
+    "visionEnabled": true,
+    "evidenceMode": "vision-only",
+    "blindOnly": true
+  },
+  "groundTruth": {
+    "fixCommit": "93105f8",
+    "parentCommit": "a0e881f",
+    "description": "The Favorites view must not recommend opening the Favorites view itself.",
+    "disclosureToBlindModel": false
+  },
+  "blindModelAssessment": {
+    "mode": "blind",
+    "model": "gemma3:12b",
+    "evidenceMode": "vision-only",
+    "objective": "navigation-consistency",
+    "hypotheses": [
+      {
+        "title": "'Favoritos' Navigation Inconsistency: Active State vs. Bottom Bar",
+        "observedEvidence": "The page title and primary heading are 'Favoritos', indicating this is the 'Favorites' view. However, the bottom navigation bar shows a highlighted 'Favoritos' icon. This suggests the user is *already* in the Favorites section, yet the 'Abrir meus favoritos' button implies they need to be taken there.",
+        "expectedBehavior": "If the page represents the active 'Favoritos' view, the bottom navigation 'Favoritos' icon should not be highlighted; it should reflect a non-active state. Alternatively, if the user is *not* in the Favorites view, the top-level heading and title should change to indicate that they are navigating *to* the Favorites section.",
+        "risk": "medium",
+        "confidence": "high",
+        "oracle": "Browser oracle: After clicking the 'Favoritos' control on the bottom navigation bar, the visual state of the 'Favoritos' icon in the bottom navigation changes from highlighted to non-highlighted (or vice versa)."
+      },
+      {
+        "title": "Confusing Call to Action: 'Explore a vitrine' vs. 'Abrir meus favoritos'",
+        "observedEvidence": "The page presents two distinct calls to action: 'Explorar a vitrine' (Explore the store) and 'Abrir meus favoritos' (Open my favorites). The former is positioned above the bottom navigation, while the latter is within it. It’s unclear which action relates to the current view of Favorites.",
+        "expectedBehavior": "Calls to action should be logically aligned with the user's context. If the user is already viewing their 'Favoritos', a call to action like 'Explore the store' feels disconnected and potentially confusing. The primary action within the 'Favoritos' view should be clearly emphasized, likely through visual prominence or placement.",
+        "risk": "medium",
+        "confidence": "medium",
+        "oracle": "Browser oracle: Clicking either 'Explorar a vitrine' or 'Abrir meus favoritos' leads to a predictable and consistent outcome related to browsing products (for 'Explore') or viewing saved items (for 'Open my favorites')."
+      },
+      {
+        "title": "Inconsistent Messaging: 'Seu coração ainda está leve' vs. 'Salve agora. Volte quando bater vontade.'",
+        "observedEvidence": "The page contains two distinct messages: 'Seu coração ainda está leve' (Your heart is still light) and 'Salve agora. Volte quando bater vontade.' (Save now. Come back when the urge strikes). The first message seems to be a playful encouragement, while the second is a direct call to action for saving items. The connection between these messages isn’t immediately clear.",
+        "expectedBehavior": "Messaging should reinforce each other and contribute to a cohesive user experience. If the goal is to encourage users to save items, the messaging should consistently focus on that action rather than presenting seemingly unrelated sentiments.",
+        "risk": "low",
+        "confidence": "medium",
+        "oracle": "Browser oracle: The overall tone and purpose of the page are consistent; the messages do not contradict each other or create confusion about the intended user action."
+      }
+    ],
+    "reviews": [
+      {
+        "title": "'Favoritos' Navigation Inconsistency: Active State vs. Bottom Bar",
+        "decision": "reject",
+        "reason": "The provided evidence describes an inconsistency, but lacks a falsifiable expected behavior. The claim states that the 'Favoritos' icon *should* be non-highlighted if already in the Favorites section, or that the title should change when navigating to the Favorites section. However, these are assertions about desired behavior rather than observable outcomes based on the provided interface evidence.",
+        "suggestedOracle": "Browser oracle: Observe the visual state of the 'Favoritos' icon in the bottom navigation bar after clicking the top-level 'Favoritos' control. Document whether it changes from highlighted to non-highlighted (or vice versa)."
+      },
+      {
+        "title": "Confusing Call to Action: 'Explore a vitrine' vs. 'Abrir meus favoritos'",
+        "decision": "accept",
+        "reason": "The evidence clearly identifies a potential usability issue with the placement and relevance of two calls to action. The expected behavior is reasonable - that calls to action should be logically aligned with user context.",
+        "suggestedOracle": "Browser oracle: After clicking either 'Explorar a vitrine' or 'Abrir meus favoritos', verify that the resulting page/action aligns with the button’s label and intended purpose."
+      },
+      {
+        "title": "Inconsistent Messaging: 'Seu coração ainda está leve' vs. 'Salve agora. Volte quando bater vontade.'",
+        "decision": "reject",
+        "reason": "The evidence describes a perceived lack of connection between two messages, but this is subjective and lacks a falsifiable expected behavior. The claim that the messaging should consistently focus on saving items is an assertion about desired content rather than an observable outcome based on the provided interface evidence.",
+        "suggestedOracle": "Browser oracle: Document the overall tone and purpose of the page as perceived by a user. Assess whether the messages contribute to a cohesive user experience."
+      }
+    ],
+    "matchedGroundTruth": true
+  },
+  "blindOracleAssessment": {
+    "mode": "blind-hypothesis-to-oracle",
+    "model": "gemma3:12b",
+    "skipped": false,
+    "hypothesis": {
+      "title": "'Favoritos' Navigation Inconsistency: Active State vs. Bottom Bar",
+      "observedEvidence": "The page title and primary heading are 'Favoritos', indicating this is the 'Favorites' view. However, the bottom navigation bar shows a highlighted 'Favoritos' icon. This suggests the user is *already* in the Favorites section, yet the 'Abrir meus favoritos' button implies they need to be taken there.",
+      "expectedBehavior": "If the page represents the active 'Favoritos' view, the bottom navigation 'Favoritos' icon should not be highlighted; it should reflect a non-active state. Alternatively, if the user is *not* in the Favorites view, the top-level heading and title should change to indicate that they are navigating *to* the Favorites section.",
+      "risk": "medium",
+      "confidence": "high",
+      "oracle": "Browser oracle: After clicking the 'Favoritos' control on the bottom navigation bar, the visual state of the 'Favoritos' icon in the bottom navigation changes from highlighted to non-highlighted (or vice versa)."
+    },
+    "plan": {
+      "title": "Favoritos Navigation Inconsistency: Active State vs. Bottom Bar",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "compiledPlan": {
+      "title": "Favoritos Navigation Inconsistency: Active State vs. Bottom Bar",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ],
+      "errors": []
+    },
+    "repairUsed": false,
+    "pairedExecutionCompatible": true
+  },
+  "issueInformedAssessment": null,
+  "pairedExecution": {
+    "confirmed": true,
+    "classification": "historical-bug-reproduced",
+    "buggyOutcome": "failed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "a0e881f",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4391"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve",
+          "Salve agora. Volte quando bater vontade."
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Abrir meus favoritos",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine SEU ESPAÇO, DO SEU JEITO Salve agora. Volte quando bater vontade. Use os favoritos para montar coleções pessoais e reencontrar rapidamente tudo o que chamou sua atenção. Abrir meus favoritos Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos remained visible inside the Favorites view.",
+        "status": "failed",
+        "passed": false
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/buggy-favorites.png",
+      "visualEvidence": [
+        "evaluation-results/bug-discovery/evidence/buggy-favorites-viewport-1.png",
+        "evaluation-results/bug-discovery/evidence/buggy-favorites-viewport-2.png"
+      ]
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "93105f8",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4392"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve"
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos was absent inside the Favorites view.",
+        "status": "passed",
+        "passed": true
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/fixed-favorites.png",
+      "visualEvidence": [
+        "evaluation-results/bug-discovery/evidence/fixed-favorites-viewport-1.png",
+        "evaluation-results/bug-discovery/evidence/fixed-favorites-viewport-2.png"
+      ]
+    }
+  },
+  "interpretation": "The paired oracle reproduced the historical bug, and the blind model independently proposed the same defect from interface evidence."
+}

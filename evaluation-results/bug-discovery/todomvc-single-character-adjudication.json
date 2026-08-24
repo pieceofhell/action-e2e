@@ -1,0 +1,46 @@
+{
+  "benchmark": "TodoMVC React single-character creation",
+  "evaluationMode": "issue-withheld-historical-pair",
+  "targetRepository": "https://github.com/tastejs/todomvc",
+  "publicIssue": "https://github.com/tastejs/todomvc/issues/2291",
+  "model": "qwen2.5vl:7b",
+  "reviewerModel": "qwen2.5vl:7b",
+  "affectedRevision": "c8aedce5f512e47991a62b37b9ee3ef38df1a4b6",
+  "controlRevision": "ff43b02e59dfa604386bb382034b2cd07c2bcd8a",
+  "sourceRun": "react-2026-08-24T00-05-01-252Z",
+  "journey": [
+    "Fill New Todo Input with one ordinary character: a",
+    "Press Enter",
+    "Expect a rendered todo item labeled a"
+  ],
+  "differentialResult": {
+    "affectedRevision": {
+      "result": "failed",
+      "observation": "The input retained a and no rendered todo item labeled a was found.",
+      "playwrightArtifact": "evaluation-results/current-trials/todomvc-single-character/historical-playwright-results.json"
+    },
+    "controlRevision": {
+      "result": "passed",
+      "observation": "The same generated test found the rendered todo item labeled a.",
+      "playwrightArtifact": "evaluation-results/current-trials/todomvc-single-character/current-control-results.json"
+    }
+  },
+  "humanAdjudication": [
+    {
+      "modelTitle": "Todo Item Creation",
+      "authorConfidence": "medium",
+      "reviewerConfidence": "medium",
+      "verdict": "confirmed-by-differential-execution",
+      "reason": "The action, expected creation outcome, historical failure, corrected-revision pass, and implementation difference agree."
+    },
+    {
+      "modelTitle": "Input Field Validation",
+      "authorConfidence": "medium",
+      "reviewerConfidence": "medium",
+      "verdict": "false-positive",
+      "reason": "The expected immediate visual feedback while typing was not grounded in a project requirement and is unrelated to the reproduced submission failure."
+    }
+  ],
+  "interpretation": "One of two retained model hypotheses was confirmed. Confidence labels are model self-assessments and were not treated as probabilities.",
+  "knownSelectionBias": "The public issue was used to choose the historical pair, but its description, selectors, source diff, and expected test were withheld from the model."
+}

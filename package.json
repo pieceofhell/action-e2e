@@ -8,7 +8,12 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node --test test/*.test.cjs",
-    "test:smoke": "node test/smoke-pipeline.cjs"
+    "test:smoke": "node --test test/authentication.integration.test.cjs",
+    "evaluate:models": "node scripts/evaluate-models.cjs",
+    "evaluate:candidates:ai-first": "node scripts/evaluate-candidates-ai-first.cjs",
+    "evaluate:blind-local": "node scripts/run-blind-local-evaluation.cjs",
+    "evaluate:replay": "node scripts/replay-model-run.cjs",
+    "evaluate:execute": "node scripts/execute-evaluation-run.cjs"
   },
   "dependencies": {
     "@playwright/test": "^1.54.0",

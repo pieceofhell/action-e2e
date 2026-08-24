@@ -1,8 +1,29 @@
 const DEFAULT_AI_CONFIG = {
-  provider: "heuristic",
-  endpoint: "",
+  provider: "ollama",
+  endpoint: "http://127.0.0.1:11434",
   model: "",
+  criticModel: "",
   apiKey: "",
+};
+
+const DEFAULT_AUTH_CONFIG = {
+  mode: "guest",
+  profileId: "local-read-only",
+  adapter: "janvas-canvas-token",
+  secretEnvVar: "",
+  usernameEnvVar: "",
+  passwordEnvVar: "",
+  providerUrl: "",
+  cookieName: "session",
+  loginPath: "/login",
+  authPaths: "/login",
+  usernameSelector: "input[name='username']",
+  passwordSelector: "input[type='password']",
+  submitSelector: "button[type='submit']",
+  successPath: "",
+  successText: "",
+  allowedPaths: "/profile\n/inbox",
+  initialPath: "/profile",
 };
 
 const state = {
@@ -18,7 +39,27 @@ const state = {
   aiCatalog: null,
   aiConfig: { ...DEFAULT_AI_CONFIG },
   aiTouched: false,
+  requestToken: "",
+  authConfig: { ...DEFAULT_AUTH_CONFIG },
+  authConfigurationStatus: null,
+  activity: {
+    id: "",
+    kind: "pipeline",
+    label: "Pipeline ready",
+    phase: "idle",
+    message: "Start an operation to see what E2P is doing behind the scenes.",
+    progress: 0,
+    status: "idle",
+    startedAt: null,
+    finishedAt: null,
+    events: [],
+    detail: null,
+  },
 };
+
+let activityPollTimer = null;
+let activityClockTimer = null;
+let explorationViewerExpanded = false;
 
 const elements = {
   healthBadge: document.getElementById("healthBadge"),
@@ -30,6 +71,8 @@ const elements = {
   generateTestsButton: document.getElementById("generateTestsButton"),
   runTestsButton: document.getElementById("runTestsButton"),
   inspectionSummary: document.getElementById("inspectionSummary"),
+  bugDiscoveryPanel: document.getElementById("bugDiscoveryPanel"),
+  bugDiscoveryStatus: document.getElementById("bugDiscoveryStatus"),
   flowList: document.getElementById("flowList"),
   generatedArtifacts: document.getElementById("generatedArtifacts"),
   resultsPanel: document.getElementById("resultsPanel"),
@@ -49,6 +92,7 @@ const elements = {
   aiProviderInput: document.getElementById("aiProviderInput"),
   aiModelSelect: document.getElementById("aiModelSelect"),
   aiModelInput: document.getElementById("aiModelInput"),
+  aiCriticModelInput: document.getElementById("aiCriticModelInput"),
   aiEndpointInput: document.getElementById("aiEndpointInput"),
   aiApiKeyInput: document.getElementById("aiApiKeyInput"),
   refreshAiButton: document.getElementById("refreshAiButton"),
@@ -59,7 +103,48 @@ const elements = {
   sendChatButton: document.getElementById("sendChatButton"),
   clearChatButton: document.getElementById("clearChatButton"),
   consoleStatus: document.getElementById("consoleStatus"),
+  authStatus: document.getElementById("authStatus"),
+  accessModeInput: document.getElementById("accessModeInput"),
+  authAdapterInput: document.getElementById("authAdapterInput"),
+  authProfileIdInput: document.getElementById("authProfileIdInput"),
+  authSecretEnvInput: document.getElementById("authSecretEnvInput"),
+  authUsernameEnvInput: document.getElementById("authUsernameEnvInput"),
+  authPasswordEnvInput: document.getElementById("authPasswordEnvInput"),
+  authProviderUrlInput: document.getElementById("authProviderUrlInput"),
+  authCookieNameInput: document.getElementById("authCookieNameInput"),
+  authLoginPathInput: document.getElementById("authLoginPathInput"),
+  authPathsInput: document.getElementById("authPathsInput"),
+  authUsernameSelectorInput: document.getElementById("authUsernameSelectorInput"),
+  authPasswordSelectorInput: document.getElementById("authPasswordSelectorInput"),
+  authSubmitSelectorInput: document.getElementById("authSubmitSelectorInput"),
+  authSuccessPathInput: document.getElementById("authSuccessPathInput"),
+  authSuccessTextInput: document.getElementById("authSuccessTextInput"),
+  authAllowedPathsInput: document.getElementById("authAllowedPathsInput"),
+  authInitialPathInput: document.getElementById("authInitialPathInput"),
+  checkAuthButton: document.getElementById("checkAuthButton"),
+  authSafetyBanner: document.getElementById("authSafetyBanner"),
   timelineList: document.getElementById("timelineList"),
+  activityMonitor: document.getElementById("activityMonitor"),
+  activityLabel: document.getElementById("activityLabel"),
+  activityMessage: document.getElementById("activityMessage"),
+  activityPercent: document.getElementById("activityPercent"),
+  activityElapsed: document.getElementById("activityElapsed"),
+  activityProgress: document.getElementById("activityProgress"),
+  activityProgressFill: document.getElementById("activityProgressFill"),
+  activityLog: document.getElementById("activityLog"),
+  explorationToggleButton: document.getElementById("explorationToggleButton"),
+  explorationViewer: document.getElementById("explorationViewer"),
+  explorationPreviewImage: document.getElementById("explorationPreviewImage"),
+  explorationPreviewEmpty: document.getElementById("explorationPreviewEmpty"),
+  explorationPreviewCaption: document.getElementById("explorationPreviewCaption"),
+  explorationStepLabel: document.getElementById("explorationStepLabel"),
+  explorationStateStatus: document.getElementById("explorationStateStatus"),
+  explorationActionSummary: document.getElementById("explorationActionSummary"),
+  explorationFacts: document.getElementById("explorationFacts"),
+  explorationHistory: document.getElementById("explorationHistory"),
+  howItWorksButton: document.getElementById("howItWorksButton"),
+  howItWorksDialog: document.getElementById("howItWorksDialog"),
+  closeHowItWorksButton: document.getElementById("closeHowItWorksButton"),
   toast: document.getElementById("toast"),
 };
 
@@ -69,6 +154,7 @@ async function bootstrap() {
   wireEvents();
   renderAiUsage();
   renderAll();
+  renderActivity();
   await Promise.all([refreshHealth(), refreshAiProviders()]);
   renderAll();
 }
@@ -85,17 +171,54 @@ function wireEvents() {
   elements.aiProviderInput.addEventListener("change", handleAiProviderChange);
   elements.aiModelSelect.addEventListener("change", handleAiModelSelectChange);
   elements.aiModelInput.addEventListener("input", handleAiInputChange);
+  elements.aiCriticModelInput.addEventListener("input", handleAiInputChange);
   elements.aiEndpointInput.addEventListener("input", handleAiInputChange);
   elements.aiApiKeyInput.addEventListener("input", handleAiInputChange);
   elements.refreshAiButton.addEventListener("click", handleRefreshAiProviders);
   elements.sendChatButton.addEventListener("click", handleSendChat);
   elements.clearChatButton.addEventListener("click", handleClearChat);
   elements.chatInput.addEventListener("keydown", handleChatKeydown);
+  elements.accessModeInput.addEventListener("change", handleAccessModeChange);
+  elements.authAdapterInput.addEventListener("change", handleAuthAdapterChange);
+  elements.checkAuthButton.addEventListener("click", handleCheckAuthConfiguration);
+  elements.howItWorksButton.addEventListener("click", handleOpenWorkflowGuide);
+  elements.closeHowItWorksButton.addEventListener("click", handleCloseWorkflowGuide);
+  elements.howItWorksDialog.addEventListener("click", handleWorkflowDialogClick);
+  elements.howItWorksDialog.addEventListener("close", handleWorkflowDialogClosed);
+  elements.explorationToggleButton.addEventListener("click", handleExplorationViewerToggle);
+  document.querySelectorAll(".auth-config-grid input, .auth-config-grid textarea").forEach((input) => {
+    input.addEventListener("input", handleAuthConfigInput);
+  });
+}
+
+function handleExplorationViewerToggle() {
+  explorationViewerExpanded = !explorationViewerExpanded;
+  renderActivity();
+}
+
+function handleOpenWorkflowGuide() {
+  document.body.classList.add("has-open-dialog");
+  elements.howItWorksDialog.showModal();
+}
+
+function handleCloseWorkflowGuide() {
+  elements.howItWorksDialog.close();
+}
+
+function handleWorkflowDialogClick(event) {
+  if (event.target === elements.howItWorksDialog) {
+    elements.howItWorksDialog.close();
+  }
+}
+
+function handleWorkflowDialogClosed() {
+  document.body.classList.remove("has-open-dialog");
 }
 
 async function refreshHealth() {
   try {
     const payload = await apiGet("/api/health");
+    state.requestToken = payload.requestToken || "";
     elements.healthBadge.textContent = payload.ok ? "Server online" : "Server unavailable";
   } catch (error) {
     elements.healthBadge.textContent = "Connection failed";
@@ -123,7 +246,11 @@ function handleProjectPathInput(event) {
 async function handleBrowseProject() {
   try {
     setStatus("selectionStatus", "Opening picker...", "is-warning");
-    const payload = await apiPost("/api/project/select");
+    const payload = await runTrackedOperation({
+      kind: "selection",
+      label: "Choosing a project folder",
+      request: (operationId) => apiPost("/api/project/select", { operationId }),
+    });
 
     if (payload.selectedPath) {
       state.projectPath = payload.selectedPath;
@@ -160,9 +287,14 @@ async function loadProjectFromPath(projectPath) {
 
   try {
     setStatus("selectionStatus", "Loading...", "is-warning");
-    const payload = await apiPost("/api/project/load", {
-      projectPath,
-      aiConfig: collectAiConfig(),
+    const payload = await runTrackedOperation({
+      kind: "inspection",
+      label: "Inspecting the selected project",
+      request: (operationId) => apiPost("/api/project/load", {
+        operationId,
+        projectPath,
+        aiConfig: collectAiConfig(),
+      }),
     });
 
     state.projectPath = projectPath;
@@ -181,18 +313,13 @@ async function loadProjectFromPath(projectPath) {
     setStatus("artifactsStatus", "Pending", "");
     setStatus("executionStatus", "Pending", "");
     elements.exploreLiveButton.disabled = false;
-    elements.generatePlanButton.disabled = false;
+    elements.generatePlanButton.disabled = true;
     elements.generateTestsButton.disabled = true;
     elements.runTestsButton.disabled = true;
 
     renderAll();
 
-    if (state.inspection.ai?.error) {
-      notify("The model did not respond during inspection. The heuristic reading was preserved.");
-      return;
-    }
-
-    notify("Project inspected successfully.");
+    notify("AI project understanding completed. Run live interface exploration to continue.");
   } catch (error) {
     setStatus("inspectionStatus", "Failed", "is-error");
     notify(error.message);
@@ -205,15 +332,26 @@ async function handleExploreLiveProject() {
     return;
   }
 
+  if (collectAuthConfig().mode === "authenticated" && !state.authConfigurationStatus?.configured) {
+    notify("Check the authenticated profile configuration before live exploration.");
+    return;
+  }
+
   try {
     setStatus("inspectionStatus", "Exploring live app...", "is-warning");
     elements.exploreLiveButton.disabled = true;
 
-    const payload = await apiPost("/api/project/explore-live", {
-      projectPath: state.projectPath,
-      inspection: state.inspection,
-      runtimeConfig: collectRuntimeConfig(),
-      aiConfig: collectAiConfig(),
+    const payload = await runTrackedOperation({
+      kind: "exploration",
+      label: "Exploring the live application",
+      request: (operationId) => apiPost("/api/project/explore-live", {
+        operationId,
+        projectPath: state.projectPath,
+        inspection: state.inspection,
+        runtimeConfig: collectRuntimeConfig(),
+        aiConfig: collectAiConfig(),
+        authConfig: collectAuthConfig(),
+      }),
     });
 
     state.inspection = payload.inspection;
@@ -236,6 +374,20 @@ async function handleExploreLiveProject() {
     const liveExploration = payload.liveExploration || state.inspection.liveExploration;
 
     if (liveExploration?.status === "completed") {
+      if (liveExploration.runtimeErrors?.length) {
+        setStatus("inspectionStatus", "Runtime error detected", "is-error");
+        notify("Live evidence was captured, but the target displayed a development runtime error. Review it before generating tests.");
+        return;
+      }
+
+      if (liveExploration.access?.mode === "authenticated") {
+        state.authConfigurationStatus = {
+          ...(state.authConfigurationStatus || {}),
+          configured: true,
+          verified: true,
+        };
+        renderAuthConfiguration();
+      }
       notify("Live interface exploration completed. The model can now ground flows and criteria in the rendered UI.");
       return;
     }
@@ -265,11 +417,23 @@ async function handleGeneratePlan() {
     return;
   }
 
+  const agent = state.inspection.liveExploration?.agenticExploration;
+  if (state.inspection.liveExploration?.status !== "completed" || !agent?.usedModel || agent.status !== "completed") {
+    notify("Complete a successful model-guided live exploration before generating flows.");
+    return;
+  }
+
   try {
     setStatus("criteriaStatus", "Generating...", "is-warning");
-    const payload = await apiPost("/api/pipeline/plan", {
-      inspection: state.inspection,
-      aiConfig: collectAiConfig(),
+    const payload = await runTrackedOperation({
+      kind: "planning",
+      label: "Generating user flows and acceptance criteria",
+      request: (operationId) => apiPost("/api/pipeline/plan", {
+        operationId,
+        inspection: state.inspection,
+        aiConfig: collectAiConfig(),
+        authConfig: collectAuthConfig(),
+      }),
     });
 
     state.plan = payload.plan;
@@ -286,11 +450,6 @@ async function handleGeneratePlan() {
     elements.generateTestsButton.disabled = false;
     elements.runTestsButton.disabled = true;
     renderAll();
-
-    if (state.plan.ai?.error) {
-      notify("The configured provider failed during semantic curation. The heuristic plan was kept.");
-      return;
-    }
 
     notify("Flows generated. Review and approve the criteria before continuing.");
   } catch (error) {
@@ -309,12 +468,18 @@ async function handleGenerateTests() {
 
   try {
     setStatus("generationStatus", "Generating...", "is-warning");
-    const payload = await apiPost("/api/tests/generate", {
-      projectPath: state.projectPath,
-      inspection: state.inspection,
-      approvedFlows,
-      runtimeConfig: collectRuntimeConfig(),
-      aiConfig: collectAiConfig(),
+    const payload = await runTrackedOperation({
+      kind: "generation",
+      label: "Generating E2E test artifacts",
+      request: (operationId) => apiPost("/api/tests/generate", {
+        operationId,
+        projectPath: state.projectPath,
+        inspection: state.inspection,
+        approvedFlows,
+        runtimeConfig: collectRuntimeConfig(),
+        aiConfig: collectAiConfig(),
+        authConfig: collectAuthConfig(),
+      }),
     });
 
     state.generated = payload.generated;
@@ -340,14 +505,25 @@ async function handleRunTests() {
     return;
   }
 
+  if (collectAuthConfig().mode === "authenticated" && !state.authConfigurationStatus?.configured) {
+    notify("Check the authenticated profile configuration before running authenticated tests.");
+    return;
+  }
+
   try {
     setStatus("executionStatus", "Running...", "is-warning");
-    const payload = await apiPost("/api/tests/run", {
-      projectPath: state.projectPath,
-      inspection: state.inspection,
-      approvedFlows,
-      generated: state.generated,
-      aiConfig: collectAiConfig(),
+    const payload = await runTrackedOperation({
+      kind: "execution",
+      label: "Running generated E2E tests",
+      request: (operationId) => apiPost("/api/tests/run", {
+        operationId,
+        projectPath: state.projectPath,
+        inspection: state.inspection,
+        approvedFlows,
+        generated: state.generated,
+        aiConfig: collectAiConfig(),
+        authConfig: collectAuthConfig(),
+      }),
     });
 
     state.execution = payload.execution;
@@ -407,17 +583,22 @@ async function handleSendChat() {
   renderChatConsole();
 
   try {
-    const payload = await apiPost("/api/ai/chat", {
-      aiConfig: collectAiConfig(),
-      conversation: state.chatMessages.map((item) => ({
-        role: item.role,
-        content: item.content,
-      })),
-      projectPath: state.projectPath,
-      inspection: state.inspection,
-      plan: state.plan,
-      execution: state.execution,
-      insights: state.insights,
+    const payload = await runTrackedOperation({
+      kind: "model-console",
+      label: "Querying the selected model",
+      request: (operationId) => apiPost("/api/ai/chat", {
+        operationId,
+        aiConfig: collectAiConfig(),
+        conversation: state.chatMessages.map((item) => ({
+          role: item.role,
+          content: item.content,
+        })),
+        projectPath: state.projectPath,
+        inspection: state.inspection,
+        plan: state.plan,
+        execution: state.execution,
+        insights: state.insights,
+      }),
     });
 
     appendChatMessage({
@@ -459,6 +640,7 @@ function handleAiProviderChange(event) {
       provider: providerId,
       endpoint: provider?.endpoint || "",
       model: getPreferredModel(provider?.models || []),
+      criticModel: "",
       apiKey: "",
     };
   }
@@ -482,10 +664,79 @@ function handleAiInputChange() {
   syncAiStatusChip();
 }
 
+function handleAccessModeChange() {
+  state.authConfig.mode = elements.accessModeInput.value;
+  state.authConfigurationStatus = state.authConfig.mode === "guest"
+    ? { configured: true, mode: "guest" }
+    : null;
+  invalidatePostInspectionPipeline();
+  renderAll();
+}
+
+function handleAuthAdapterChange() {
+  const previousAdapter = state.authConfig.adapter;
+  state.authConfig.adapter = elements.authAdapterInput.value;
+
+  if (state.authConfig.adapter === "janvas-canvas-token" && previousAdapter !== state.authConfig.adapter) {
+    elements.authInitialPathInput.value = "/profile";
+    elements.authAllowedPathsInput.value = "/profile\n/inbox";
+  } else if (previousAdapter !== state.authConfig.adapter) {
+    elements.authInitialPathInput.value = "/";
+    elements.authAllowedPathsInput.value = "/";
+  }
+
+  state.authConfigurationStatus = null;
+  invalidatePostInspectionPipeline();
+  renderAll();
+}
+
+function handleAuthConfigInput() {
+  state.authConfig = collectAuthConfig();
+  state.authConfigurationStatus = null;
+  invalidatePostInspectionPipeline();
+  renderAuthConfiguration();
+  updateTimeline();
+}
+
+async function handleCheckAuthConfiguration() {
+  try {
+    elements.checkAuthButton.disabled = true;
+    setStatus("authStatus", "Checking...", "is-warning");
+    const payload = await apiPost("/api/auth/status", {
+      authConfig: collectAuthConfig(),
+    });
+    state.authConfigurationStatus = payload;
+    renderAuthConfiguration();
+
+    if (payload.configured) {
+      notify("The authenticated profile is configured. No credential value was returned to the browser.");
+    } else {
+      notify(payload.error || `Missing secret fields: ${(payload.missingFields || []).join(", ")}.`);
+    }
+  } catch (error) {
+    state.authConfigurationStatus = { configured: false, error: error.message };
+    renderAuthConfiguration();
+    notify(error.message);
+  } finally {
+    elements.checkAuthButton.disabled = false;
+  }
+}
+
+function invalidatePostInspectionPipeline() {
+  state.plan = null;
+  state.generated = null;
+  state.execution = null;
+  state.insights = null;
+  elements.generateTestsButton.disabled = true;
+  elements.runTestsButton.disabled = true;
+}
+
 function renderAll() {
   renderAiConfiguration();
+  renderAuthConfiguration();
   renderChatConsole();
   renderInspection();
+  renderBugDiscovery();
   renderFlows();
   renderArtifacts();
   renderResults();
@@ -495,7 +746,7 @@ function renderAll() {
 
 function renderAiConfiguration() {
   const providers = state.aiCatalog?.providers || buildFallbackAiCatalog().providers;
-  const currentProviderId = state.aiConfig.provider || "heuristic";
+  const currentProviderId = state.aiConfig.provider || "ollama";
   const providerExists = providers.some((provider) => provider.id === currentProviderId);
 
   if (!providerExists) {
@@ -517,18 +768,83 @@ function renderAiConfiguration() {
     elements.aiModelSelect.value = "";
   }
   elements.aiModelInput.value = state.aiConfig.model;
+  elements.aiCriticModelInput.value = state.aiConfig.criticModel || "";
   elements.aiEndpointInput.value = state.aiConfig.endpoint;
   elements.aiApiKeyInput.value = state.aiConfig.apiKey;
 
   const disableModelFields = state.aiConfig.provider === "heuristic";
   elements.aiModelSelect.disabled = disableModelFields;
   elements.aiModelInput.disabled = disableModelFields;
+  elements.aiCriticModelInput.disabled = disableModelFields;
   elements.aiEndpointInput.disabled = disableModelFields;
   elements.aiApiKeyInput.disabled = disableModelFields || !(provider?.requiresApiKey || state.aiConfig.provider === "openai-compatible");
 
   renderAiProviderNote(provider);
   renderAiUsage();
   syncAiStatusChip();
+}
+
+function renderAuthConfiguration() {
+  const config = state.authConfig || DEFAULT_AUTH_CONFIG;
+  const isAuthenticated = config.mode === "authenticated";
+  const adapter = config.adapter || "janvas-canvas-token";
+
+  elements.accessModeInput.value = config.mode;
+  elements.authAdapterInput.value = adapter;
+  elements.authProfileIdInput.value = config.profileId;
+  elements.authSecretEnvInput.value = config.secretEnvVar;
+  elements.authUsernameEnvInput.value = config.usernameEnvVar;
+  elements.authPasswordEnvInput.value = config.passwordEnvVar;
+  elements.authProviderUrlInput.value = config.providerUrl;
+  elements.authCookieNameInput.value = config.cookieName;
+  elements.authLoginPathInput.value = config.loginPath;
+  elements.authPathsInput.value = config.authPaths;
+  elements.authUsernameSelectorInput.value = config.usernameSelector;
+  elements.authPasswordSelectorInput.value = config.passwordSelector;
+  elements.authSubmitSelectorInput.value = config.submitSelector;
+  elements.authSuccessPathInput.value = config.successPath;
+  elements.authSuccessTextInput.value = config.successText;
+  elements.authAllowedPathsInput.value = config.allowedPaths;
+  elements.authInitialPathInput.value = config.initialPath;
+
+  document.querySelectorAll(".auth-only").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated);
+  });
+  document.querySelectorAll(".auth-secret-field").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated || ["form-login", "http-basic"].includes(adapter));
+  });
+  document.querySelectorAll(".auth-user-field").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated || !["form-login", "http-basic"].includes(adapter));
+  });
+  document.querySelectorAll(".auth-janvas-field").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated || adapter !== "janvas-canvas-token");
+  });
+  document.querySelectorAll(".auth-cookie-field").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated || adapter !== "cookie-session");
+  });
+  document.querySelectorAll(".auth-form-field").forEach((element) => {
+    element.classList.toggle("is-hidden", !isAuthenticated || adapter !== "form-login");
+  });
+
+  if (!isAuthenticated) {
+    setStatus("authStatus", "Guest", "");
+    elements.authSafetyBanner.innerHTML = "Guest mode uses the existing pipeline and does not prepare an authenticated session.";
+    return;
+  }
+
+  const status = state.authConfigurationStatus;
+  if (status?.configured) {
+    setStatus("authStatus", "Configured / read-only", "is-ready");
+  } else if (status) {
+    setStatus("authStatus", "Secret missing", "is-error");
+  } else {
+    setStatus("authStatus", "Check required", "is-warning");
+  }
+
+  elements.authSafetyBanner.innerHTML = `
+    <strong>Authenticated / read-only</strong>
+    <span>The ${escapeHtml(adapter)} adapter will use an isolated session. Mutating requests are blocked, traces and videos are disabled, and post-authentication screenshots are scanned before release.</span>
+  `;
 }
 
 function renderInspection() {
@@ -539,8 +855,8 @@ function renderInspection() {
   }
 
   const { inspection } = state;
-  const aiLabel = inspection.ai?.label || "Local heuristics";
-  const aiStage = inspection.ai?.stage || "heuristic-only";
+  const aiLabel = inspection.ai?.label || "AI model unavailable";
+  const aiStage = inspection.ai?.stage || "not-completed";
   const aiMainCapabilities = inspection.ai?.mainCapabilities || [];
   const aiReasoning = inspection.ai?.reasoning || [];
 
@@ -636,6 +952,7 @@ function renderLiveExplorationCard(liveExploration) {
   }
 
   const summary = liveExploration.summary || {};
+  const access = liveExploration.access || { mode: "guest" };
   const routeItems = (liveExploration.routes || []).slice(0, 4).map((route) => {
     const heading = route.headings?.[0] || "No strong heading captured";
     return `${route.path || route.url || "/"} - ${heading}`;
@@ -647,10 +964,15 @@ function renderLiveExplorationCard(liveExploration) {
       <p>Status: ${escapeHtml(liveExploration.status || "unknown")}</p>
       <p>Mode used: ${escapeHtml(liveExploration.mode || "n/a")}</p>
       <p>Base URL: <code>${escapeHtml(liveExploration.baseUrl || "n/a")}</code></p>
+      <p>Access: ${escapeHtml(access.mode || "guest")}${access.adapter && access.adapter !== "none" ? ` via ${escapeHtml(access.adapter)}` : ""}</p>
+      ${access.status ? `<p>Session status: ${escapeHtml(access.status)}</p>` : ""}
+      ${access.policy ? `<p>Blocked requests: ${access.policy.blockedRequestCount || 0}</p>` : ""}
       <p>Observed routes: ${summary.routeCount ?? 0}</p>
       <p>Unique visible actions: ${(summary.uniqueButtons || []).length}</p>
       <p>Unique visible inputs: ${(summary.uniqueInputs || []).length}</p>
+      <p>Runtime health: ${escapeHtml(liveExploration.health || "unknown")}</p>
       ${renderList(routeItems, "No route-level observations were captured.")}
+      ${renderList(liveExploration.runtimeErrors || [], "No development runtime overlay was detected.")}
       ${
         liveExploration.error
           ? `<p>Recorded live-exploration failure: ${escapeHtml(liveExploration.error)}</p>`
@@ -658,6 +980,124 @@ function renderLiveExplorationCard(liveExploration) {
       }
     </article>
   `;
+}
+
+function renderBugDiscovery() {
+  const liveExploration = state.inspection?.liveExploration;
+  const report = liveExploration?.bugDiscovery;
+
+  if (!report) {
+    setStatus("bugDiscoveryStatus", "Pending", "");
+    elements.bugDiscoveryPanel.className = "stack empty-state";
+    elements.bugDiscoveryPanel.innerHTML = "Run guest live exploration to produce a defect-discovery report.";
+    return;
+  }
+
+  const hypotheses = Array.isArray(report.hypotheses) ? report.hypotheses : [];
+  const statusClass = report.status === "completed"
+    ? "is-ready"
+    : report.status === "failed" ? "is-error" : "is-warning";
+  setStatus(
+    "bugDiscoveryStatus",
+    report.status === "completed" ? `${hypotheses.length} hypothesis${hypotheses.length === 1 ? "" : "es"}` : report.status,
+    statusClass,
+  );
+  elements.bugDiscoveryPanel.className = "stack";
+
+  const reportUrl = liveExploration.artifactRun?.artifactBaseUrl
+    ? `${liveExploration.artifactRun.artifactBaseUrl}/results/potential-bugs.json`
+    : "";
+  elements.bugDiscoveryPanel.innerHTML = `
+    <article class="defect-report-summary">
+      <div>
+        <strong>${escapeHtml(report.summary || "Defect discovery finished without a summary.")}</strong>
+        <p>${escapeHtml(report.model || "No model recorded")} &middot; ${escapeHtml(report.evidenceMode || "structured evidence")} &middot; ${report.analyzedStateCount || 0} state(s) &middot; ${report.screening?.rejected || 0} candidate(s) filtered by the critic</p>
+      </div>
+      ${reportUrl ? `<a class="button button--quiet" href="${escapeHtml(reportUrl)}" target="_blank" rel="noopener">Open JSON report</a>` : ""}
+    </article>
+    ${hypotheses.length
+      ? hypotheses.map(renderBugHypothesis).join("")
+      : `<article class="summary-card"><strong>No retained hypothesis</strong><p>The model did not find enough grounded evidence in the states it reached. This is not proof that the application has no defects.</p></article>`}
+    ${(report.rejectedHypotheses || []).length ? `
+      <details class="rejected-hypotheses">
+        <summary>${report.rejectedHypotheses.length} candidate hypothesis${report.rejectedHypotheses.length === 1 ? "" : "es"} rejected by conservative review</summary>
+        <div class="stack">${report.rejectedHypotheses.map((item) => `
+          <article>
+            <strong>${escapeHtml(item.title || "Untitled candidate")}</strong>
+            <p class="muted">Author confidence: ${escapeHtml(item.authorConfidence || "not recorded")} &middot; Reviewer confidence: ${escapeHtml(item.reviewerConfidence || "not recorded")} &middot; Suggested severity: ${escapeHtml(item.authorSeverity || "not recorded")}</p>
+            <p>${escapeHtml(item.reason || "No reason recorded.")}</p>
+          </article>
+        `).join("")}</div>
+      </details>
+    ` : ""}
+    ${(report.errors || []).length ? `<article class="summary-card"><strong>Stage warnings</strong>${renderList(report.errors, "")}</article>` : ""}
+    <article class="defect-limitations">
+      <strong>Human validation remains required</strong>
+      ${renderList(report.limitations || [], "No additional limitation was recorded.")}
+    </article>
+  `;
+}
+
+function renderBugHypothesis(hypothesis, index) {
+  const observed = hypothesis.observed || {};
+  const expected = hypothesis.expected || {};
+  const evidence = hypothesis.evidence || {};
+  const facts = Array.isArray(observed.facts) ? observed.facts : [];
+  const screenshots = Array.isArray(evidence.screenshots) ? evidence.screenshots : [];
+  const consoleErrors = [...(evidence.consoleErrors || []), ...(evidence.pageErrors || [])];
+
+  return `
+    <article class="defect-card">
+      <header class="defect-card__header">
+        <div>
+          <p class="kicker">Hypothesis ${index + 1}</p>
+          <h3>${escapeHtml(hypothesis.title || "Untitled potential defect")}</h3>
+          <p>${escapeHtml(hypothesis.objectiveDescription || "No additional description was supplied.")}</p>
+        </div>
+        <div class="defect-badges">
+          <span class="confidence confidence--${escapeHtml(hypothesis.severity || "medium")}">${escapeHtml(hypothesis.severity || "medium")} severity</span>
+          <span class="confidence confidence--${escapeHtml(hypothesis.confidence || "low")}">${escapeHtml(hypothesis.confidence || "low")} confidence</span>
+          <span class="status-chip is-warning">Unconfirmed</span>
+        </div>
+      </header>
+
+      <div class="defect-context">
+        <div><strong>Affected flow</strong><p>${escapeHtml(hypothesis.affectedFlow || "Not specified")}</p></div>
+        <div><strong>Preconditions</strong>${renderList(hypothesis.preconditions || [], "No explicit precondition.")}</div>
+        <div><strong>Reproduction steps</strong>${renderNumberedList(hypothesis.reproductionSteps || [], "No grounded reproduction path was retained.")}</div>
+      </div>
+
+      <div class="defect-claim-grid">
+        <section class="defect-claim defect-claim--fact">
+          <p class="kicker">Observed facts</p>
+          <strong>${escapeHtml(observed.result || "No observed result was retained.")}</strong>
+          ${facts.length ? `<ul class="list">${facts.map((fact) => `
+            <li>${escapeHtml(fact.statement)} <small>${escapeHtml((fact.evidenceRefs || []).join(", "))}</small></li>
+          `).join("")}</ul>` : "<p>No grounded fact was retained.</p>"}
+        </section>
+        <section class="defect-claim defect-claim--inference">
+          <p class="kicker">Expected behavior &mdash; inference</p>
+          <strong>${escapeHtml(expected.result || "No expectation was retained.")}</strong>
+          <p>${escapeHtml(expected.justification || "No justification was supplied.")}</p>
+          <small>Inference source: ${escapeHtml(expected.source || "model-inference")}</small>
+        </section>
+      </div>
+
+      ${screenshots.length ? `<div class="defect-screenshots">${screenshots.slice(0, 8).map((item) => `
+        <a href="${escapeHtml(item.artifactUrl)}" target="_blank" rel="noopener">
+          <img src="${escapeHtml(item.artifactUrl)}" alt="Evidence from ${escapeHtml(item.stateId || "explored state")}" loading="lazy" />
+          <span>${escapeHtml(item.stateId || item.fileName || "Screenshot")}</span>
+        </a>
+      `).join("")}</div>` : ""}
+      ${consoleErrors.length ? `<details class="defect-diagnostics"><summary>Browser errors (${consoleErrors.length})</summary>${renderList(consoleErrors.map((item) => item.message || String(item)), "")}</details>` : ""}
+      ${hypothesis.criticReview ? `<p class="defect-critic"><strong>Conservative review:</strong> ${escapeHtml(hypothesis.criticReview.reason)} (${escapeHtml(hypothesis.criticReview.confidence || "low")} confidence)</p>` : ""}
+    </article>
+  `;
+}
+
+function renderNumberedList(items, emptyMessage) {
+  if (!Array.isArray(items) || !items.length) return `<p>${escapeHtml(emptyMessage)}</p>`;
+  return `<ol class="numbered-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
 }
 
 function renderFlows() {
@@ -747,7 +1187,7 @@ function renderArtifacts() {
     return;
   }
 
-  const aiLabel = state.plan?.ai?.label || state.inspection?.ai?.label || "Local heuristics";
+  const aiLabel = state.plan?.ai?.label || state.inspection?.ai?.label || "AI model unavailable";
 
   elements.generatedArtifacts.className = "stack";
   elements.generatedArtifacts.innerHTML = `
@@ -756,17 +1196,19 @@ function renderArtifacts() {
       <p><code>${escapeHtml(state.generated.runDirectory)}</code></p>
       <p>The tests were generated outside the analyzed project, in a dedicated prototype directory.</p>
       <p>Semantic layer used during preparation: ${escapeHtml(aiLabel)}</p>
+      <p>Access mode: ${escapeHtml(state.generated.access?.mode || "guest")}${state.generated.access?.adapter && state.generated.access.adapter !== "none" ? ` via ${escapeHtml(state.generated.access.adapter)}` : ""}</p>
       <div class="artifact-links">
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/generated-tests.json`)}" target="_blank" rel="noreferrer">generated-tests.json</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/approved-flows.json`)}" target="_blank" rel="noreferrer">approved-flows.json</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/runtime-config.json`)}" target="_blank" rel="noreferrer">runtime-config.json</a>
+        ${state.generated.access?.mode === "authenticated" ? `<a href="${escapeHtml(`${state.generated.artifactBaseUrl}/auth-metadata.json`)}" target="_blank" rel="noreferrer">auth-metadata.json</a>` : ""}
       </div>
     </article>
     ${state.generated.generatedTests.map((testFile) => `
       <article class="artifact-card">
         <strong>${escapeHtml(testFile.title)}</strong>
         <p><code>${escapeHtml(testFile.fileName)}</code></p>
-        <p>Authoring mode: ${escapeHtml(testFile.generationMode || "heuristic")}</p>
+        <p>Authoring mode: ${escapeHtml(testFile.generationMode || "unknown")}</p>
         ${testFile.generationNote ? `<p>${escapeHtml(testFile.generationNote)}</p>` : ""}
       </article>
     `).join("")}
@@ -782,7 +1224,7 @@ function renderResults() {
 
   const tests = state.execution.report.tests || [];
   const summary = state.execution.report.summary || {};
-  const aiLabel = state.insights.ai?.label || state.plan?.ai?.label || state.inspection?.ai?.label || "Local heuristics";
+  const aiLabel = state.insights.ai?.label || state.plan?.ai?.label || state.inspection?.ai?.label || "AI model unavailable";
 
   elements.resultsPanel.className = "stack";
   elements.resultsPanel.innerHTML = `
@@ -808,6 +1250,7 @@ function renderResults() {
       </div>
       <p>Base URL used: <code>${escapeHtml(state.execution.runtime.baseUrl)}</code></p>
       <p>Semantic consolidation: ${escapeHtml(aiLabel)}</p>
+      ${renderExecutionAccessSummary(state.execution)}
       <div class="artifact-links">
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/playwright-results.json`)}" target="_blank" rel="noreferrer">playwright-results.json</a>
         <a href="${escapeHtml(`${state.generated.artifactBaseUrl}/results/stdout.log`)}" target="_blank" rel="noreferrer">stdout.log</a>
@@ -872,11 +1315,28 @@ function renderEvidenceGallery(tests) {
   return `
     <article class="result-card">
       <strong>Visual evidence</strong>
-      <p>Each test keeps screenshots, video, and a trace whenever Playwright produced them. Open an item below to validate what was exercised.</p>
+      <p>${state.execution?.auth?.mode === "authenticated"
+        ? "Authenticated runs keep post-authentication screenshots only. Traces, videos, headers, cookies, and network payloads are intentionally excluded."
+        : "Each guest test keeps screenshots, video, and a trace whenever Playwright produced them. Open an item below to validate what was exercised."}</p>
       <div class="evidence-grid">
         ${items.map((item) => renderEvidenceItem(item)).join("")}
       </div>
     </article>
+  `;
+}
+
+function renderExecutionAccessSummary(execution) {
+  if (execution?.auth?.mode !== "authenticated") {
+    return "<p>Access mode: guest</p>";
+  }
+
+  return `
+    <div class="auth-result-summary">
+      <p><strong>Authenticated / read-only</strong> via ${escapeHtml(execution.auth.adapter || "configured adapter")}</p>
+      <p>Session: ${escapeHtml(execution.auth.status || "unknown")}</p>
+      <p>Blocked requests: ${execution.policy?.blockedRequestCount || 0}</p>
+      <p>Secret scan: ${escapeHtml(execution.secretScan?.status || "unknown")} (${execution.secretScan?.scannedFiles || 0} files)</p>
+    </div>
   `;
 }
 
@@ -932,19 +1392,27 @@ function renderAiUsage() {
   elements.aiUsagePanel.innerHTML = `
     <article class="usage-card">
       <strong>Step 2: inspection</strong>
-      <p>The local reader collects the README, structure, manifests, routes, components, and UI hints. An optional live exploration can also boot the target app and inspect the rendered interface before the model refines the project summary.</p>
+      <p>The local reader collects grounded evidence from documentation, manifests, routes, components, and UI hints. The model then interprets that evidence instead of guessing from a project name alone.</p>
     </article>
     <article class="usage-card">
-      <strong>Steps 3 and 4: flows and criteria</strong>
-      <p>The heuristic layer still proposes safe starting flows, but the model now authors the acceptance criteria from scratch using static and live evidence, aiming for broader and less repetitive coverage.</p>
+      <strong>Step 3: authenticated context</strong>
+      <p>When enabled, a trusted adapter resolves environment-backed secrets on the server, prepares an ephemeral session, and exposes only sanitized read-only observations to the model.</p>
     </article>
     <article class="usage-card">
-      <strong>Step 5: test rendering</strong>
-      <p>After live exploration, the selected model can author a Playwright body from the approved flow and observed interface. The generated JavaScript is validated before saving; without live evidence, or when it is unsafe, unsupported, or invalid, the deterministic renderer takes over and records that fallback.</p>
+      <strong>Step 4: live exploration</strong>
+      <p>Playwright exposes a bounded set of safe, visible actions. The model chooses what to do next, receives the resulting interface state, and builds a traceable journey through the application.</p>
     </article>
     <article class="usage-card">
-      <strong>Step 7: results and insights</strong>
-      <p>Execution data remains objective and local. The result keeps screenshots, video, and traces for visual review, while the model synthesizes a critical reading of the results, limitations, and next steps.</p>
+      <strong>Steps 5 and 6: flows and criteria</strong>
+      <p>The model authors behavior-rich user flows and acceptance criteria, citing the interface states that support each proposal. The user remains responsible for reviewing and approving them.</p>
+    </article>
+    <article class="usage-card">
+      <strong>Step 7: test generation</strong>
+      <p>Model-authored Playwright is validated before saving. If its code is unsafe or ungrounded, E2P may compile only the journey the model actually executed; without that evidence, the pipeline stops.</p>
+    </article>
+    <article class="usage-card">
+      <strong>Step 8: results and insights</strong>
+      <p>Execution data remains objective and local. Screenshots, video, traces, and coverage distinguish free-form AI tests from compiled model journeys before the model synthesizes insights.</p>
     </article>
   `;
 }
@@ -1022,14 +1490,40 @@ function collectRuntimeConfig() {
   };
 }
 
+function collectAuthConfig() {
+  const config = {
+    mode: elements.accessModeInput.value || "guest",
+    profileId: elements.authProfileIdInput.value.trim(),
+    adapter: elements.authAdapterInput.value,
+    secretEnvVar: elements.authSecretEnvInput.value.trim(),
+    usernameEnvVar: elements.authUsernameEnvInput.value.trim(),
+    passwordEnvVar: elements.authPasswordEnvInput.value.trim(),
+    providerUrl: elements.authProviderUrlInput.value.trim(),
+    cookieName: elements.authCookieNameInput.value.trim(),
+    loginPath: elements.authLoginPathInput.value.trim(),
+    authPaths: elements.authPathsInput.value.trim(),
+    usernameSelector: elements.authUsernameSelectorInput.value.trim(),
+    passwordSelector: elements.authPasswordSelectorInput.value.trim(),
+    submitSelector: elements.authSubmitSelectorInput.value.trim(),
+    successPath: elements.authSuccessPathInput.value.trim(),
+    successText: elements.authSuccessTextInput.value.trim(),
+    allowedPaths: elements.authAllowedPathsInput.value,
+    initialPath: elements.authInitialPathInput.value.trim(),
+  };
+
+  state.authConfig = { ...config };
+  return config;
+}
+
 function collectAiConfig() {
-  const provider = state.aiConfig.provider || elements.aiProviderInput.value || "heuristic";
+  const provider = state.aiConfig.provider || elements.aiProviderInput.value || "ollama";
 
   if (provider === "heuristic") {
     return {
       provider: "heuristic",
       endpoint: "",
       model: "",
+      criticModel: "",
       apiKey: "",
     };
   }
@@ -1038,6 +1532,7 @@ function collectAiConfig() {
     provider,
     endpoint: elements.aiEndpointInput.value.trim(),
     model: (elements.aiModelInput.value.trim() || elements.aiModelSelect.value.trim()),
+    criticModel: elements.aiCriticModelInput.value.trim(),
     apiKey: elements.aiApiKeyInput.value.trim(),
   };
 }
@@ -1069,15 +1564,18 @@ function formatCriteria(criteria) {
 function ensureAiDefaults(forceReset = false) {
   const providers = state.aiCatalog?.providers || [];
   const currentProvider = providers.find((provider) => provider.id === state.aiConfig.provider);
-  const ollamaProvider = providers.find((provider) => provider.id === "ollama" && provider.available);
 
-  if (!state.aiTouched && ollamaProvider && (forceReset || !currentProvider || state.aiConfig.provider === "heuristic")) {
-    state.aiConfig = {
-      provider: "ollama",
-      endpoint: ollamaProvider.endpoint || "http://127.0.0.1:11434",
-      model: getPreferredModel(ollamaProvider.models || []),
-      apiKey: "",
-    };
+  if (!state.aiTouched) {
+    const ollama = providers.find((provider) => provider.id === "ollama" && provider.available !== false);
+    const firstAvailable = ollama || providers.find((provider) => provider.available !== false);
+    state.aiConfig = firstAvailable
+      ? {
+          provider: firstAvailable.id,
+          endpoint: firstAvailable.endpoint || "",
+          model: getPreferredModel(firstAvailable.models || []),
+          apiKey: "",
+        }
+      : { ...DEFAULT_AI_CONFIG };
     return;
   }
 
@@ -1102,16 +1600,6 @@ function ensureAiDefaults(forceReset = false) {
     return;
   }
 
-  if (ollamaProvider) {
-    state.aiConfig = {
-      provider: "ollama",
-      endpoint: ollamaProvider.endpoint || "http://127.0.0.1:11434",
-      model: getPreferredModel(ollamaProvider.models || []),
-      apiKey: "",
-    };
-    return;
-  }
-
   state.aiConfig = { ...DEFAULT_AI_CONFIG };
 }
 
@@ -1120,7 +1608,9 @@ function getPreferredModel(models) {
     return "";
   }
 
-  const preferred = models.find((model) => /openllama/i.test(model.name));
+  const preferred = models.find((model) => /qwen3:8b/i.test(model.name))
+    || models.find((model) => /qwen/i.test(model.name))
+    || models.find((model) => /openllama/i.test(model.name));
   return preferred?.name || models[0].name || "";
 }
 
@@ -1131,12 +1621,6 @@ function getCurrentAiProvider() {
 function buildFallbackAiCatalog(errorMessage = "") {
   return {
     providers: [
-      {
-        id: "heuristic",
-        label: "Local heuristics",
-        available: true,
-        description: "Internal fallback without using an external model.",
-      },
       {
         id: "ollama",
         label: "Local Ollama",
@@ -1197,8 +1681,8 @@ function buildFallbackAiCatalog(errorMessage = "") {
 function renderAiProviderNote(provider) {
   if (!provider || provider.id === "heuristic") {
     elements.aiProviderNote.innerHTML = `
-      <strong>Current mode: local heuristics.</strong>
-      <p>The pipeline remains functional without an external model, but semantic refinement becomes more conservative.</p>
+      <strong>Current mode: non-AI comparison baseline.</strong>
+      <p>No model inference will run. Select a configured model to evaluate AI behavior; this mode exists only as a control condition and recovery path.</p>
     `;
     return;
   }
@@ -1229,7 +1713,7 @@ function syncAiStatusChip() {
   state.aiConfig = { ...config };
 
   if (config.provider === "heuristic") {
-    setStatus("aiStatus", "Local heuristics", "");
+    setStatus("aiStatus", "Non-AI baseline", "");
     return;
   }
 
@@ -1292,9 +1776,9 @@ function buildProviderLabel(provider) {
 
 function describePlanMode(plan) {
   const mapping = {
-    heuristic: "Flows derived from local heuristics based on project signals.",
-    "ai-augmented": "Heuristic plus live-evidence flow planning: the local reader generated candidates and the model authored richer, project-grounded criteria.",
-    "heuristic-fallback": "The model failed during curation. The flows were preserved from the local heuristic layer.",
+    "ai-first": "The selected model authored every flow and criterion from completed live interface evidence.",
+    "authenticated-ai-first": "The selected model authored read-only authenticated flows from verified live interface evidence.",
+    heuristic: "Explicit non-AI baseline mode.",
   };
 
   return mapping[plan.mode] || plan.summary || "Plan without additional description.";
@@ -1306,7 +1790,7 @@ function describePlanAi(aiMetadata) {
   }
 
   const parts = [
-    aiMetadata.label || "Local heuristics",
+    aiMetadata.label || "AI model unavailable",
     aiMetadata.stage ? `stage ${aiMetadata.stage}` : "",
   ].filter(Boolean);
 
@@ -1360,9 +1844,13 @@ function setStatus(key, text, className) {
 }
 
 function updateTimeline() {
+  if (!elements.timelineList) return;
+  const accessReady = Boolean(state.inspection)
+    && (state.authConfig.mode === "guest" || Boolean(state.authConfigurationStatus?.configured));
   const progress = {
     selection: Boolean(state.projectPath),
     inspection: Boolean(state.inspection),
+    access: accessReady,
     flows: Boolean(state.plan),
     criteria: Boolean(state.plan && collectApprovedFlows().length > 0),
     generation: Boolean(state.generated),
@@ -1378,7 +1866,7 @@ function updateTimeline() {
 }
 
 function isPreviousComplete(step, progress) {
-  const order = ["selection", "inspection", "flows", "criteria", "generation", "execution", "insights"];
+  const order = ["selection", "inspection", "access", "flows", "criteria", "generation", "execution", "insights"];
   const position = order.indexOf(step);
 
   if (position <= 0) {
@@ -1386,6 +1874,222 @@ function isPreviousComplete(step, progress) {
   }
 
   return order.slice(0, position).every((key) => progress[key]);
+}
+
+async function runTrackedOperation({ kind, label, request }) {
+  if (state.activity.status === "running") {
+    throw new Error(`Wait for "${state.activity.label}" to finish before starting another operation.`);
+  }
+
+  const operationId = createOperationId();
+  explorationViewerExpanded = false;
+  const startedAt = new Date().toISOString();
+  state.activity = {
+    id: operationId,
+    kind,
+    label,
+    phase: "queued",
+    message: "Sending the operation to the local E2P server...",
+    progress: 1,
+    status: "running",
+    startedAt,
+    finishedAt: null,
+    events: [{
+      phase: "queued",
+      message: "Operation queued by the interface.",
+      progress: 1,
+      at: startedAt,
+    }],
+  };
+  renderActivity();
+  startActivityTimers(operationId);
+
+  try {
+    const payload = await request(operationId);
+    await pollActivity(operationId);
+
+    if (state.activity.id === operationId && state.activity.status === "running") {
+      finishLocalActivity("completed", "Operation completed.");
+    }
+    return payload;
+  } catch (error) {
+    await pollActivity(operationId);
+    if (state.activity.id === operationId && state.activity.status === "running") {
+      finishLocalActivity("failed", error.message || "The operation failed.");
+    }
+    throw error;
+  } finally {
+    stopActivityTimers();
+    renderActivity();
+  }
+}
+
+function startActivityTimers(operationId) {
+  stopActivityTimers();
+  activityPollTimer = setInterval(() => {
+    void pollActivity(operationId);
+  }, 450);
+  activityClockTimer = setInterval(updateActivityElapsed, 1000);
+}
+
+function stopActivityTimers() {
+  clearInterval(activityPollTimer);
+  clearInterval(activityClockTimer);
+  activityPollTimer = null;
+  activityClockTimer = null;
+}
+
+async function pollActivity(operationId) {
+  if (!operationId || state.activity.id !== operationId) return;
+
+  try {
+    const payload = await apiGet(`/api/operations/${encodeURIComponent(operationId)}`);
+    if (state.activity.id !== operationId || !payload.operation) return;
+    state.activity = payload.operation;
+    renderActivity();
+  } catch (error) {
+    // The first poll can arrive before the POST handler registers the operation.
+  }
+}
+
+function finishLocalActivity(status, message) {
+  const finishedAt = new Date().toISOString();
+  state.activity = {
+    ...state.activity,
+    status,
+    phase: status,
+    message,
+    progress: status === "completed" ? 100 : state.activity.progress,
+    finishedAt,
+    events: [...state.activity.events, {
+      phase: status,
+      message,
+      progress: status === "completed" ? 100 : state.activity.progress,
+      at: finishedAt,
+    }].slice(-16),
+  };
+  renderActivity();
+}
+
+function renderActivity() {
+  const activity = state.activity;
+  const progress = Math.max(0, Math.min(100, Number(activity.progress) || 0));
+  elements.activityMonitor.dataset.status = activity.status || "idle";
+  elements.activityLabel.textContent = activity.label || "Pipeline ready";
+  elements.activityMessage.textContent = activity.message || "Waiting for the next operation.";
+  elements.activityPercent.textContent = `${Math.round(progress)}%`;
+  elements.activityProgress.setAttribute("aria-valuenow", String(Math.round(progress)));
+  elements.activityProgressFill.style.width = `${progress}%`;
+  updateActivityElapsed();
+  renderExplorationViewer(activity);
+
+  const recentEvents = (activity.events || []).slice(-3);
+  if (!recentEvents.length) {
+    elements.activityLog.innerHTML = "<li><span>Ready</span><p>Operation milestones will appear here as they happen.</p></li>";
+    return;
+  }
+
+  elements.activityLog.innerHTML = recentEvents.map((event) => `
+    <li>
+      <span>${escapeHtml(formatActivityPhase(event.phase))}</span>
+      <p title="${escapeHtml(event.message)}">${escapeHtml(event.message)}</p>
+    </li>
+  `).join("");
+}
+
+function renderExplorationViewer(activity) {
+  const detail = activity.detail?.type === "exploration" ? activity.detail : null;
+  const completed = Boolean(detail && activity.status !== "running");
+  elements.explorationToggleButton.hidden = !completed;
+  elements.explorationToggleButton.textContent = explorationViewerExpanded ? "Hide exploration" : "Review exploration";
+  elements.explorationViewer.hidden = !detail || (completed && !explorationViewerExpanded);
+  if (!detail) return;
+
+  const stateEvidence = detail.state || {};
+  const action = detail.action;
+  const hasPreview = Boolean(detail.visualPreviewAllowed && detail.screenshotDataUrl);
+  elements.explorationPreviewImage.hidden = !hasPreview;
+  elements.explorationPreviewEmpty.hidden = hasPreview;
+  if (hasPreview) {
+    elements.explorationPreviewImage.src = detail.screenshotDataUrl;
+  } else {
+    elements.explorationPreviewImage.removeAttribute("src");
+    elements.explorationPreviewEmpty.textContent = detail.visualPreviewAllowed
+      ? "The current page could not be captured, but its structured state is still shown."
+      : "Visual preview is disabled for authenticated sessions to protect private content.";
+  }
+
+  elements.explorationPreviewCaption.textContent = `${stateEvidence.title || "Target application"} - ${stateEvidence.path || "/"}`;
+  elements.explorationStepLabel.textContent = `Decision ${detail.step || 1} · adaptive budget ${detail.maxSteps || 1}`;
+  elements.explorationStateStatus.textContent = detail.status === "observed" ? "State captured" : "Model thinking";
+
+  if (action) {
+    const valueText = action.value ? ` using &ldquo;${escapeHtml(action.value)}&rdquo;` : "";
+    const correction = action.protocolCorrection
+      ? `<p class="exploration-action__correction">Protocol correction: ${escapeHtml(action.protocolCorrection)}</p>`
+      : "";
+    elements.explorationActionSummary.innerHTML = `
+      <span class="exploration-action__kind">${escapeHtml(action.kind)}</span>
+      <div>
+        <strong>${escapeHtml(action.name)}${valueText}</strong>
+        <p>${escapeHtml(action.rationale || "The model selected this visible safe action.")}</p>
+        ${action.expectedOutcome ? `<p><b>Expected:</b> ${escapeHtml(action.expectedOutcome)}</p>` : ""}
+        ${correction}
+      </div>
+    `;
+  } else {
+    elements.explorationActionSummary.innerHTML = `
+      <span class="exploration-action__kind">observe</span>
+      <div><strong>Reviewing the current interface</strong><p>The model is choosing one action from the controls currently exposed by E2P.</p></div>
+    `;
+  }
+
+  const controls = [...(stateEvidence.buttons || []), ...(stateEvidence.inputs || [])].slice(0, 8);
+  elements.explorationFacts.innerHTML = `
+    <div><dt>Route</dt><dd>${escapeHtml(stateEvidence.path || "/")}</dd></div>
+    <div><dt>Headings</dt><dd>${escapeHtml((stateEvidence.headings || []).join(" · ") || "None detected")}</dd></div>
+    <div><dt>Visible controls</dt><dd>${escapeHtml(controls.join(" · ") || "No remaining safe controls")}</dd></div>
+  `;
+
+  const history = (activity.events || [])
+    .filter((event) => event.detail?.type === "exploration" && event.detail.action)
+    .slice(-4)
+    .reverse();
+  elements.explorationHistory.innerHTML = history.length
+    ? history.map((event) => `
+        <li><span>${escapeHtml(event.detail.action.kind)}</span><p>${escapeHtml(event.detail.action.name)}</p></li>
+      `).join("")
+    : "<li><span>Waiting</span><p>Completed model actions will appear here.</p></li>";
+}
+
+function updateActivityElapsed() {
+  const activity = state.activity;
+  if (!activity.startedAt) {
+    elements.activityElapsed.textContent = "Idle";
+    return;
+  }
+
+  const endTime = activity.finishedAt ? Date.parse(activity.finishedAt) : Date.now();
+  const elapsedMs = Math.max(0, endTime - Date.parse(activity.startedAt));
+  const prefix = activity.status === "running" ? "Running" : activity.status === "failed" ? "Stopped" : "Finished";
+  elements.activityElapsed.textContent = `${prefix} in ${formatElapsedTime(elapsedMs)}`;
+}
+
+function formatElapsedTime(milliseconds) {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes ? `${minutes}m ${String(seconds).padStart(2, "0")}s` : `${seconds}s`;
+}
+
+function formatActivityPhase(value) {
+  const words = String(value || "activity").replace(/[-_]+/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function createOperationId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `operation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 async function apiGet(url) {
@@ -1404,6 +2108,7 @@ async function apiPost(url, body = undefined) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(state.requestToken ? { "X-E2P-Request-Token": state.requestToken } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
   });

@@ -1,0 +1,158 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\playwright.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-24T00-05-01-252Z/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-24T00-05-01-252Z/results/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/react-2026-08-24T00-05-01-252Z/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\results\\playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "flow-1.spec.cjs",
+      "file": "flow-1.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Entering a New Todo Item",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11977,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('a', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('a', { exact: true }).first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('a', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('a', { exact: true }).first()\u001b[22m\n\n    at C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\tests\\flow-1.spec.cjs:28:69",
+                    "location": {
+                      "file": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\tests\\flow-1.spec.cjs",
+                      "column": 69,
+                      "line": 28
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m   \u001b[36mawait\u001b[39m currentPage\u001b[33m.\u001b[39mgetByTestId(\u001b[32m\"text-input\"\u001b[39m)\u001b[33m.\u001b[39mpress(\u001b[32m\"Enter\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m   \u001b[36mawait\u001b[39m pauseForUi(currentPage\u001b[33m,\u001b[39m \u001b[35m300\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m   \u001b[36mawait\u001b[39m expect(currentPage\u001b[33m.\u001b[39mgetByText(\u001b[32m\"a\"\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 30 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\tests\\flow-1.spec.cjs",
+                        "column": 69,
+                        "line": 28
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('a', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('a', { exact: true }).first()\u001b[22m\n\n\n  26 |   await currentPage.getByTestId(\"text-input\").press(\"Enter\");\n  27 |   await pauseForUi(currentPage, 300);\n> 28 |   await expect(currentPage.getByText(\"a\", { exact: true }).first()).toBeVisible();\n     |                                                                     ^\n  29 | });\n  30 |\n    at C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\tests\\flow-1.spec.cjs:28:69"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-24T00:14:56.898Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\results\\test-artifacts\\flow-1-Entering-a-New-Todo-Item\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\results\\test-artifacts\\flow-1-Entering-a-New-Todo-Item\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\results\\test-artifacts\\flow-1-Entering-a-New-Todo-Item\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\results\\test-artifacts\\flow-1-Entering-a-New-Todo-Item\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-24T00-05-01-252Z\\tests\\flow-1.spec.cjs",
+                    "column": 69,
+                    "line": 28
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4f9c989d87620fa17915-1bd3aa238c12ddd3fdf6",
+          "file": "flow-1.spec.cjs",
+          "line": 21,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-24T00:14:56.245Z",
+    "duration": 12874.819,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

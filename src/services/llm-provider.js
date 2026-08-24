@@ -1,12 +1,13 @@
 const DEFAULT_OLLAMA_ENDPOINT = "http://127.0.0.1:11434";
 const DEFAULT_CHAT_TIMEOUT_MS = 90000;
+const MAX_IMAGE_BYTES = 16 * 1024 * 1024;
 
 const PROVIDERS = [
   {
     id: "heuristic",
-    label: "Local heuristics",
+    label: "Non-AI baseline (comparison only)",
     endpoint: "",
-    description: "Internal fallback with no external model dependency.",
+    description: "Control condition for comparison and recovery; it is not an AI evaluation run.",
   },
   {
     id: "ollama",
@@ -58,8 +59,11 @@ const PROVIDERS = [
   },
 ];
 
-async function getAiProviderStatus() {
-  const catalog = await Promise.all(PROVIDERS.map(async (definition) => {
+async function getAiProviderStatus({ includeBaseline = false } = {}) {
+  const visibleProviders = includeBaseline
+    ? PROVIDERS
+    : PROVIDERS.filter((definition) => definition.id !== "heuristic");
+  const catalog = await Promise.all(visibleProviders.map(async (definition) => {
     if (definition.discovery === "ollama") {
       const discovered = await probeOllama().catch((error) => ({
         available: false,
@@ -108,9 +112,39 @@ async function probeOllama() {
       parameterSize: model.details?.parameter_size || "",
       quantization: model.details?.quantization_level || "",
       contextLength: model.details?.context_length || null,
+      capabilities: Array.isArray(model.capabilities) ? model.capabilities : [],
     })),
     error: null,
   };
+}
+
+async function supportsVisionInput(aiConfig) {
+  const normalized = normalizeAiConfig(aiConfig);
+  if (!normalized.enabled) return false;
+  if (!isLoopbackEndpoint(normalized.endpoint)) return false;
+  if (normalized.provider === "ollama") {
+    try {
+      const response = await fetchWithTimeout(`${trimTrailingSlash(normalized.endpoint)}/api/show`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: normalized.model }),
+      }, 5000);
+      if (response.ok) {
+        const payload = await response.json();
+        return Array.isArray(payload.capabilities) && payload.capabilities.includes("vision");
+      }
+    } catch {}
+  }
+  return /(?:^|[-_.:])(vision|vl)(?:$|[-_.:])|gemma3|llava|bakllava|minicpm-v/i.test(normalized.model);
+}
+
+function isLoopbackEndpoint(endpoint) {
+  try {
+    const hostname = new URL(endpoint).hostname.toLowerCase();
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1" || hostname === "[::1]";
+  } catch {
+    return false;
+  }
 }
 
 async function probeOpenAiCompatibleModels(endpoint) {
@@ -135,7 +169,7 @@ async function probeOpenAiCompatibleModels(endpoint) {
 }
 
 function normalizeAiConfig(rawConfig = {}) {
-  const provider = String(rawConfig.provider || "heuristic");
+  const provider = String(rawConfig.provider || "ollama");
   const definition = PROVIDERS.find((candidate) => candidate.id === provider) || PROVIDERS[0];
   const endpoint = String(rawConfig.endpoint || definition.endpoint || "").trim();
   const model = String(rawConfig.model || "").trim();
@@ -163,17 +197,34 @@ function normalizeAiConfig(rawConfig = {}) {
   };
 }
 
-async function requestStructuredJson({ aiConfig, systemPrompt, userPrompt, timeoutMs = DEFAULT_CHAT_TIMEOUT_MS }) {
+async function requestStructuredJson({ aiConfig, systemPrompt, userPrompt, images = [], timeoutMs = DEFAULT_CHAT_TIMEOUT_MS }) {
   const normalized = normalizeAiConfig(aiConfig);
   assertConfigured(normalized);
-  const rawText = await requestProviderChat({
-    normalized,
-    systemPrompt,
-    messages: [{ role: "user", content: userPrompt }],
-    expectJson: true,
-    timeoutMs,
-  });
-  return parseJsonResponse(rawText);
+  const messages = [{ role: "user", content: userPrompt, images }];
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const rawText = await requestProviderChat({
+      normalized,
+      systemPrompt,
+      messages,
+      expectJson: true,
+      timeoutMs,
+    });
+    try {
+      return parseJsonResponse(rawText);
+    } catch (error) {
+      lastError = error;
+      if (attempt === 0) {
+        messages.push(
+          { role: "assistant", content: String(rawText || "").slice(-5000) },
+          { role: "user", content: "Your previous response was not valid JSON. Return only one valid JSON object matching the requested schema, without Markdown or commentary." }
+        );
+      }
+    }
+  }
+
+  throw lastError || new Error("The model response was not valid JSON after one correction attempt.");
 }
 
 async function requestTextResponse({ aiConfig, systemPrompt, messages, timeoutMs = DEFAULT_CHAT_TIMEOUT_MS }) {
@@ -204,10 +255,31 @@ async function requestProviderChat({ normalized, systemPrompt, messages, expectJ
 
 function sanitizeChatMessages(messages) {
   if (!Array.isArray(messages)) return [];
-  return messages.map((message) => ({
-    role: normalizeRole(message?.role),
-    content: String(message?.content || "").trim(),
-  })).filter((message) => message.content);
+  return messages.map((message) => {
+    const images = sanitizeChatImages(message?.images);
+    return {
+      role: normalizeRole(message?.role),
+      content: String(message?.content || "").trim(),
+      ...(images.length ? { images } : {}),
+    };
+  }).filter((message) => message.content || message.images?.length);
+}
+
+function sanitizeChatImages(images) {
+  if (!Array.isArray(images)) return [];
+  return images.slice(0, 4).map((image) => {
+    const value = String(image || "").trim();
+    const match = value.match(/^data:(image\/(?:png|jpeg|webp|gif));base64,([a-z0-9+/=\r\n]+)$/i);
+    const mimeType = match?.[1]?.toLowerCase() || "image/png";
+    const data = (match?.[2] || value).replace(/\s+/g, "");
+    if (!data || !/^[a-z0-9+/]+={0,2}$/i.test(data)) {
+      throw new Error("Model images must be supplied as base64-encoded image data.");
+    }
+    if (Buffer.byteLength(data, "base64") > MAX_IMAGE_BYTES) {
+      throw new Error("A model image exceeded the 16 MB safety limit.");
+    }
+    return { data, mimeType };
+  });
 }
 
 function normalizeRole(role) {
@@ -224,8 +296,21 @@ async function requestOllamaChat({ normalized, systemPrompt, messages, expectJso
         model: normalized.model,
         stream: false,
         format: expectJson ? "json" : undefined,
-        options: { temperature: expectJson ? 0.2 : 0.35 },
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        think: expectJson ? false : undefined,
+        options: {
+          temperature: expectJson ? 0 : 0.35,
+          seed: expectJson ? 42 : undefined,
+          num_predict: expectJson ? 3200 : 2400,
+          num_ctx: 16384,
+        },
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.map((message) => ({
+            role: message.role,
+            content: message.content,
+            ...(message.images?.length ? { images: message.images.map((image) => image.data) } : {}),
+          })),
+        ],
       }),
     }, timeoutMs);
   } catch (error) {
@@ -250,7 +335,10 @@ async function requestOpenAiCompatibleChat({ normalized, systemPrompt, messages,
         model: normalized.model,
         temperature: 0.35,
         response_format: undefined,
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.map(toOpenAiMessage),
+        ],
       }),
     }, timeoutMs);
   } catch (error) {
@@ -262,8 +350,25 @@ async function requestOpenAiCompatibleChat({ normalized, systemPrompt, messages,
   return payload.choices?.[0]?.message?.content || "";
 }
 
+function toOpenAiMessage(message) {
+  if (!message.images?.length) return { role: message.role, content: message.content };
+  return {
+    role: message.role,
+    content: [
+      ...(message.content ? [{ type: "text", text: message.content }] : []),
+      ...message.images.map((image) => ({
+        type: "image_url",
+        image_url: { url: `data:${image.mimeType};base64,${image.data}` },
+      })),
+    ],
+  };
+}
+
 function parseJsonResponse(text) {
-  const normalized = String(text || "").trim();
+  const normalized = String(text || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<analysis>[\s\S]*?<\/analysis>/gi, "")
+    .trim();
   if (!normalized) throw new Error("The model did not return useful content.");
   try { return JSON.parse(normalized); } catch (error) {
     const fenced = normalized.match(/```json\s*([\s\S]*?)```/i) || normalized.match(/```\s*([\s\S]*?)```/i);
@@ -299,4 +404,5 @@ module.exports = {
   normalizeAiConfig,
   requestStructuredJson,
   requestTextResponse,
+  supportsVisionInput,
 };

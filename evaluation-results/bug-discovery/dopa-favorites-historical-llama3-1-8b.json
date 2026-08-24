@@ -1,0 +1,283 @@
+{
+  "experiment": "dopa-favorites-historical-bug",
+  "protocol": "historical-paired-oracle-poc-v1",
+  "startedAt": "2026-08-22T21:32:45.680Z",
+  "completedAt": "2026-08-22T21:33:48.824Z",
+  "model": "llama3.1:8b",
+  "groundTruth": {
+    "fixCommit": "93105f8",
+    "parentCommit": "a0e881f",
+    "description": "The Favorites view must not recommend opening the Favorites view itself.",
+    "disclosureToBlindModel": false
+  },
+  "blindModelAssessment": {
+    "mode": "blind",
+    "model": "llama3.1:8b",
+    "hypotheses": [
+      {
+        "title": "The 'Abrir favoritos' button is not visible when the user has no saved items.",
+        "observedEvidence": "buttons: ['Ir para o início', 'Abrir favoritos', ...]",
+        "expectedBehavior": "'Abrir favoritos' should be visible regardless of the number of saved items.",
+        "risk": "High",
+        "confidence": "high",
+        "oracle": "Verify that the button is still present when clicking on it with no saved items."
+      },
+      {
+        "title": "The 'Seu coração ainda está leve' message is misleading, as users can save items without a heart icon.",
+        "observedEvidence": "headings: ['Favoritos', 'Seu coração ainda está leve', ...]",
+        "expectedBehavior": "'Seu coração ainda está leve' should only be displayed when the user has saved at least one item with a heart icon.",
+        "risk": "Medium",
+        "confidence": "medium",
+        "oracle": "Check if the message is updated to reflect the correct state of the user's saved items."
+      },
+      {
+        "title": "The 'Abrir meus favoritos' link is not clearly distinguishable from other links.",
+        "observedEvidence": "links: ['Fotografias reais via Unsplash']",
+        "expectedBehavior": "'Abrir meus favoritos' should be visually distinct from other links, such as the 'Fotografias reais via Unsplash' link.",
+        "risk": "Low",
+        "confidence": "low",
+        "oracle": "Verify that the link is styled differently than other links on the page."
+      }
+    ],
+    "reviews": [
+      {
+        "title": "The 'Abrir favoritos' button is not visible when the user has no saved items.",
+        "decision": "reject",
+        "reason": "Expected behavior does not match observed evidence. The 'Abrir favoritos' button is present in the list of buttons, regardless of the number of saved items.",
+        "suggestedOracle": ""
+      },
+      {
+        "title": "The 'Seu coração ainda está leve' message is misleading, as users can save items without a heart icon.",
+        "decision": "reject",
+        "reason": "Expected behavior does not match observed evidence. The 'Seu coração ainda está leve' message is present in the list of headings, regardless of whether the user has saved at least one item with a heart icon.",
+        "suggestedOracle": ""
+      },
+      {
+        "title": "The 'Abrir meus favoritos' link is not clearly distinguishable from other links.",
+        "decision": "reject",
+        "reason": "Expected behavior does not match observed evidence. The 'Abrir meus favoritos' link is not visually distinct from the 'Fotografias reais via Unsplash' link, as both are presented in a similar format.",
+        "suggestedOracle": ""
+      }
+    ],
+    "matchedGroundTruth": false
+  },
+  "issueInformedAssessment": {
+    "mode": "issue-informed",
+    "model": "llama3.1:8b",
+    "issue": "When the user is already viewing Favorites, the interface must not recommend opening Favorites again.",
+    "plan": {
+      "title": "Issue: Interface recommends opening Favorites when already viewing",
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "steps": [
+        {
+          "action": "click",
+          "role": "button",
+          "name": "Abrir favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ],
+      "errors": []
+    },
+    "repairUsed": true,
+    "attempts": [
+      {
+        "response": {
+          "title": "Issue: Interface recommends opening Favorites when already viewing",
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": false,
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ],
+          "errors": [
+            "The plan must assert that Abrir meus favoritos is absent in the Favorites view."
+          ]
+        }
+      },
+      {
+        "response": {
+          "title": "Issue: Interface recommends opening Favorites when already viewing",
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": true,
+          "steps": [
+            {
+              "action": "click",
+              "role": "button",
+              "name": "Abrir favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ],
+          "errors": []
+        }
+      }
+    ],
+    "pairedExecutionCompatible": true
+  },
+  "pairedExecution": {
+    "confirmed": true,
+    "classification": "historical-bug-reproduced",
+    "buggyOutcome": "failed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "a0e881f",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4391"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve",
+          "Salve agora. Volte quando bater vontade."
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Abrir meus favoritos",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine SEU ESPAÇO, DO SEU JEITO Salve agora. Volte quando bater vontade. Use os favoritos para montar coleções pessoais e reencontrar rapidamente tudo o que chamou sua atenção. Abrir meus favoritos Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos remained visible inside the Favorites view.",
+        "status": "failed",
+        "passed": false
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/buggy-favorites.png"
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "93105f8",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4392"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve"
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos was absent inside the Favorites view.",
+        "status": "passed",
+        "passed": true
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/fixed-favorites.png"
+    }
+  },
+  "interpretation": "The paired oracle reproduced the historical bug, but the blind model did not independently identify the ground-truth defect in this run."
+}

@@ -1,0 +1,1362 @@
+{
+  "model": "gemma3:12b",
+  "status": "failed",
+  "startedAt": "2026-08-14T15:20:18.923Z",
+  "stages": {
+    "exploration": {
+      "status": "completed",
+      "strategy": "model-guided-stateful",
+      "metrics": {
+        "requestedStepLimit": 8,
+        "completedActions": 4,
+        "changedStates": 4,
+        "uniqueStates": 5,
+        "invalidDecisions": 3,
+        "failedActions": 4,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details",
+          "search-filter",
+          "favorites",
+          "cart",
+          "navigation"
+        ],
+        "durationMs": 121914
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "⌘Tecnologia",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Navigating to the 'Tecnologia' category provides breadth and explores a potentially distinct section of the site. This expands coverage beyond the homepage featured items.",
+          "expectedOutcome": "The page will update to display products within the 'Tecnologia' category.",
+          "beforeFingerprint": "9a719e08fad9de06",
+          "afterFingerprint": "50efb1a361fe139f",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Nebula X16",
+              "Keypop 75",
+              "Studio Bloom",
+              "Prism 34",
+              "Corebox Nova",
+              "Glide Air"
+            ],
+            "buttons": [
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Escolha da semana",
+              "Favoritar Nebula X16",
+              "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+              "Adicionar Nebula X16 ao carrinho",
+              "Som satisfatório",
+              "Favoritar Keypop 75",
+              "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true
+              },
+              {
+                "id": "e2p-5",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "Escolha da semana",
+                "safe": true
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Nebula X16",
+                "safe": true
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+                "safe": true
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Nebula X16 ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Som satisfatório",
+                "safe": true
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Keypop 75",
+                "safe": true
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Keypop 75 ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Novo",
+                "safe": true
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Studio Bloom",
+                "safe": true
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaStudio BloomKit teclado + mouse sem fio4.7",
+                "safe": true
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Studio Bloom ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Tela imersiva",
+                "safe": true
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Prism 34",
+                "safe": true
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaPrism 34Monitor ultrawide · 165 Hz4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Prism 34 ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Alta performance",
+                "safe": true
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Corebox Nova",
+                "safe": true
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "TecnologiaCorebox NovaPC gamer · RTX · 1 TB SSD4.9",
+                "safe": true
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Corebox Nova ao carrinho",
+                "safe": true
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 9 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda ESCOLHA DA SEMANA TECNOLOGIA Nebula X16 Notebook gamer · 32 GB · RTX 4.9 R$ 14.990,00 R$ 12.899,00 SOM SATISFATÓRIO TECNOLOGIA Keypop 75 Teclado mecânico · switch cre"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "◉Anime & mangá",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Exploring a different category (Anime & mangá) expands coverage beyond the 'Tecnologia' section, revealing potentially new product listings and UI elements. This provides breadth in the exploration.",
+          "expectedOutcome": "The page will navigate to the 'Anime & mangá' category view, displaying products within that category.",
+          "beforeFingerprint": "50efb1a361fe139f",
+          "afterFingerprint": "e7b4f606f9d90116",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar",
+              "Arquivo Mecha",
+              "Espadachim Lunar",
+              "Noite em Shibuya"
+            ],
+            "buttons": [
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Box completo",
+              "Favoritar Guardas de Tóquio",
+              "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+              "Adicionar Guardas de Tóquio ao carrinho",
+              "Exclusivo Dopa",
+              "Favoritar Capitã Rubra",
+              "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true
+              },
+              {
+                "id": "e2p-5",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Capitã Rubra",
+                "safe": true
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Capitã Rubra ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Trio do Mar",
+                "safe": true
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Trio do Mar",
+                "safe": true
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáTrio do MarMini figures · conjunto com 34.7",
+                "safe": true
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Trio do Mar ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Capa dura",
+                "safe": true
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Arquivo Mecha",
+                "safe": true
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáArquivo MechaArtbook · capa dura · 240 páginas4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Arquivo Mecha ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Espadachim Lunar",
+                "safe": true
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Espadachim Lunar",
+                "safe": true
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáEspadachim LunarFigure articulada · 18 cm4.7",
+                "safe": true
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Espadachim Lunar ao carrinho",
+                "safe": true
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 pontos nível Violeta · 72% completo novos drops +250 pontos Curadoria diária Achados para todos os estilos Catálogo diverso Tecnologia, moda e coleções Explore no seu ritmo Favoritos salvos no dispositivo UMA VITRINE PARA CADA VONTADE Explore seu momento 6 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 R$ 579,00 R$ 449,00 EXCLUSIVO DOPA ANIME & MANGÁ Capitã Rubra Figure colecionável · 24 cm 4."
+          }
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+            "role": "button",
+            "value": ""
+          },
+          "rationale": "Exploring product details provides more information than category browsing. This action selects the 'Guardas de Tóquio' item to view its specifics, potentially revealing additional features or states related to individual products.",
+          "expectedOutcome": "The page navigates to the detailed view of the 'Guardas de Tóquio' product.",
+          "beforeFingerprint": "e7b4f606f9d90116",
+          "afterFingerprint": "480a20c41584ca4b",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Guardas de Tóquio",
+              "Capitã Rubra",
+              "Trio do Mar",
+              "Arquivo Mecha",
+              "Espadachim Lunar",
+              "Noite em Shibuya"
+            ],
+            "buttons": [
+              "Fechar produto",
+              "Favoritar produto",
+              "Adicionar ao carrinho",
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Box completo",
+              "Favoritar Guardas de Tóquio",
+              "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+              "Adicionar Guardas de Tóquio ao carrinho"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Fechar produto",
+                "safe": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar produto",
+                "safe": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true
+              },
+              {
+                "id": "e2p-5",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Exclusivo Dopa",
+                "safe": true
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Capitã Rubra",
+                "safe": true
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Capitã Rubra ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Trio do Mar",
+                "safe": true
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Trio do Mar",
+                "safe": true
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáTrio do MarMini figures · conjunto com 34.7",
+                "safe": true
+              },
+              {
+                "id": "e2p-25",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Trio do Mar ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-26",
+                "kind": "click",
+                "role": "button",
+                "name": "Capa dura",
+                "safe": true
+              },
+              {
+                "id": "e2p-27",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Arquivo Mecha",
+                "safe": true
+              },
+              {
+                "id": "e2p-28",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáArquivo MechaArtbook · capa dura · 240 páginas4.8",
+                "safe": true
+              },
+              {
+                "id": "e2p-29",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Arquivo Mecha ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-30",
+                "kind": "click",
+                "role": "button",
+                "name": "Espadachim Lunar",
+                "safe": true
+              }
+            ],
+            "dialogsCount": 10,
+            "overlayTexts": [
+              "BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho",
+              "BOX COMPLETO",
+              "ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho",
+              "ANIME & MANGÁ"
+            ],
+            "visibleTextExcerpt": "BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho ANIME & MANGÁ Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 p"
+          }
+        },
+        {
+          "step": 4,
+          "status": "execution-failed",
+          "action": {
+            "kind": "click",
+            "name": "◎Importados",
+            "role": "button"
+          },
+          "rationale": "Exploring a different category than previously selected (Anime & Manga) to broaden coverage. 'Importados' is a visible option and likely contains diverse products.",
+          "error": "locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-e2p-action-id=\"e2p-12\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"category\" data-e2p-action-id=\"e2p-12\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    3 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n"
+        },
+        {
+          "step": 5,
+          "status": "execution-failed",
+          "action": {
+            "kind": "click",
+            "name": "Adicionar Guardas de Tóquio ao carrinho",
+            "role": "button"
+          },
+          "rationale": "Adding an item to the cart is a core functionality. This action will transition the state to include a cart with at least one item, allowing for further exploration of cart management features (if any). It also tests the 'Add to Cart' button interaction and verifies that the product details are correctly associated with the cart.",
+          "error": "locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-e2p-action-id=\"e2p-17\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"quick-add\" data-e2p-action-id=\"e2p-17\" aria-label=\"Adicionar Guardas de Tóquio ao carrinho\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    3 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n"
+        },
+        {
+          "step": 6,
+          "status": "invalid-model-decision",
+          "proposedAction": "click",
+          "proposedActionId": "e2p-5",
+          "error": "The model requested click for a control that only supports fill."
+        },
+        {
+          "step": 7,
+          "status": "execution-failed",
+          "action": {
+            "kind": "click",
+            "name": "Box completo",
+            "role": "button"
+          },
+          "rationale": "Exploring different categories beyond the initially presented ones can reveal more product listings and potentially new interaction points. 'Box completo' is a distinct category, suggesting curated bundles or collections which might have unique behaviors compared to individual items.",
+          "error": "locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-e2p-action-id=\"e2p-14\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button data-e2p-action-id=\"e2p-14\" class=\"product-image-button\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    13 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n"
+        },
+        {
+          "step": 8,
+          "status": "invalid-model-decision",
+          "proposedAction": "click",
+          "proposedActionId": "e2p-17",
+          "error": "The model selected an action that was not present in the current safe action set."
+        },
+        {
+          "step": 9,
+          "status": "execution-failed",
+          "action": {
+            "kind": "click",
+            "name": "◇Moda",
+            "role": "button"
+          },
+          "rationale": "Exploring different categories beyond the initially presented ones can reveal new product listings and features. Moda is a distinct category, potentially showcasing items not visible on the homepage.",
+          "error": "locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-e2p-action-id=\"e2p-13\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"category\" data-e2p-action-id=\"e2p-13\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    3 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 719px) 100vw, 50vw\" src=\"/_vinext/image?url=%2Fproducts%2Fmanga.jpg&w=640&q=75\"/> from <div class=\"modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n"
+        },
+        {
+          "step": 10,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Buscar produtos",
+            "role": "input",
+            "value": "Guardas de Tóquio"
+          },
+          "rationale": "The user has already explored the main categories. Searching for a specific item ('Guardas de Tóquio') will reveal more product details and potential actions related to that item, expanding coverage beyond just category browsing.",
+          "expectedOutcome": "The search results page should display products related to 'Guardas de Tóquio'.",
+          "beforeFingerprint": "480a20c41584ca4b",
+          "afterFingerprint": "84baae41960951aa",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "Dopa — encontre seu próximo favorito",
+            "headings": [
+              "Encontre seupróximo favorito.",
+              "Explore seu momento",
+              "Guardas de Tóquio",
+              "Salve agora. Volte quando bater vontade."
+            ],
+            "buttons": [
+              "Fechar produto",
+              "Favoritar produto",
+              "Adicionar ao carrinho",
+              "Ir para o início",
+              "Abrir favoritos",
+              "Abrir carrinho com 0 itens",
+              "Começar a explorar",
+              "✦Tudo",
+              "⌘Tecnologia",
+              "◉Anime & mangá",
+              "◎Importados",
+              "◇Moda",
+              "Box completo",
+              "Favoritar Guardas de Tóquio",
+              "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+              "Adicionar Guardas de Tóquio ao carrinho"
+            ],
+            "inputs": [
+              "Buscar produtos"
+            ],
+            "actions": [
+              {
+                "id": "e2p-1",
+                "kind": "click",
+                "role": "button",
+                "name": "Fechar produto",
+                "safe": true
+              },
+              {
+                "id": "e2p-2",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar produto",
+                "safe": true
+              },
+              {
+                "id": "e2p-3",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-4",
+                "kind": "click",
+                "role": "button",
+                "name": "Ir para o início",
+                "safe": true
+              },
+              {
+                "id": "e2p-5",
+                "kind": "fill",
+                "role": "input",
+                "name": "Buscar produtos",
+                "safe": true
+              },
+              {
+                "id": "e2p-6",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-7",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir carrinho com 0 itens",
+                "safe": true
+              },
+              {
+                "id": "e2p-8",
+                "kind": "click",
+                "role": "button",
+                "name": "Começar a explorar",
+                "safe": true
+              },
+              {
+                "id": "e2p-9",
+                "kind": "click",
+                "role": "button",
+                "name": "✦Tudo",
+                "safe": true
+              },
+              {
+                "id": "e2p-10",
+                "kind": "click",
+                "role": "button",
+                "name": "⌘Tecnologia",
+                "safe": true
+              },
+              {
+                "id": "e2p-11",
+                "kind": "click",
+                "role": "button",
+                "name": "◉Anime & mangá",
+                "safe": true
+              },
+              {
+                "id": "e2p-12",
+                "kind": "click",
+                "role": "button",
+                "name": "◎Importados",
+                "safe": true
+              },
+              {
+                "id": "e2p-13",
+                "kind": "click",
+                "role": "button",
+                "name": "◇Moda",
+                "safe": true
+              },
+              {
+                "id": "e2p-14",
+                "kind": "click",
+                "role": "button",
+                "name": "Box completo",
+                "safe": true
+              },
+              {
+                "id": "e2p-15",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritar Guardas de Tóquio",
+                "safe": true
+              },
+              {
+                "id": "e2p-16",
+                "kind": "click",
+                "role": "button",
+                "name": "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+                "safe": true
+              },
+              {
+                "id": "e2p-17",
+                "kind": "click",
+                "role": "button",
+                "name": "Adicionar Guardas de Tóquio ao carrinho",
+                "safe": true
+              },
+              {
+                "id": "e2p-18",
+                "kind": "click",
+                "role": "button",
+                "name": "Abrir meus favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-19",
+                "kind": "click",
+                "role": "link",
+                "name": "Fotografias reais via Unsplash",
+                "safe": false
+              },
+              {
+                "id": "e2p-20",
+                "kind": "click",
+                "role": "button",
+                "name": "Início",
+                "safe": true
+              },
+              {
+                "id": "e2p-21",
+                "kind": "click",
+                "role": "button",
+                "name": "Comidas",
+                "safe": true
+              },
+              {
+                "id": "e2p-22",
+                "kind": "click",
+                "role": "button",
+                "name": "Favoritos",
+                "safe": true
+              },
+              {
+                "id": "e2p-23",
+                "kind": "click",
+                "role": "button",
+                "name": "Pedidos",
+                "safe": true
+              },
+              {
+                "id": "e2p-24",
+                "kind": "click",
+                "role": "button",
+                "name": "Perfil",
+                "safe": true
+              }
+            ],
+            "dialogsCount": 10,
+            "overlayTexts": [
+              "BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho",
+              "BOX COMPLETO",
+              "ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho",
+              "ANIME & MANGÁ"
+            ],
+            "visibleTextExcerpt": "BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho BOX COMPLETO ANIME & MANGÁ Guardas de Tóquio Box mangá · volumes 1–12 4.9 · 1.248 avaliações Doze volumes de uma saga inventada sobre amizade, neon e criaturas que só aparecem depois da meia-noite. PREÇO R$ 449,00 Adicionar ao carrinho ANIME & MANGÁ Dopa Carrinho NOVIDADES ESCOLHIDAS PARA VOCÊ Encontre seu próximo favorito. Tecnologia, moda, colecionáveis e importados reunidos em uma vitrine feita para explorar sem pressa. Começar a explorar Clube Dopa 1.250 p"
+          }
+        },
+        {
+          "step": 11,
+          "status": "invalid-model-decision",
+          "proposedAction": "fill",
+          "proposedActionId": "e2p-5",
+          "error": "The model selected an action that was not present in the current safe action set."
+        }
+      ],
+      "stateSummaries": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar"
+          ],
+          "buttons": [
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Favoritar Nebula X16",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho",
+            "Som satisfatório",
+            "Favoritar Keypop 75",
+            "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+          ],
+          "dialogsCount": 0
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Nebula X16",
+            "Keypop 75",
+            "Studio Bloom",
+            "Prism 34",
+            "Corebox Nova",
+            "Glide Air"
+          ],
+          "buttons": [
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Escolha da semana",
+            "Favoritar Nebula X16",
+            "TecnologiaNebula X16Notebook gamer · 32 GB · RTX4.9",
+            "Adicionar Nebula X16 ao carrinho",
+            "Som satisfatório",
+            "Favoritar Keypop 75",
+            "TecnologiaKeypop 75Teclado mecânico · switch cremoso4.8"
+          ],
+          "dialogsCount": 0
+        },
+        {
+          "id": "state-3",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar",
+            "Arquivo Mecha",
+            "Espadachim Lunar",
+            "Noite em Shibuya"
+          ],
+          "buttons": [
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Box completo",
+            "Favoritar Guardas de Tóquio",
+            "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+            "Adicionar Guardas de Tóquio ao carrinho",
+            "Exclusivo Dopa",
+            "Favoritar Capitã Rubra",
+            "Anime & mangáCapitã RubraFigure colecionável · 24 cm4.8"
+          ],
+          "dialogsCount": 0
+        },
+        {
+          "id": "state-4",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Guardas de Tóquio",
+            "Capitã Rubra",
+            "Trio do Mar",
+            "Arquivo Mecha",
+            "Espadachim Lunar",
+            "Noite em Shibuya"
+          ],
+          "buttons": [
+            "Fechar produto",
+            "Favoritar produto",
+            "Adicionar ao carrinho",
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Box completo",
+            "Favoritar Guardas de Tóquio",
+            "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+            "Adicionar Guardas de Tóquio ao carrinho"
+          ],
+          "dialogsCount": 10
+        },
+        {
+          "id": "state-5",
+          "path": "/",
+          "headings": [
+            "Encontre seupróximo favorito.",
+            "Explore seu momento",
+            "Guardas de Tóquio",
+            "Salve agora. Volte quando bater vontade."
+          ],
+          "buttons": [
+            "Fechar produto",
+            "Favoritar produto",
+            "Adicionar ao carrinho",
+            "Ir para o início",
+            "Abrir favoritos",
+            "Abrir carrinho com 0 itens",
+            "Começar a explorar",
+            "✦Tudo",
+            "⌘Tecnologia",
+            "◉Anime & mangá",
+            "◎Importados",
+            "◇Moda",
+            "Box completo",
+            "Favoritar Guardas de Tóquio",
+            "Anime & mangáGuardas de TóquioBox mangá · volumes 1–124.9",
+            "Adicionar Guardas de Tóquio ao carrinho"
+          ],
+          "dialogsCount": 10
+        }
+      ],
+      "error": ""
+    },
+    "understanding": {
+      "usedModel": false,
+      "synopsis": "Vinext in TypeScript, provisionally classified as commerce. The manifest indicates package dopa-prototipo. The interface reading found 2 actions and 8 relevant headings. The initial documentation describes # Dopa Protótipo mobile-first de uma vitrine de compras totalmente fictícia. A experiência permite explorar produtos, favoritar, montar um carrinho, confirmar uma compra imaginária...",
+      "confidence": "high",
+      "capabilities": [],
+      "error": "The model response was not valid JSON."
+    },
+    "planning": {
+      "usedModel": false,
+      "mode": "heuristic-fallback",
+      "flowCount": 3,
+      "approvedFlowCount": 3,
+      "flows": [
+        {
+          "id": "render-main-interface",
+          "title": "Main interface rendering",
+          "confidence": "high",
+          "evidenceStateIds": [],
+          "criteriaCount": 2,
+          "criteria": [
+            {
+              "title": "Initial page is loaded",
+              "given": "the user opens the application",
+              "when": "the initial route is loaded",
+              "then": "the main interface becomes visible and the page remains interactive"
+            },
+            {
+              "title": "Core elements are visible",
+              "given": "the initial page has been opened",
+              "when": "the user observes the application shell",
+              "then": "the main headings, controls, or interaction surfaces are available"
+            }
+          ]
+        },
+        {
+          "id": "review-primary-actions",
+          "title": "Primary action review",
+          "confidence": "medium",
+          "evidenceStateIds": [],
+          "criteriaCount": 2,
+          "criteria": [
+            {
+              "title": "Primary actions are available",
+              "given": "the initial page has been loaded",
+              "when": "the user identifies the main actions",
+              "then": "the central controls are visible and accessible"
+            },
+            {
+              "title": "Clicks do not break the interface",
+              "given": "the main controls are available",
+              "when": "the user triggers those actions",
+              "then": "the application remains operational without an immediate visible failure"
+            }
+          ]
+        },
+        {
+          "id": "generic-safe-exploration",
+          "title": "Safe interface exploration",
+          "confidence": "low",
+          "evidenceStateIds": [],
+          "criteriaCount": 1,
+          "criteria": [
+            {
+              "title": "Interface remains available",
+              "given": "the application has been opened",
+              "when": "the user interacts with a small set of safe controls",
+              "then": "the page remains functional and visible"
+            }
+          ]
+        }
+      ],
+      "error": "The model response was not valid JSON."
+    }
+  },
+  "error": "The model response was not valid JSON.",
+  "durationMs": 139399,
+  "completedAt": "2026-08-14T15:22:38.322Z"
+}

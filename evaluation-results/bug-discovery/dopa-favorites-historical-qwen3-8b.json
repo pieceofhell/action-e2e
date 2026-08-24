@@ -1,0 +1,291 @@
+{
+  "experiment": "dopa-favorites-historical-bug",
+  "protocol": "historical-paired-oracle-poc-v1",
+  "startedAt": "2026-08-22T21:29:55.890Z",
+  "completedAt": "2026-08-22T21:30:48.359Z",
+  "model": "qwen3:8b",
+  "groundTruth": {
+    "fixCommit": "93105f8",
+    "parentCommit": "a0e881f",
+    "description": "The Favorites view must not recommend opening the Favorites view itself.",
+    "disclosureToBlindModel": false
+  },
+  "blindModelAssessment": {
+    "mode": "blind",
+    "model": "qwen3:8b",
+    "hypotheses": [
+      {
+        "title": "Favoritos control does not update the UI state correctly",
+        "observedEvidence": "After clicking the top-level Favoritos control, the UI does not reflect any changes in the state of favorites, and the text 'Sua coleção de desejos Favoritos 0 achados' remains unchanged.",
+        "expectedBehavior": "Clicking the Favoritos control should update the UI to reflect the current state of favorites, such as the number of items saved or any changes in the displayed content.",
+        "risk": "Users may be confused about the state of their favorites and may not be aware of any changes or updates to their saved items.",
+        "confidence": "medium",
+        "oracle": "After clicking the Favoritos control, the UI should reflect the current state of favorites, such as the number of items saved or any changes in the displayed content."
+      },
+      {
+        "title": "The 'Abrir meus favoritos' button does not lead to the expected favorites interface",
+        "observedEvidence": "The 'Abrir meus favoritos' button is present in the UI, but there is no visible indication of what the interface will look like when clicked, and no other buttons or links are explicitly associated with the favorites interface.",
+        "expectedBehavior": "The 'Abrir meus favoritos' button should lead to a dedicated favorites interface that displays all saved items, with clear navigation and visual cues.",
+        "risk": "Users may not be able to access their saved items or may be unsure of how to navigate to the favorites section.",
+        "confidence": "medium",
+        "oracle": "Clicking the 'Abrir meus favoritos' button should lead to a dedicated favorites interface that displays all saved items, with clear navigation and visual cues."
+      },
+      {
+        "title": "The 'Favoritos' heading is not semantically or visually distinct from other sections",
+        "observedEvidence": "The 'Favoritos' heading is present in the UI, but it is not visually or semantically distinct from other sections such as 'Comidas' or 'Pedidos', and there is no clear visual hierarchy or styling that differentiates it.",
+        "expectedBehavior": "The 'Favoritos' heading should be visually and semantically distinct from other sections to ensure users can easily identify and navigate to the favorites section.",
+        "risk": "Users may have difficulty locating the favorites section, leading to confusion and a poor user experience.",
+        "confidence": "high",
+        "oracle": "The 'Favoritos' heading should be visually and semantically distinct from other sections to ensure users can easily identify and navigate to the favorites section."
+      }
+    ],
+    "reviews": [
+      {
+        "title": "Favoritos control does not update the UI state correctly",
+        "decision": "reject",
+        "reason": "The observed evidence does not provide sufficient information to confirm or refute the hypothesis. The text 'Sua coleção de desejos Favoritos 0 achados' is present, but there is no clear indication of whether it changed or not after the action. The hypothesis lacks a falsifiable expected behavior.",
+        "suggestedOracle": "After clicking the Favoritos control, the UI should reflect the current state of favorites, such as the number of items saved or any changes in the displayed content."
+      },
+      {
+        "title": "The 'Abrir meus favoritos' button does not lead to the expected favorites interface",
+        "decision": "accept",
+        "reason": "The observed evidence supports the hypothesis that the 'Abrir meus favoritos' button does not lead to the expected favorites interface. There is no visible indication of what the interface will look like when clicked, and no other buttons or links are explicitly associated with the favorites interface.",
+        "suggestedOracle": "Clicking the 'Abrir meus favoritos' button should lead to a dedicated favorites interface that displays all saved items, with clear navigation and visual cues."
+      },
+      {
+        "title": "The 'Favoritos' heading is not semantically or visually distinct from other sections",
+        "decision": "accept",
+        "reason": "The observed evidence supports the hypothesis that the 'Favoritos' heading is not semantically or visually distinct from other sections such as 'Comidas' or 'Pedidos', and there is no clear visual hierarchy or styling that differentiates it.",
+        "suggestedOracle": "The 'Favoritos' heading should be visually and semantically distinct from other sections to ensure users can easily identify and navigate to the favorites section."
+      }
+    ],
+    "matchedGroundTruth": false
+  },
+  "issueInformedAssessment": {
+    "mode": "issue-informed",
+    "model": "qwen3:8b",
+    "issue": "When the user is already viewing Favorites, the interface must not recommend opening Favorites again.",
+    "plan": {
+      "title": "Favorites recommendation issue",
+      "steps": [
+        {
+          "action": "click",
+          "role": "top-level-control",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ]
+    },
+    "validation": {
+      "valid": false,
+      "steps": [
+        {
+          "action": "click",
+          "role": "top-level-control",
+          "name": "Favoritos"
+        },
+        {
+          "action": "assert-absent",
+          "role": "button",
+          "name": "Abrir meus favoritos"
+        }
+      ],
+      "errors": [
+        "Every step must target a button by accessible name.",
+        "The plan must enter Favorites through the observed Abrir favoritos control."
+      ]
+    },
+    "repairUsed": true,
+    "attempts": [
+      {
+        "response": {
+          "title": "Favorites recommendation issue",
+          "steps": [
+            {
+              "action": "click",
+              "role": "top-level-control",
+              "name": "Favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": false,
+          "steps": [
+            {
+              "action": "click",
+              "role": "top-level-control",
+              "name": "Favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir favoritos"
+            }
+          ],
+          "errors": [
+            "Every step must target a button by accessible name.",
+            "The plan must enter Favorites through the observed Abrir favoritos control.",
+            "The plan must assert that Abrir meus favoritos is absent in the Favorites view."
+          ]
+        }
+      },
+      {
+        "response": {
+          "title": "Favorites recommendation issue",
+          "steps": [
+            {
+              "action": "click",
+              "role": "top-level-control",
+              "name": "Favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ]
+        },
+        "validation": {
+          "valid": false,
+          "steps": [
+            {
+              "action": "click",
+              "role": "top-level-control",
+              "name": "Favoritos"
+            },
+            {
+              "action": "assert-absent",
+              "role": "button",
+              "name": "Abrir meus favoritos"
+            }
+          ],
+          "errors": [
+            "Every step must target a button by accessible name.",
+            "The plan must enter Favorites through the observed Abrir favoritos control."
+          ]
+        }
+      }
+    ],
+    "pairedExecutionCompatible": false
+  },
+  "pairedExecution": {
+    "confirmed": true,
+    "classification": "historical-bug-reproduced",
+    "buggyOutcome": "failed",
+    "fixedOutcome": "passed"
+  },
+  "revisions": {
+    "buggy": {
+      "role": "buggy",
+      "commit": "a0e881f",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4391"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve",
+          "Salve agora. Volte quando bater vontade."
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Abrir meus favoritos",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine SEU ESPAÇO, DO SEU JEITO Salve agora. Volte quando bater vontade. Use os favoritos para montar coleções pessoais e reencontrar rapidamente tudo o que chamou sua atenção. Abrir meus favoritos Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos remained visible inside the Favorites view.",
+        "status": "failed",
+        "passed": false
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/buggy-favorites.png"
+    },
+    "fixed": {
+      "role": "fixed",
+      "commit": "93105f8",
+      "runtime": {
+        "mode": "command",
+        "baseUrl": "http://localhost:4392"
+      },
+      "action": "Clicked the top-level Favoritos control.",
+      "observation": {
+        "path": "/",
+        "title": "Dopa — encontre seu próximo favorito",
+        "headings": [
+          "Favoritos",
+          "Seu coração ainda está leve"
+        ],
+        "buttons": [
+          "Ir para o início",
+          "Abrir favoritos",
+          "Abrir carrinho com 0 itens",
+          "✦Tudo",
+          "⌘Tecnologia",
+          "◉Anime & mangá",
+          "◎Importados",
+          "◇Moda",
+          "Explorar a vitrine",
+          "Início",
+          "Comidas",
+          "Favoritos",
+          "Pedidos",
+          "Perfil"
+        ],
+        "links": [
+          "Fotografias reais via Unsplash"
+        ],
+        "visibleTextExcerpt": "Dopa Carrinho SUA COLEÇÃO DE DESEJOS Favoritos 0 achados ✦ Tudo ⌘ Tecnologia ◉ Anime & mangá ◎ Importados ◇ Moda Seu coração ainda está leve Toque no coração dos produtos que você quer guardar. Explorar a vitrine Dopa Aviso importante: a Dopa é uma experiência de simulação. Produtos, preços, pedidos, pagamentos e entregas não são reais. Nenhum valor será cobrado. Fotografias reais via Unsplash Início Comidas Favoritos Pedidos Perfil"
+      },
+      "oracle": {
+        "id": "favorites-view-does-not-link-to-itself",
+        "expected": "Abrir meus favoritos is absent while the Favorites view is active.",
+        "actual": "Abrir meus favoritos was absent inside the Favorites view.",
+        "status": "passed",
+        "passed": true
+      },
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "failedRequests": []
+      },
+      "evidence": "evaluation-results/bug-discovery/evidence/fixed-favorites.png"
+    }
+  },
+  "interpretation": "The paired oracle reproduced the historical bug, but the blind model did not independently identify the ground-truth defect in this run."
+}

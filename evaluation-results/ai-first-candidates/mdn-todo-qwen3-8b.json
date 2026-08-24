@@ -1,0 +1,3131 @@
+{
+  "id": "mdn-todo",
+  "name": "MDN To-do Notifications",
+  "projectPath": "C:\\Users\\henri\\Documents\\action-e2e-validation-targets\\mdn-to-do-notifications\\to-do-notifications",
+  "model": "qwen3:8b",
+  "protocol": "ai-first-fail-fast-v1",
+  "status": "stopped",
+  "startedAt": "2026-08-15T23:31:19.179Z",
+  "stages": {
+    "staticInspection": {
+      "framework": "Static web application",
+      "appType": "form-centric",
+      "runtime": {
+        "mode": "static",
+        "supportedForExecution": true,
+        "installCommand": "",
+        "startCommand": "",
+        "baseUrl": "auto",
+        "workingDirectory": ".",
+        "source": "static-file-detection",
+        "notes": "The application appears to be static. The prototype can serve it internally without changing the original project."
+      }
+    },
+    "understanding": {
+      "synopsis": "A to-do list application that stores tasks using IndexedDB and provides notifications when deadlines are reached via the Notifications and Vibration APIs.",
+      "capabilities": [
+        "Stores to-do items using IndexedDB",
+        "Provides notifications when to-do item deadlines are up",
+        "Uses the Vibration API for tactile feedback",
+        "Allows users to add new to-do items with custom deadlines"
+      ],
+      "provider": "Local Ollama / qwen3:8b"
+    },
+    "exploration": {
+      "status": "failed",
+      "terminationReason": "invalid-model-decision",
+      "metrics": {
+        "requestedStepLimit": 20,
+        "requestedDurationMs": 180000,
+        "completedActions": 6,
+        "changedStates": 1,
+        "uniqueStates": 2,
+        "invalidDecisions": 1,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "durationMs": 21281
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "select",
+            "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+            "role": "visual",
+            "value": "02",
+            "label": "Day:",
+            "placeholder": "",
+            "options": [
+              {
+                "label": "01",
+                "value": "01",
+                "selected": true
+              },
+              {
+                "label": "02",
+                "value": "02",
+                "selected": false
+              },
+              {
+                "label": "03",
+                "value": "03",
+                "selected": false
+              },
+              {
+                "label": "04",
+                "value": "04",
+                "selected": false
+              },
+              {
+                "label": "05",
+                "value": "05",
+                "selected": false
+              },
+              {
+                "label": "06",
+                "value": "06",
+                "selected": false
+              },
+              {
+                "label": "07",
+                "value": "07",
+                "selected": false
+              },
+              {
+                "label": "08",
+                "value": "08",
+                "selected": false
+              },
+              {
+                "label": "09",
+                "value": "09",
+                "selected": false
+              },
+              {
+                "label": "10",
+                "value": "10",
+                "selected": false
+              },
+              {
+                "label": "11",
+                "value": "11",
+                "selected": false
+              },
+              {
+                "label": "12",
+                "value": "12",
+                "selected": false
+              },
+              {
+                "label": "13",
+                "value": "13",
+                "selected": false
+              },
+              {
+                "label": "14",
+                "value": "14",
+                "selected": false
+              },
+              {
+                "label": "15",
+                "value": "15",
+                "selected": false
+              },
+              {
+                "label": "16",
+                "value": "16",
+                "selected": false
+              },
+              {
+                "label": "17",
+                "value": "17",
+                "selected": false
+              },
+              {
+                "label": "18",
+                "value": "18",
+                "selected": false
+              },
+              {
+                "label": "19",
+                "value": "19",
+                "selected": false
+              },
+              {
+                "label": "20",
+                "value": "20",
+                "selected": false
+              }
+            ],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "deadline-day",
+            "visualSelector": "select",
+            "visualIndex": 0
+          },
+          "rationale": "Selecting a different day from the default to test date selection functionality.",
+          "expectedOutcome": "The selected day should update to '02' in the date input.",
+          "beforeFingerprint": "3e8d61494183429e",
+          "afterFingerprint": "3e8d61494183429e",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-3",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": true
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": false
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": true
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": false
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "select",
+            "name": "January February March April May June July August September October November December",
+            "role": "visual",
+            "value": "February",
+            "label": "Month:",
+            "placeholder": "",
+            "options": [
+              {
+                "label": "January",
+                "value": "January",
+                "selected": true
+              },
+              {
+                "label": "February",
+                "value": "February",
+                "selected": false
+              },
+              {
+                "label": "March",
+                "value": "March",
+                "selected": false
+              },
+              {
+                "label": "April",
+                "value": "April",
+                "selected": false
+              },
+              {
+                "label": "May",
+                "value": "May",
+                "selected": false
+              },
+              {
+                "label": "June",
+                "value": "June",
+                "selected": false
+              },
+              {
+                "label": "July",
+                "value": "July",
+                "selected": false
+              },
+              {
+                "label": "August",
+                "value": "August",
+                "selected": false
+              },
+              {
+                "label": "September",
+                "value": "September",
+                "selected": false
+              },
+              {
+                "label": "October",
+                "value": "October",
+                "selected": false
+              },
+              {
+                "label": "November",
+                "value": "November",
+                "selected": false
+              },
+              {
+                "label": "December",
+                "value": "December",
+                "selected": false
+              }
+            ],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "deadline-month",
+            "visualSelector": "select",
+            "visualIndex": 1
+          },
+          "rationale": "Selecting a different month from the current value to test date filtering or calendar functionality.",
+          "expectedOutcome": "The month selection should update to February, potentially triggering a change in the displayed data or calendar view.",
+          "beforeFingerprint": "3e8d61494183429e",
+          "afterFingerprint": "3e8d61494183429e",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-3",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": false
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": true
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": true
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": false
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "select",
+            "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+            "role": "visual",
+            "value": "2027",
+            "label": "Year:",
+            "placeholder": "",
+            "options": [
+              {
+                "label": "2026",
+                "value": "2026",
+                "selected": true
+              },
+              {
+                "label": "2027",
+                "value": "2027",
+                "selected": false
+              },
+              {
+                "label": "2028",
+                "value": "2028",
+                "selected": false
+              },
+              {
+                "label": "2029",
+                "value": "2029",
+                "selected": false
+              },
+              {
+                "label": "2030",
+                "value": "2030",
+                "selected": false
+              },
+              {
+                "label": "2031",
+                "value": "2031",
+                "selected": false
+              },
+              {
+                "label": "2032",
+                "value": "2032",
+                "selected": false
+              },
+              {
+                "label": "2033",
+                "value": "2033",
+                "selected": false
+              },
+              {
+                "label": "2034",
+                "value": "2034",
+                "selected": false
+              },
+              {
+                "label": "2035",
+                "value": "2035",
+                "selected": false
+              },
+              {
+                "label": "2036",
+                "value": "2036",
+                "selected": false
+              },
+              {
+                "label": "2037",
+                "value": "2037",
+                "selected": false
+              },
+              {
+                "label": "2038",
+                "value": "2038",
+                "selected": false
+              }
+            ],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "deadline-year",
+            "visualSelector": "select",
+            "visualIndex": 2
+          },
+          "rationale": "Select a different year from the current default value to test date selection functionality.",
+          "expectedOutcome": "The year dropdown should update to reflect the selected year.",
+          "beforeFingerprint": "3e8d61494183429e",
+          "afterFingerprint": "3e8d61494183429e",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-3",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": false
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": true
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": false
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": true
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Interactive input 0",
+            "role": "input",
+            "value": "Complete the task",
+            "label": "Task title:",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "title",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Fill the task title input with a meaningful value to create a new to-do item.",
+          "expectedOutcome": "The task title input should be filled with 'Complete the task', and the form may be ready for submission.",
+          "beforeFingerprint": "3e8d61494183429e",
+          "afterFingerprint": "7fde06c55d02e0e9",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-1pgfsa6",
+                "kind": "fill",
+                "role": "input",
+                "name": "Complete the task",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1pgfsa6-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": false
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": true
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": false
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": true
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 5,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Complete the task",
+            "role": "input",
+            "value": "Complete the task",
+            "label": "Task title:",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "title",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Fill the task title input with a meaningful value to create a new to-do item.",
+          "expectedOutcome": "The task title input should be filled with 'Complete the task', and the form may be ready for submission.",
+          "beforeFingerprint": "7fde06c55d02e0e9",
+          "afterFingerprint": "7fde06c55d02e0e9",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-1pgfsa6",
+                "kind": "fill",
+                "role": "input",
+                "name": "Complete the task",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1pgfsa6-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": false
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": true
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": false
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": true
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 6,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Enable notifications",
+            "role": "visual",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "enable",
+            "visualSelector": "button",
+            "visualIndex": 0
+          },
+          "rationale": "Enable notifications button is visible and represents a user intent to toggle notifications, which can reveal new state or functionality.",
+          "expectedOutcome": "The notifications feature may be enabled, potentially showing a confirmation message or changing the UI state.",
+          "beforeFingerprint": "7fde06c55d02e0e9",
+          "afterFingerprint": "7fde06c55d02e0e9",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "To-do list with Notifications",
+            "headings": [
+              "To-do list",
+              "Add new to-do item."
+            ],
+            "buttons": [
+              "Add Task",
+              "Enable notifications"
+            ],
+            "inputs": [
+              "Task title:",
+              "Hours (hh):",
+              "Mins (mm):",
+              "Day:",
+              "Month:",
+              "Year:",
+              "submit"
+            ],
+            "inputDetails": [
+              {
+                "label": "Task title:",
+                "placeholder": "",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "name": "",
+                "type": "number"
+              },
+              {
+                "label": "Day:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Month:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "Year:",
+                "placeholder": "",
+                "name": "",
+                "type": "select"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "submit"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-1pgfsa6",
+                "kind": "fill",
+                "role": "input",
+                "name": "Complete the task",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1pgfsa6-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in Task title:",
+                "options": [],
+                "label": "Task title:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "title",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Hours (hh):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-hours",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-sojtpr-2",
+                "kind": "fill",
+                "role": "input",
+                "name": "Interactive input 0",
+                "options": [],
+                "label": "Mins (mm):",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-minutes",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-cn6grj",
+                "kind": "select",
+                "role": "visual",
+                "name": "01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31",
+                "options": [
+                  {
+                    "label": "01",
+                    "value": "01",
+                    "selected": false
+                  },
+                  {
+                    "label": "02",
+                    "value": "02",
+                    "selected": true
+                  },
+                  {
+                    "label": "03",
+                    "value": "03",
+                    "selected": false
+                  },
+                  {
+                    "label": "04",
+                    "value": "04",
+                    "selected": false
+                  },
+                  {
+                    "label": "05",
+                    "value": "05",
+                    "selected": false
+                  },
+                  {
+                    "label": "06",
+                    "value": "06",
+                    "selected": false
+                  },
+                  {
+                    "label": "07",
+                    "value": "07",
+                    "selected": false
+                  },
+                  {
+                    "label": "08",
+                    "value": "08",
+                    "selected": false
+                  },
+                  {
+                    "label": "09",
+                    "value": "09",
+                    "selected": false
+                  },
+                  {
+                    "label": "10",
+                    "value": "10",
+                    "selected": false
+                  },
+                  {
+                    "label": "11",
+                    "value": "11",
+                    "selected": false
+                  },
+                  {
+                    "label": "12",
+                    "value": "12",
+                    "selected": false
+                  },
+                  {
+                    "label": "13",
+                    "value": "13",
+                    "selected": false
+                  },
+                  {
+                    "label": "14",
+                    "value": "14",
+                    "selected": false
+                  },
+                  {
+                    "label": "15",
+                    "value": "15",
+                    "selected": false
+                  },
+                  {
+                    "label": "16",
+                    "value": "16",
+                    "selected": false
+                  },
+                  {
+                    "label": "17",
+                    "value": "17",
+                    "selected": false
+                  },
+                  {
+                    "label": "18",
+                    "value": "18",
+                    "selected": false
+                  },
+                  {
+                    "label": "19",
+                    "value": "19",
+                    "selected": false
+                  },
+                  {
+                    "label": "20",
+                    "value": "20",
+                    "selected": false
+                  }
+                ],
+                "label": "Day:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-day",
+                "visualSelector": "select",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-nii8mm",
+                "kind": "select",
+                "role": "visual",
+                "name": "January February March April May June July August September October November December",
+                "options": [
+                  {
+                    "label": "January",
+                    "value": "January",
+                    "selected": false
+                  },
+                  {
+                    "label": "February",
+                    "value": "February",
+                    "selected": true
+                  },
+                  {
+                    "label": "March",
+                    "value": "March",
+                    "selected": false
+                  },
+                  {
+                    "label": "April",
+                    "value": "April",
+                    "selected": false
+                  },
+                  {
+                    "label": "May",
+                    "value": "May",
+                    "selected": false
+                  },
+                  {
+                    "label": "June",
+                    "value": "June",
+                    "selected": false
+                  },
+                  {
+                    "label": "July",
+                    "value": "July",
+                    "selected": false
+                  },
+                  {
+                    "label": "August",
+                    "value": "August",
+                    "selected": false
+                  },
+                  {
+                    "label": "September",
+                    "value": "September",
+                    "selected": false
+                  },
+                  {
+                    "label": "October",
+                    "value": "October",
+                    "selected": false
+                  },
+                  {
+                    "label": "November",
+                    "value": "November",
+                    "selected": false
+                  },
+                  {
+                    "label": "December",
+                    "value": "December",
+                    "selected": false
+                  }
+                ],
+                "label": "Month:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-month",
+                "visualSelector": "select",
+                "visualIndex": 1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-197syqa",
+                "kind": "select",
+                "role": "visual",
+                "name": "2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038",
+                "options": [
+                  {
+                    "label": "2026",
+                    "value": "2026",
+                    "selected": false
+                  },
+                  {
+                    "label": "2027",
+                    "value": "2027",
+                    "selected": true
+                  },
+                  {
+                    "label": "2028",
+                    "value": "2028",
+                    "selected": false
+                  },
+                  {
+                    "label": "2029",
+                    "value": "2029",
+                    "selected": false
+                  },
+                  {
+                    "label": "2030",
+                    "value": "2030",
+                    "selected": false
+                  },
+                  {
+                    "label": "2031",
+                    "value": "2031",
+                    "selected": false
+                  },
+                  {
+                    "label": "2032",
+                    "value": "2032",
+                    "selected": false
+                  },
+                  {
+                    "label": "2033",
+                    "value": "2033",
+                    "selected": false
+                  },
+                  {
+                    "label": "2034",
+                    "value": "2034",
+                    "selected": false
+                  },
+                  {
+                    "label": "2035",
+                    "value": "2035",
+                    "selected": false
+                  },
+                  {
+                    "label": "2036",
+                    "value": "2036",
+                    "selected": false
+                  },
+                  {
+                    "label": "2037",
+                    "value": "2037",
+                    "selected": false
+                  },
+                  {
+                    "label": "2038",
+                    "value": "2038",
+                    "selected": false
+                  }
+                ],
+                "label": "Year:",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "deadline-year",
+                "visualSelector": "select",
+                "visualIndex": 2,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-ak1j3d",
+                "kind": "fill",
+                "role": "visual",
+                "name": "Add Task",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "submit",
+                "visualSelector": "input[type=\"submit\"]",
+                "visualIndex": 0,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-abhngc",
+                "kind": "click",
+                "role": "visual",
+                "name": "Enable notifications",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "enable",
+                "visualSelector": "button",
+                "visualIndex": 0,
+                "safe": true,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "To-do list Add new to-do item. Task title: Hours (hh): Mins (mm): Day: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 Month: January February March April May June July August September October November December Year: 2026 2027 2028 2029 2030 2031 2032 2033 2034 2035 2036 2037 2038 App initialized. Object store created. Database initialized. Entries all displayed. Enable notifications"
+          }
+        },
+        {
+          "step": 7,
+          "status": "invalid-model-decision",
+          "proposedAction": "fill",
+          "proposedActionId": "title",
+          "error": "The model selected an action that was not present in the current safe action set."
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "To-do list",
+            "Add new to-do item."
+          ],
+          "buttons": [
+            "Add Task",
+            "Enable notifications"
+          ],
+          "inputs": [
+            "Task title:",
+            "Hours (hh):",
+            "Mins (mm):",
+            "Day:",
+            "Month:",
+            "Year:",
+            "submit"
+          ]
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "To-do list",
+            "Add new to-do item."
+          ],
+          "buttons": [
+            "Add Task",
+            "Enable notifications"
+          ],
+          "inputs": [
+            "Task title:",
+            "Hours (hh):",
+            "Mins (mm):",
+            "Day:",
+            "Month:",
+            "Year:",
+            "submit"
+          ]
+        }
+      ]
+    }
+  },
+  "failedStage": "model-guided live exploration",
+  "error": "Model-guided exploration failed at decision 7: The model selected an action that was not present in the current safe action set.",
+  "durationMs": 27204,
+  "completedAt": "2026-08-15T23:31:46.383Z"
+}

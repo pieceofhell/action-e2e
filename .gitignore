@@ -4,3 +4,5 @@ prototype-runs/*
 .env
 *.log
 ui-check.png
+.playwright-cli/
+output/playwright/

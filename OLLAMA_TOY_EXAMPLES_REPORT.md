@@ -5,6 +5,8 @@
 **Prototype:** Action E2E Prototype  
 **Scope:** Current end-to-end pipeline validation on two web applications
 
+> Historical experiment note: this report captures the earlier Ollama-focused guest runs. Authenticated read-only support was implemented and validated later; see `features/auth.md` and `updates.md` for the current architecture and Janvas 2/2 protected-route run.
+
 ## Objective
 
 This evaluation checks whether the proposed pipeline can inspect a web project, use a local language model to propose user flows and acceptance criteria, generate Playwright artifacts, execute them, and return visual evidence and actionable insights. It also assesses the failure modes of model-authored test code and the safeguards needed for reliable automation.
@@ -87,6 +89,6 @@ The current evidence is promising but not a benchmark. It covers two toy applica
 ## Recommended Next Experiments
 
 1. Compare `llama3.1:8b` with at least one other local or hosted provider using the same approved flows and measure acceptance-criteria quality, fallback rate, execution success, and latency.
-2. Add applications with authentication, navigation, asynchronous content, and error states to increase behavioral diversity.
+2. Extend the implemented authenticated read-only adapters to more applications with navigation, asynchronous content, and error states.
 3. Expand the live explorer with DOM snapshots, accessibility-tree information, and interaction observations so that the model can propose deeper, yet still grounded, scenarios.
 4. Define evaluation metrics for the research phase: flow coverage, criteria completeness, model-draft acceptance rate, execution pass rate, false-positive rate, runtime, and human-review effort.

@@ -16,84 +16,74 @@
     <div class="background-grid" aria-hidden="true"></div>
 
     <header class="hero">
-      <div class="hero__content">
-        <div class="hero__eyebrow">Experimental pipeline for E2E testing</div>
-        <h1>Action E2E Prototype</h1>
-        <p class="hero__copy">
-          Local prototype for inspecting web projects, proposing user flows, reviewing acceptance
-          criteria, generating Playwright tests, and consolidating results with support from local
-          or remote models.
-        </p>
-        <div class="hero__meta">
-          <span class="pill">Local analysis</span>
-          <span class="pill">Configurable models</span>
-          <span class="pill">Human review</span>
-          <span class="pill">Playwright</span>
-          <span class="pill pill--muted" id="healthBadge">Connecting...</span>
-        </div>
+      <div class="hero__bar">
+        <h1>Action E2E</h1>
+        <button id="howItWorksButton" class="button button--quiet" type="button">
+          About the workflow
+        </button>
       </div>
-
-      <section class="pipeline-band">
-        <div class="panel-heading pipeline-band__heading">
-          <div>
-            <h2>Pipeline</h2>
-            <p>The complete workflow covered by the prototype, from project reading to final insights.</p>
-          </div>
-        </div>
-
-        <ol class="timeline timeline--horizontal" id="timelineList">
-          <li class="timeline__item" data-step="selection">
-            <span class="timeline__index">1</span>
-            <div>
-              <strong>Project selection</strong>
-              <p>Choose the directory and entry point.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="inspection">
-            <span class="timeline__index">2</span>
-            <div>
-              <strong>Inspection and understanding</strong>
-              <p>README, structure, manifests, and UI hints.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="flows">
-            <span class="timeline__index">3</span>
-            <div>
-              <strong>Primary flows</strong>
-              <p>Hypotheses about the expected user journey.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="criteria">
-            <span class="timeline__index">4</span>
-            <div>
-              <strong>Acceptance criteria</strong>
-              <p>Human review and approval.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="generation">
-            <span class="timeline__index">5</span>
-            <div>
-              <strong>Test generation</strong>
-              <p>Creation of Playwright artifacts.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="execution">
-            <span class="timeline__index">6</span>
-            <div>
-              <strong>Execution</strong>
-              <p>Target application startup and test run.</p>
-            </div>
-          </li>
-          <li class="timeline__item" data-step="insights">
-            <span class="timeline__index">7</span>
-            <div>
-              <strong>Results and insights</strong>
-              <p>Consolidation of pipeline observations.</p>
-            </div>
-          </li>
-        </ol>
-      </section>
+      <span id="healthBadge" hidden>Connecting...</span>
     </header>
+
+    <aside class="activity-dock" aria-label="Current pipeline activity">
+      <section class="activity-monitor" id="activityMonitor" data-status="idle" aria-live="polite">
+          <div class="activity-monitor__summary">
+            <div class="activity-monitor__identity">
+              <span class="activity-monitor__signal" aria-hidden="true"></span>
+              <div>
+                <p class="activity-monitor__eyebrow">Live activity</p>
+                <strong id="activityLabel">Pipeline ready</strong>
+                <p id="activityMessage">Start an operation to see what E2P is doing behind the scenes.</p>
+              </div>
+            </div>
+            <div class="activity-monitor__metrics">
+              <button id="explorationToggleButton" class="button activity-viewer-toggle" type="button" hidden>Review exploration</button>
+              <span id="activityPercent">0%</span>
+              <span id="activityElapsed">Idle</span>
+            </div>
+          </div>
+
+          <div
+            class="activity-progress"
+            id="activityProgress"
+            role="progressbar"
+            aria-label="Current operation progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <span id="activityProgressFill"></span>
+          </div>
+
+          <ol class="activity-log" id="activityLog">
+            <li><span>Ready</span><p>Operation milestones will appear here as they happen.</p></li>
+          </ol>
+
+          <section class="exploration-viewer" id="explorationViewer" hidden aria-label="Live interface exploration viewer">
+            <figure class="exploration-viewer__screen">
+              <img id="explorationPreviewImage" alt="Latest guest interface state observed by E2P" />
+              <div class="exploration-viewer__empty" id="explorationPreviewEmpty">
+                Waiting for the first safe guest screenshot.
+              </div>
+              <figcaption id="explorationPreviewCaption">Current target state</figcaption>
+            </figure>
+            <div class="exploration-viewer__narrative">
+              <div class="exploration-viewer__heading">
+                <div>
+                  <p class="activity-monitor__eyebrow">Model observation</p>
+                  <strong id="explorationStepLabel">Preparing exploration</strong>
+                </div>
+                <span class="status-chip" id="explorationStateStatus">Thinking</span>
+              </div>
+              <div class="exploration-action" id="explorationActionSummary">
+                The model is reviewing the visible safe actions.
+              </div>
+              <dl class="exploration-facts" id="explorationFacts"></dl>
+              <ol class="exploration-history" id="explorationHistory"></ol>
+            </div>
+          </section>
+      </section>
+    </aside>
 
     <main class="layout">
       <section class="workspace">
@@ -149,6 +139,11 @@
             </label>
 
             <label class="field">
+              <span>Reviewer model (optional)</span>
+              <input id="aiCriticModelInput" type="text" placeholder="gemma3:12b" />
+            </label>
+
+            <label class="field">
               <span>Endpoint</span>
               <input id="aiEndpointInput" type="text" placeholder="http://127.0.0.1:11434" />
             </label>
@@ -168,15 +163,6 @@
             local or remote runtime.
           </div>
 
-          <section class="usage-block">
-            <div class="panel-heading">
-              <div>
-                <h3>How the model participates</h3>
-                <p>The selected model does not replace the whole pipeline: it is used where semantic interpretation adds the most value.</p>
-              </div>
-            </div>
-            <div id="aiUsagePanel" class="usage-grid"></div>
-          </section>
         </section>
 
         <section class="card card--console">
@@ -227,10 +213,147 @@
           </div>
         </section>
 
+        <section class="card card--defects">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Exploration outcome</p>
+              <h2>Potential defects</h2>
+            </div>
+            <span class="status-chip" id="bugDiscoveryStatus">Pending</span>
+          </div>
+
+          <p class="muted">
+            The selected model reviews completed interface states for evidence-grounded inconsistencies.
+            Every retained item remains a hypothesis until a person reproduces and confirms it.
+          </p>
+          <div id="bugDiscoveryPanel" class="stack empty-state">
+            Run guest live exploration to produce a defect-discovery report.
+          </div>
+        </section>
+
+        <section class="card card--auth">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Step 3</p>
+              <h2>Access mode</h2>
+            </div>
+            <span class="status-chip" id="authStatus">Guest</span>
+          </div>
+
+          <p class="muted">
+            Authentication credentials are resolved by the local server from <code>E2P_AUTH_*</code>
+            environment references. Values never enter this page, generated tests, prompts, logs, or run metadata.
+          </p>
+
+          <div class="auth-banner" id="authSafetyBanner">
+            Guest mode uses the existing pipeline and does not prepare an authenticated session.
+          </div>
+
+          <div class="config-grid auth-config-grid">
+            <label class="field">
+              <span>Access mode</span>
+              <select id="accessModeInput">
+                <option value="guest">Guest</option>
+                <option value="authenticated">Authenticated / read-only</option>
+              </select>
+            </label>
+
+            <label class="field auth-only">
+              <span>Authentication adapter</span>
+              <select id="authAdapterInput">
+                <option value="janvas-canvas-token">Janvas Canvas token</option>
+                <option value="cookie-session">Session cookie</option>
+                <option value="form-login">Form login</option>
+                <option value="http-basic">HTTP Basic</option>
+              </select>
+            </label>
+
+            <label class="field auth-only">
+              <span>Profile identifier</span>
+              <input id="authProfileIdInput" type="text" value="local-read-only" />
+            </label>
+
+            <label class="field auth-only auth-secret-field">
+              <span>Secret environment reference</span>
+              <input id="authSecretEnvInput" type="text" placeholder="E2P_AUTH_TARGET_SECRET" autocomplete="off" />
+            </label>
+
+            <label class="field auth-only auth-user-field">
+              <span>Username environment reference</span>
+              <input id="authUsernameEnvInput" type="text" placeholder="E2P_AUTH_TARGET_USERNAME" autocomplete="off" />
+            </label>
+
+            <label class="field auth-only auth-user-field">
+              <span>Password environment reference</span>
+              <input id="authPasswordEnvInput" type="text" placeholder="E2P_AUTH_TARGET_PASSWORD" autocomplete="off" />
+            </label>
+
+            <label class="field auth-only auth-janvas-field">
+              <span>Canvas provider URL</span>
+              <input id="authProviderUrlInput" type="url" placeholder="https://canvas.example.edu/api/v1" />
+            </label>
+
+            <label class="field auth-only auth-cookie-field">
+              <span>Session cookie name</span>
+              <input id="authCookieNameInput" type="text" value="session" />
+            </label>
+
+            <label class="field auth-only auth-form-field">
+              <span>Login path</span>
+              <input id="authLoginPathInput" type="text" value="/login" />
+            </label>
+
+            <label class="field auth-only auth-form-field">
+              <span>Authentication request paths</span>
+              <input id="authPathsInput" type="text" value="/login" />
+            </label>
+
+            <label class="field auth-only">
+              <span>Initial protected path</span>
+              <input id="authInitialPathInput" type="text" value="/profile" />
+            </label>
+
+            <label class="field auth-only">
+              <span>Read-only path allowlist</span>
+              <textarea id="authAllowedPathsInput">/profile
+/inbox</textarea>
+            </label>
+
+            <label class="field auth-only auth-form-field">
+              <span>Username selector</span>
+              <input id="authUsernameSelectorInput" type="text" value="input[name='username']" />
+            </label>
+
+            <label class="field auth-only auth-form-field">
+              <span>Password selector</span>
+              <input id="authPasswordSelectorInput" type="text" value="input[type='password']" />
+            </label>
+
+            <label class="field auth-only auth-form-field">
+              <span>Submit selector</span>
+              <input id="authSubmitSelectorInput" type="text" value="button[type='submit']" />
+            </label>
+
+            <label class="field auth-only">
+              <span>Success path (optional)</span>
+              <input id="authSuccessPathInput" type="text" placeholder="/profile" />
+            </label>
+
+            <label class="field auth-only">
+              <span>Success text (optional)</span>
+              <input id="authSuccessTextInput" type="text" placeholder="Account" />
+            </label>
+          </div>
+
+          <div class="button-row auth-only">
+            <button id="checkAuthButton" class="button button--quiet">Check secret configuration</button>
+          </div>
+        </section>
+
         <section class="card">
           <div class="card__header">
             <div>
-              <p class="kicker">Steps 3 and 4</p>
+              <p class="kicker">Steps 4 and 5</p>
               <h2>Flows and acceptance criteria</h2>
             </div>
             <span class="status-chip" id="criteriaStatus">Pending</span>
@@ -244,14 +367,14 @@
         <section class="card">
           <div class="card__header">
             <div>
-              <p class="kicker">Step 5</p>
+              <p class="kicker">Step 6</p>
               <h2>Generation and execution settings</h2>
             </div>
             <span class="status-chip" id="generationStatus">Pending</span>
           </div>
 
           <p class="muted">
-            These settings are reused by live exploration, model-assisted generation, and the final Playwright execution. Run live exploration before generating model-authored test code; otherwise the prototype intentionally uses its deterministic generator. Every execution records screenshots, video, and a trace for each test so the result can be reviewed visually.
+            These settings are reused by live exploration, model-assisted generation, and the final Playwright execution. Guest runs keep screenshots, video, and traces. Authenticated runs use constrained action plans and keep post-authentication screenshots only, with secret scanning before release.
           </p>
 
           <div class="runtime-grid">
@@ -300,7 +423,7 @@
         <section class="card">
           <div class="card__header">
             <div>
-              <p class="kicker">Step 6</p>
+              <p class="kicker">Step 7</p>
               <h2>Generated artifacts</h2>
             </div>
             <span class="status-chip" id="artifactsStatus">Pending</span>
@@ -314,7 +437,7 @@
         <section class="card">
           <div class="card__header">
             <div>
-              <p class="kicker">Step 7</p>
+              <p class="kicker">Step 8</p>
               <h2>Results, evidence, and insights</h2>
             </div>
             <span class="status-chip" id="executionStatus">Pending</span>
@@ -326,6 +449,77 @@
         </section>
       </section>
     </main>
+
+    <dialog class="workflow-dialog" id="howItWorksDialog" aria-labelledby="howItWorksTitle">
+      <div class="workflow-dialog__shell">
+        <header class="workflow-dialog__header">
+          <div>
+            <p class="kicker">From evidence to evaluation</p>
+            <h2 id="howItWorksTitle">How Action E2E works</h2>
+            <p>
+              E2P turns evidence from a web project into reviewable user journeys, executable tests,
+              and visual results. You stay in control before anything is generated or run.
+            </p>
+          </div>
+          <button id="closeHowItWorksButton" class="icon-button" type="button" aria-label="Close workflow guide">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </header>
+
+        <div class="workflow-dialog__model-note">
+          <strong>Where the model participates</strong>
+          <p>
+            A selected AI model interprets collected evidence, proposes meaningful flows, drafts acceptance
+            criteria, authors or grounds executable tests, and explains results. If the model cannot complete a
+            required stage, the run stops and reports that failure instead of substituting another strategy.
+          </p>
+        </div>
+
+        <section class="workflow-dialog__participation">
+          <div>
+            <p class="kicker">Model responsibilities</p>
+            <h3>How the model participates</h3>
+            <p>The model drives semantic decisions while E2P supplies evidence, a safe action protocol, human review, and measurable browser execution.</p>
+          </div>
+          <div id="aiUsagePanel" class="usage-grid"></div>
+        </section>
+
+        <ol class="workflow-guide">
+          <li>
+            <span>1</span>
+            <div><strong>Select a project</strong><p>Point E2P to a local web project you want to study.</p></div>
+          </li>
+          <li>
+            <span>2</span>
+            <div><strong>Build project context</strong><p>E2P reads documentation and source signals, then can launch the app to observe its rendered interface.</p></div>
+          </li>
+          <li>
+            <span>3</span>
+            <div><strong>Confirm access</strong><p>Choose a guest session or a protected, read-only authenticated view.</p></div>
+          </li>
+          <li>
+            <span>4</span>
+            <div><strong>Explore and challenge the interface</strong><p>The selected model chooses constrained UI actions. E2P records resulting states, screenshots, and browser errors, then separates potential defects into observed facts and inferred expectations.</p></div>
+          </li>
+          <li>
+            <span>5</span>
+            <div><strong>Review the criteria</strong><p>Edit, approve, or reject the expected behavior before test generation.</p></div>
+          </li>
+          <li>
+            <span>6</span>
+            <div><strong>Generate E2E tests</strong><p>Approved criteria become isolated Playwright artifacts without changing the analyzed project.</p></div>
+          </li>
+          <li>
+            <span>7</span>
+            <div><strong>Run the experiment</strong><p>E2P starts the target when needed and executes the generated browser journeys.</p></div>
+          </li>
+          <li>
+            <span>8</span>
+            <div><strong>Evaluate the outcome</strong><p>Use results, screenshots, videos, traces, and limitations to assess both the application and the model-assisted pipeline.</p></div>
+          </li>
+        </ol>
+      </div>
+    </dialog>
 
     <div id="toast" class="toast" hidden></div>
 

@@ -1,0 +1,1177 @@
+{
+  "id": "todomvc-react",
+  "name": "TodoMVC React",
+  "projectPath": "C:\\Users\\henri\\Documents\\action-e2e-validation-targets\\todomvc\\examples\\react",
+  "model": "qwen3:8b",
+  "protocol": "ai-first-adaptive-v2",
+  "status": "completed",
+  "startedAt": "2026-08-16T01:44:22.641Z",
+  "stages": {
+    "staticInspection": {
+      "framework": "React",
+      "appType": "form-centric",
+      "runtime": {
+        "mode": "command",
+        "supportedForExecution": true,
+        "installCommand": "npm install",
+        "startCommand": "npm run dev",
+        "baseUrl": "http://127.0.0.1:8080",
+        "workingDirectory": ".",
+        "source": "package-manifest",
+        "notes": "Command and base URL were inferred from package.json. The interface allows manual review before execution."
+      }
+    },
+    "understanding": {
+      "synopsis": "A TodoMVC application implemented using React 17.0.2, featuring a form-centric interface for managing a list of tasks. The application includes components for the header, main content, and footer, with a state management system using React's useReducer hook.",
+      "capabilities": [
+        "State management using React's useReducer hook",
+        "Routing with React Router",
+        "Form-centric UI for task creation and management",
+        "Filtering of tasks by status (active, completed)",
+        "Persistence of task data through a reducer"
+      ],
+      "provider": "Local Ollama / qwen3:8b"
+    },
+    "exploration": {
+      "status": "completed",
+      "terminationReason": "safe-actions-exhausted",
+      "metrics": {
+        "adaptiveStepLimit": 11,
+        "adaptiveDurationMs": 112500,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 5,
+        "changedStates": 4,
+        "uniqueStates": 4,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "durationMs": 16320
+      },
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "New Todo Input",
+            "role": "input",
+            "value": "Buy groceries",
+            "label": "New Todo Input",
+            "placeholder": "What needs to be done?",
+            "options": [],
+            "targetBlank": false,
+            "testId": "text-input",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Fill the 'New Todo Input' with a meaningful task to create a new todo item and test the creation functionality.",
+          "expectedOutcome": "A new todo item 'Buy groceries' should appear in the list of todos.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "59b36fd521eeda6f",
+          "afterFingerprint": "59b36fd521eeda6f",
+          "changed": false,
+          "observedAfter": {
+            "path": "/",
+            "title": "TodoMVC: React",
+            "headings": [
+              "todos"
+            ],
+            "buttons": [],
+            "inputs": [
+              "New Todo Input"
+            ],
+            "inputDetails": [
+              {
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "name": "",
+                "type": "text"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-10h56vv",
+                "kind": "fill",
+                "role": "input",
+                "name": "New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10h56vv-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-fvk7zh",
+                "kind": "click",
+                "role": "link",
+                "name": "TodoMVC",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Toggle All Input"
+          }
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "press",
+            "name": "Press Enter in New Todo Input",
+            "role": "input",
+            "value": "",
+            "label": "New Todo Input",
+            "placeholder": "What needs to be done?",
+            "options": [],
+            "targetBlank": false,
+            "testId": "text-input",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Pressing Enter in the New Todo Input is a common action to submit a new todo item, which can reveal the application's behavior when a new item is added.",
+          "expectedOutcome": "The application should add the new todo item to the list and potentially update the UI state.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "59b36fd521eeda6f",
+          "afterFingerprint": "6cbbe449118abfca",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "TodoMVC: React",
+            "headings": [
+              "todos"
+            ],
+            "buttons": [],
+            "inputs": [
+              "New Todo Input",
+              "Toggle All Input",
+              "checkbox"
+            ],
+            "inputDetails": [
+              {
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-10h56vv",
+                "kind": "fill",
+                "role": "input",
+                "name": "New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10h56vv-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1cmnu2a",
+                "kind": "fill",
+                "role": "input",
+                "name": "Toggle All Input",
+                "options": [],
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "toggle-all",
+                "domId": "toggle-all",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8mtdyg",
+                "kind": "fill",
+                "role": "input",
+                "name": "on",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "todo-item-toggle",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19ry15l",
+                "kind": "click",
+                "role": "link",
+                "name": "All",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-thv3ri",
+                "kind": "click",
+                "role": "link",
+                "name": "Active",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12165fa",
+                "kind": "click",
+                "role": "link",
+                "name": "Completed",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-fvk7zh",
+                "kind": "click",
+                "role": "link",
+                "name": "TodoMVC",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Toggle All Input Buy groceries"
+          }
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Completed",
+            "role": "link",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Clicking on 'Completed' will filter the list to show only completed todos, which helps explore the filtering and state management capabilities of the application.",
+          "expectedOutcome": "The UI will update to display only completed todos, revealing how the application manages and filters task states.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "6cbbe449118abfca",
+          "afterFingerprint": "9a10a9132be51f3c",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "TodoMVC: React",
+            "headings": [
+              "todos"
+            ],
+            "buttons": [],
+            "inputs": [
+              "New Todo Input",
+              "Toggle All Input"
+            ],
+            "inputDetails": [
+              {
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-10h56vv",
+                "kind": "fill",
+                "role": "input",
+                "name": "New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10h56vv-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1cmnu2a",
+                "kind": "fill",
+                "role": "input",
+                "name": "Toggle All Input",
+                "options": [],
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "toggle-all",
+                "domId": "toggle-all",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19ry15l",
+                "kind": "click",
+                "role": "link",
+                "name": "All",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-thv3ri",
+                "kind": "click",
+                "role": "link",
+                "name": "Active",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12165fa",
+                "kind": "click",
+                "role": "link",
+                "name": "Completed",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-fvk7zh",
+                "kind": "click",
+                "role": "link",
+                "name": "TodoMVC",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Toggle All Input"
+          }
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Active",
+            "role": "link",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "Clicking on 'Active' will filter the list of todos to show only active items, which helps explore the filtering functionality and the state of active todos.",
+          "expectedOutcome": "The todos list will be filtered to show only active items, revealing how the application handles and displays active tasks.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "9a10a9132be51f3c",
+          "afterFingerprint": "6c0bd64119d07fb1",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "TodoMVC: React",
+            "headings": [
+              "todos"
+            ],
+            "buttons": [
+              "Delete todo"
+            ],
+            "inputs": [
+              "New Todo Input",
+              "Toggle All Input",
+              "checkbox"
+            ],
+            "inputDetails": [
+              {
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-10h56vv",
+                "kind": "fill",
+                "role": "input",
+                "name": "New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10h56vv-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1cmnu2a",
+                "kind": "fill",
+                "role": "input",
+                "name": "Toggle All Input",
+                "options": [],
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "toggle-all",
+                "domId": "toggle-all",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8mtdyg",
+                "kind": "fill",
+                "role": "input",
+                "name": "on",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "todo-item-toggle",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-16dxbbg",
+                "kind": "click",
+                "role": "button",
+                "name": "Delete todo",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "todo-item-button",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19ry15l",
+                "kind": "click",
+                "role": "link",
+                "name": "All",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-thv3ri",
+                "kind": "click",
+                "role": "link",
+                "name": "Active",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12165fa",
+                "kind": "click",
+                "role": "link",
+                "name": "Completed",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-fvk7zh",
+                "kind": "click",
+                "role": "link",
+                "name": "TodoMVC",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Toggle All Input Buy groceries"
+          }
+        },
+        {
+          "step": 5,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "All",
+            "role": "link",
+            "value": "",
+            "label": "",
+            "placeholder": "",
+            "options": [],
+            "targetBlank": false,
+            "testId": "",
+            "domId": "",
+            "visualSelector": "",
+            "visualIndex": -1
+          },
+          "rationale": "The 'All' link is a visible navigation option that can reveal different filtering states for todos, which is a meaningful user intent to explore.",
+          "expectedOutcome": "The todos list will be filtered to show all todos, providing insight into the filtering functionality.",
+          "protocolCorrection": "",
+          "beforeFingerprint": "6c0bd64119d07fb1",
+          "afterFingerprint": "6cbbe449118abfca",
+          "changed": true,
+          "observedAfter": {
+            "path": "/",
+            "title": "TodoMVC: React",
+            "headings": [
+              "todos"
+            ],
+            "buttons": [],
+            "inputs": [
+              "New Todo Input",
+              "Toggle All Input",
+              "checkbox"
+            ],
+            "inputDetails": [
+              {
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "name": "",
+                "type": "text"
+              },
+              {
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              },
+              {
+                "label": "",
+                "placeholder": "",
+                "name": "",
+                "type": "checkbox"
+              }
+            ],
+            "actions": [
+              {
+                "id": "e2p-10h56vv",
+                "kind": "fill",
+                "role": "input",
+                "name": "New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-10h56vv-enter",
+                "kind": "press",
+                "role": "input",
+                "name": "Press Enter in New Todo Input",
+                "options": [],
+                "label": "New Todo Input",
+                "placeholder": "What needs to be done?",
+                "targetBlank": false,
+                "testId": "text-input",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-1cmnu2a",
+                "kind": "fill",
+                "role": "input",
+                "name": "Toggle All Input",
+                "options": [],
+                "label": "Toggle All Input",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "toggle-all",
+                "domId": "toggle-all",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-8mtdyg",
+                "kind": "fill",
+                "role": "input",
+                "name": "on",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "todo-item-toggle",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-19ry15l",
+                "kind": "click",
+                "role": "link",
+                "name": "All",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-thv3ri",
+                "kind": "click",
+                "role": "link",
+                "name": "Active",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-12165fa",
+                "kind": "click",
+                "role": "link",
+                "name": "Completed",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": true,
+                "inOverlay": false
+              },
+              {
+                "id": "e2p-fvk7zh",
+                "kind": "click",
+                "role": "link",
+                "name": "TodoMVC",
+                "options": [],
+                "label": "",
+                "placeholder": "",
+                "targetBlank": false,
+                "testId": "",
+                "domId": "",
+                "visualSelector": "",
+                "visualIndex": -1,
+                "safe": false,
+                "inOverlay": false
+              }
+            ],
+            "dialogsCount": 0,
+            "overlayTexts": [],
+            "visibleTextExcerpt": "Toggle All Input Buy groceries"
+          }
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "path": "/",
+          "headings": [
+            "todos"
+          ],
+          "buttons": [],
+          "inputs": [
+            "New Todo Input"
+          ]
+        },
+        {
+          "id": "state-2",
+          "path": "/",
+          "headings": [
+            "todos"
+          ],
+          "buttons": [],
+          "inputs": [
+            "New Todo Input",
+            "Toggle All Input",
+            "checkbox"
+          ]
+        },
+        {
+          "id": "state-3",
+          "path": "/",
+          "headings": [
+            "todos"
+          ],
+          "buttons": [],
+          "inputs": [
+            "New Todo Input",
+            "Toggle All Input"
+          ]
+        },
+        {
+          "id": "state-4",
+          "path": "/",
+          "headings": [
+            "todos"
+          ],
+          "buttons": [
+            "Delete todo"
+          ],
+          "inputs": [
+            "New Todo Input",
+            "Toggle All Input",
+            "checkbox"
+          ]
+        }
+      ]
+    },
+    "planning": {
+      "mode": "ai-first",
+      "flowCount": 3,
+      "flows": [
+        {
+          "id": "flow-1",
+          "title": "Create a new todo item",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-1",
+            "state-2"
+          ],
+          "criteria": [
+            {
+              "title": "User enters a new todo task",
+              "given": "The user is on the main todos page and the 'New Todo Input' field is visible.",
+              "when": "The user types 'Buy groceries' into the 'New Todo Input' field.",
+              "then": "The 'New Todo Input' field displays 'Buy groceries' and the 'Toggle All Input' checkbox is visible."
+            },
+            {
+              "title": "User submits the new todo task",
+              "given": "The user has entered 'Buy groceries' into the 'New Todo Input' field.",
+              "when": "The user presses Enter in the 'New Todo Input' field.",
+              "then": "The todo item 'Buy groceries' is displayed, and the 'Toggle All Input' checkbox is visible."
+            }
+          ]
+        },
+        {
+          "id": "flow-2",
+          "title": "Filter todos to show only completed items",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-2",
+            "state-3"
+          ],
+          "criteria": [
+            {
+              "title": "User clicks on the 'Completed' filter link",
+              "given": "The user is on the main todos page and the 'Completed' link is visible.",
+              "when": "The user clicks on the 'Completed' link.",
+              "then": "Only the completed todo items are displayed in the list."
+            },
+            {
+              "title": "User verifies the filtered view",
+              "given": "The user has clicked on the 'Completed' link.",
+              "when": "The user observes the list of todos.",
+              "then": "Only the completed todo items are visible, and the 'All' and 'Active' links are highlighted."
+            }
+          ]
+        },
+        {
+          "id": "flow-3",
+          "title": "Mark a todo item as complete",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-2",
+            "state-4"
+          ],
+          "criteria": [
+            {
+              "title": "User clicks on the checkbox for a todo item",
+              "given": "The user is on the main todos page and a todo item is visible.",
+              "when": "The user clicks on the checkbox next to a todo item.",
+              "then": "The todo item is marked as complete, and the 'Completed' count is updated."
+            },
+            {
+              "title": "User verifies the todo item is marked as complete",
+              "given": "The user has clicked on the checkbox for a todo item.",
+              "when": "The user observes the todo item.",
+              "then": "The todo item is displayed with a line-through style, and the 'Completed' count is updated."
+            }
+          ]
+        }
+      ]
+    },
+    "generation": {
+      "runId": "react-2026-08-16T01-46-11-211Z",
+      "runDirectory": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\react-2026-08-16T01-46-11-211Z",
+      "tests": [
+        {
+          "title": "Create a new todo item",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model did not return useful content.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        },
+        {
+          "title": "Filter todos to show only completed items",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model did not return useful content.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        },
+        {
+          "title": "Mark a todo item as complete",
+          "generationMode": "model-journey-compiled",
+          "generationNote": "The free-form model draft was rejected (The model did not return useful content.). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback."
+        }
+      ]
+    },
+    "execution": {
+      "summary": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 14663.458999999999
+      },
+      "tests": [
+        {
+          "title": "Create a new todo item",
+          "status": "passed",
+          "durationMs": 9699,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/flow-1-Create-a-new-todo-item/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/flow-1-Create-a-new-todo-item/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/flow-1-Create-a-new-todo-item/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "Filter todos to show only completed items",
+          "status": "passed",
+          "durationMs": 10070,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/flow-2-Filter-todos-to-show-only-completed-items/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/flow-2-Filter-todos-to-show-only-completed-items/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/flow-2-Filter-todos-to-show-only-completed-items/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "Mark a todo item as complete",
+          "status": "passed",
+          "durationMs": 10363,
+          "error": "",
+          "evidence": [
+            {
+              "name": "screenshot",
+              "kind": "screenshot",
+              "contentType": "image/png",
+              "relativePath": "results/test-artifacts/flow-3-Mark-a-todo-item-as-complete/test-finished-1.png"
+            },
+            {
+              "name": "video",
+              "kind": "video",
+              "contentType": "video/webm",
+              "relativePath": "results/test-artifacts/flow-3-Mark-a-todo-item-as-complete/video.webm"
+            },
+            {
+              "name": "trace",
+              "kind": "trace",
+              "contentType": "application/zip",
+              "relativePath": "results/test-artifacts/flow-3-Mark-a-todo-item-as-complete/trace.zip"
+            }
+          ]
+        }
+      ]
+    },
+    "insights": {
+      "overview": "Consolidated results from the experimental pipeline execution.",
+      "insights": [
+        "3 flow(s) were approved for automated test generation.",
+        "The execution consolidated 3 test(s), with 3 passed, 0 failed, and 0 skipped.",
+        "Semantic interpretation was carried out with Local Ollama / qwen3:8b, grounded in collected project evidence and the recorded live-interface journey.",
+        "The target application was started through the command \"npm run dev\", respecting the user-configured base URL.",
+        "In this run, the model-authored tests traversed the approved paths without a fatal failure, which suggests initial pipeline viability for the current scope."
+      ],
+      "limitations": [
+        "Live exploration data is not available, so some UI interactions cannot be confirmed."
+      ],
+      "nextSteps": [
+        "Gradually increase the depth of the model-authored acceptance criteria toward more semantic and domain-specific checks.",
+        "Compare different models and providers to measure quality variation in flow writing, criteria generation, and insight synthesis.",
+        "Add extra instrumentation to map the real DOM structure at runtime and enrich selector generation."
+      ],
+      "ai": {
+        "provider": "ollama",
+        "model": "qwen3:8b",
+        "endpoint": "http://127.0.0.1:11434",
+        "label": "Local Ollama / qwen3:8b",
+        "stage": "insight-enrichment"
+      }
+    }
+  },
+  "durationMs": 166034,
+  "completedAt": "2026-08-16T01:47:08.675Z"
+}

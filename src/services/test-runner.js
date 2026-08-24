@@ -1,5 +1,7 @@
 const path = require("path");
 const { readJson, writeText } = require("./artifact-store");
+const { buildRestrictedChildEnvironment, normalizeAuthConfig } = require("./auth-config");
+const { runAuthenticatedActionPlans } = require("./authenticated-executor");
 const {
   maybeInstallTargetProject,
   startTargetRuntime,
@@ -11,26 +13,52 @@ async function runGeneratedTests({
   resultsDirectory,
   targetProjectPath,
   runtimeConfig,
+  authConfig,
+  actionPlans,
+  onProgress = () => {},
 }) {
+  onProgress({ phase: "run-validation", message: "Validating generated artifacts and execution boundaries...", progress: 6 });
+  validateRunPaths({ prototypeRoot, runDirectory, resultsDirectory });
+  const normalizedAuth = normalizeAuthConfig(authConfig);
+
+  if (normalizedAuth.mode === "authenticated") {
+    return runAuthenticatedActionPlans({
+      runDirectory,
+      resultsDirectory,
+      targetProjectPath,
+      runtimeConfig,
+      authConfig: normalizedAuth,
+      actionPlans,
+      onProgress,
+    });
+  }
+
   let runtimeHandle = null;
 
   try {
+    onProgress({ phase: "dependency-check", message: runtimeConfig.runInstallBeforeExecution
+      ? "Installing target dependencies before execution..."
+      : "Using the target project's existing dependencies...", progress: 14 });
     await maybeInstallTargetProject({
       targetProjectPath,
       runtimeConfig,
     });
 
+    onProgress({ phase: "target-startup", message: "Starting the target application and waiting for a reachable URL...", progress: 26 });
     runtimeHandle = await startTargetRuntime({
       targetProjectPath,
       runtimeConfig,
     });
 
+    onProgress({ phase: "playwright-run", message: "Target is online; Playwright is opening the generated user journeys...", progress: 48 });
     const playwrightExecution = await runPlaywrightCli({
       prototypeRoot,
       runDirectory,
       baseUrl: runtimeHandle.baseUrl,
+      onProgress,
     });
 
+    onProgress({ phase: "result-parsing", message: "Parsing test outcomes and indexing screenshots, videos, and traces...", progress: 76 });
     const reportPath = path.join(resultsDirectory, "playwright-results.json");
     const report = await readJson(reportPath).catch(() => null);
     const parsedReport = parsePlaywrightReport(report, { runDirectory });
@@ -41,6 +69,7 @@ async function runGeneratedTests({
       path.join(resultsDirectory, "visual-evidence.json"),
       `${JSON.stringify(buildVisualEvidenceIndex(parsedReport), null, 2)}\n`
     );
+    onProgress({ phase: "evidence-index", message: "Visual evidence and execution logs are ready for consolidation...", progress: 84 });
 
     return {
       runtime: {
@@ -59,7 +88,7 @@ async function runGeneratedTests({
   }
 }
 
-async function runPlaywrightCli({ prototypeRoot, runDirectory, baseUrl }) {
+async function runPlaywrightCli({ prototypeRoot, runDirectory, baseUrl, onProgress = () => {} }) {
   const { spawn } = require("child_process");
   const executable = process.execPath;
   const cliScript = path.join(prototypeRoot, "node_modules", "playwright", "cli.js");
@@ -69,19 +98,23 @@ async function runPlaywrightCli({ prototypeRoot, runDirectory, baseUrl }) {
   return new Promise((resolve, reject) => {
     const child = spawn(executable, args, {
       cwd: prototypeRoot,
-      env: {
-        ...process.env,
+      env: buildRestrictedChildEnvironment({
         TARGET_BASE_URL: baseUrl,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
     });
 
     let stdout = "";
     let stderr = "";
+    let reportedBrowserActivity = false;
 
     child.stdout.on("data", (chunk) => {
       stdout += chunk.toString();
+      if (!reportedBrowserActivity) {
+        reportedBrowserActivity = true;
+        onProgress({ phase: "browser-actions", message: "The browser is executing the generated interactions and assertions...", progress: 58 });
+      }
     });
 
     child.stderr.on("data", (chunk) => {
@@ -124,7 +157,7 @@ function parsePlaywrightReport(report, { runDirectory } = {}) {
   const summary = {
     total: tests.length,
     passed: tests.filter((test) => test.status === "passed").length,
-    failed: tests.filter((test) => test.status === "failed").length,
+    failed: tests.filter((test) => !["passed", "skipped"].includes(test.status)).length,
     skipped: tests.filter((test) => test.status === "skipped").length,
     durationMs: report.stats?.duration || 0,
   };
@@ -207,8 +240,25 @@ function buildVisualEvidenceIndex(report) {
   }));
 }
 
+function validateRunPaths({ prototypeRoot, runDirectory, resultsDirectory }) {
+  const runsRoot = path.resolve(prototypeRoot, "prototype-runs");
+  const resolvedRun = path.resolve(runDirectory);
+  const resolvedResults = path.resolve(resultsDirectory);
+  const runRelative = path.relative(runsRoot, resolvedRun);
+  const resultsRelative = path.relative(resolvedRun, resolvedResults);
+
+  if (!runRelative || runRelative.startsWith("..") || path.isAbsolute(runRelative)) {
+    throw new Error("The generated run directory must be a child of the prototype-runs directory.");
+  }
+
+  if (resultsRelative !== "results") {
+    throw new Error("The generated results directory must be the run's dedicated results directory.");
+  }
+}
+
 module.exports = {
   buildVisualEvidenceIndex,
   parsePlaywrightReport,
   runGeneratedTests,
+  validateRunPaths,
 };

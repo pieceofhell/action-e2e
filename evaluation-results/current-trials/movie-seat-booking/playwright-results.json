@@ -1,0 +1,129 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\movie-seat-booking-2026-08-23T23-46-05-586Z\\playwright.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/movie-seat-booking-2026-08-23T23-46-05-586Z/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/movie-seat-booking-2026-08-23T23-46-05-586Z/results/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/henri/Documents/action-e2e-prototype/prototype-runs/movie-seat-booking-2026-08-23T23-46-05-586Z/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\movie-seat-booking-2026-08-23T23-46-05-586Z\\results\\playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "semantic-id.spec.cjs",
+      "file": "semantic-id.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Movie Seat Booking User Flow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9349,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-23T23:52:10.747Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\movie-seat-booking-2026-08-23T23-46-05-586Z\\results\\test-artifacts\\semantic-id-Movie-Seat-Booking-User-Flow\\test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\movie-seat-booking-2026-08-23T23-46-05-586Z\\results\\test-artifacts\\semantic-id-Movie-Seat-Booking-User-Flow\\video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\movie-seat-booking-2026-08-23T23-46-05-586Z\\results\\test-artifacts\\semantic-id-Movie-Seat-Booking-User-Flow\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15d3ab1349c3a473730e-2fd403aa436678ffec1e",
+          "file": "semantic-id.spec.cjs",
+          "line": 21,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-23T23:52:09.983Z",
+    "duration": 11815.896,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

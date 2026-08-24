@@ -1,9 +1,13 @@
 const { normalizeAiConfig, requestStructuredJson } = require("./llm-provider");
+const { isExplicitBaseline, requireCompletedAiExploration } = require("./pipeline-policy");
 
 async function enhanceInspectionWithAi({ inspection, aiConfig }) {
   const normalized = normalizeAiConfig(aiConfig);
 
   if (!normalized.enabled) {
+    if (!isExplicitBaseline(aiConfig)) {
+      throw new Error("AI-first pipeline stopped during project understanding: no model is configured.");
+    }
     return {
       inspection: {
         ...inspection,
@@ -80,20 +84,7 @@ async function enhanceInspectionWithAi({ inspection, aiConfig }) {
       usedModel: true,
     };
   } catch (error) {
-    return {
-      inspection: {
-        ...inspection,
-        ai: {
-          ...buildAiMetadata(normalized, "inspection-fallback"),
-          error: error.message,
-        },
-        warnings: uniqueStrings([
-          ...inspection.warnings,
-          `Failed to query ${normalized.label} during inspection. The prototype fell back to heuristic reading.`,
-        ]).slice(0, 12),
-      },
-      usedModel: false,
-    };
+    throw new Error(`AI-first pipeline stopped during project understanding: ${error.message}`);
   }
 }
 
@@ -101,92 +92,214 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
   const normalized = normalizeAiConfig(aiConfig);
 
   if (!normalized.enabled) {
+    if (!isExplicitBaseline(aiConfig)) {
+      throw new Error("AI-first pipeline stopped during flow planning: no model is configured.");
+    }
     return {
       plan: {
         ...basePlan,
-        mode: "heuristic",
+        mode: basePlan.mode === "authenticated-read-only" ? "authenticated-read-only" : "heuristic",
         ai: buildAiMetadata(normalized, "heuristic-only"),
       },
       usedModel: false,
     };
   }
 
-  const selectedCandidates = selectAiFlowCandidates(basePlan.flows);
+
+  requireCompletedAiExploration(inspection, "flow planning");
+
+  const explorationStates = inspection.liveExploration?.agenticExploration?.states || [];
+  const completedExplorationSteps = (inspection.liveExploration?.agenticExploration?.steps || [])
+    .filter((step) => step.status === "completed");
 
   const compactContext = {
-    project: inspection.project,
-    synopsis: inspection.projectSynopsis,
-    detection: inspection.detection,
-    uiHints: {
-      headings: inspection.uiHints.headings.slice(0, 5).map((item) => item.text),
-      buttons: inspection.uiHints.buttons.slice(0, 8).map((item) => item.text || item.id || item.dataTool || ""),
-      inputs: inspection.uiHints.inputs.slice(0, 6).map((item) => item.placeholder || item.id || item.name || item.type),
-      links: inspection.uiHints.links.slice(0, 6).map((item) => item.text || item.href),
-      hasCanvas: inspection.uiHints.canvases.length > 0,
-    },
+    project: { name: inspection.project?.name },
+    access: basePlan.access || inspection.liveExploration?.access || { mode: "guest" },
     liveExploration: summarizeLiveExplorationForPrompt(inspection.liveExploration),
-    candidates: selectedCandidates.map((flow) => ({
-      id: flow.id,
-      title: flow.title,
-      confidence: flow.confidence,
-      summary: flow.summary,
-      sourceSignals: (flow.sourceSignals || []).slice(0, 3),
-      assumptions: (flow.assumptions || []).slice(0, 2),
-      blueprintHints: summarizeBlueprintForPrompt(flow.blueprint),
-    })),
+    evidenceContract: {
+      allowedStateIds: explorationStates.map((state) => state.id),
+      completedActionLabels: completedExplorationSteps.map((step) => step.action?.name).filter(Boolean),
+      observedHeadings: [...new Set(explorationStates.flatMap((state) => state.headings || []))].slice(0, 12),
+      observedButtons: [...new Set(explorationStates.flatMap((state) => state.buttons || []))].slice(0, 16),
+      observedInputs: [...new Set(explorationStates.flatMap((state) => state.inputs || []))].slice(0, 12),
+    },
   };
 
   try {
-    const aiPayload = await requestStructuredJson({
-      aiConfig: normalized,
-      systemPrompt: [
+    const planningSystemPrompt = [
         "You are an E2E testing analyst authoring candidate user flows and acceptance criteria.",
-        "You will receive a project summary, static interface hints, optional live interface exploration evidence, and heuristic candidate flows.",
-        "Choose and refine the most valuable candidates without inventing pages, routes, buttons, or fields that are not supported by the evidence.",
-        "You must preserve only ids that already exist in the candidate list.",
-        "Do not reuse generic acceptance criteria text from the heuristic baseline. Write new, application-grounded criteria from scratch.",
+        `The current project is ${sanitizeText(inspection.project?.name)}. Treat this as an isolated evaluation and do not reuse flows from any other application or earlier request.`,
+        "You will receive only the current project name, model-guided browser states, and completed browser actions. Treat this rendered evidence as the complete source of truth for planning.",
+        "Author the most valuable evidence-grounded user journeys from scratch. Do not rely on generic templates or baseline flows.",
+        "Every flow must cite evidenceStateIds and sourceSignals that can be traced to the supplied live evidence. Do not invent pages, routes, buttons, or fields.",
+        "Copy evidenceStateIds character-for-character from evidenceContract.allowedStateIds. Never calculate, extrapolate, renumber, or invent a state ID.",
+        "A product or organization named Canvas does not imply an HTML drawing canvas. Never infer drawing tools, mouse drawing, or save-canvas behavior from the word Canvas alone.",
+        "Never mention products, carts, favorites, authentication, or another domain unless those exact concepts appear in the supplied current-project states and completed actions.",
+        "Write application-grounded acceptance criteria from scratch.",
         "Prefer distinct flows that cover different parts of the interface or different user intents.",
+        "Each flow must end in a different terminal evidence state. Do not split headings from one page into multiple flows and do not describe scrolling or reading as separate journeys unless the model actually performed those actions.",
+        "If access.mode is authenticated, propose only navigation and observation flows. Never propose creating, changing, publishing, sending, uploading, joining, enrolling, or deleting data.",
+        "Authentication values, cookies, headers, environment references, and password fields are never part of your context and must never be requested.",
+        "For guest exploration, never propose entering, revealing, validating, or submitting passwords, API keys, access tokens, credentials, or other authentication material, even when those fields were visible.",
+        "Do not claim that an account was connected, a form was submitted, or a route changed unless the completed actions prove that exact outcome.",
         "When live exploration exists, ground your criteria in observed headings, route paths, links, inputs, buttons, and visible text.",
         "When concrete labels are available, mention those labels in the criteria instead of generic wording.",
-        "Return at most 5 flows. Each selected flow should contain 2 or 3 concrete criteria.",
+        "Prefer behavior-rich journeys over landing-page smoke checks, but name capabilities only with concepts and labels present in the current evidence.",
+        "When completed model-guided actions changed the interface, at least two proposed flows must use those changed states instead of reducing the plan to rendering or generic navigation.",
+        "Build semantic flow IDs from exact current-project labels and intents; never use placeholders or examples from another domain.",
+        "For each behavior-rich flow, cite the state reached after the relevant completed action, not only state-1.",
+        "Use resultingStateId from completedActions as the authoritative action-to-state mapping. Never infer state numbers from action order.",
+        "Return at most 4 flows. Each selected flow should contain 2 to 4 concrete criteria.",
         "Return raw JSON in this format:",
-        '{"summary":"...","flows":[{"id":"...","title":"...","summary":"...","confidence":"high|medium|low","sourceSignals":["..."],"assumptions":["..."],"criteria":[{"title":"...","given":"...","when":"...","then":"..."}]}]}',
-      ].join(" "),
-      userPrompt: JSON.stringify(compactContext, null, 2),
-      timeoutMs: 210000,
-    });
-
-    const mergedFlows = mergeAiFlows(basePlan.flows, aiPayload.flows);
+        '{"summary":"...","flows":[{"id":"...","title":"...","summary":"...","confidence":"high|medium|low","evidenceStateIds":["state-1"],"sourceSignals":["..."],"assumptions":["..."],"criteria":[{"title":"...","given":"...","when":"...","then":"..."}]}]}',
+        "The only top-level keys are summary and flows. Do not return a browser action list, plan.flow, candidates, or copied evidence objects.",
+      ].join(" ");
+    let mergedFlows = [];
+    let aiPayload = null;
+    let planningPayload = null;
+    let transitionFlows = [];
+    const observedStateCount = inspection.liveExploration?.agenticExploration?.states?.length || 0;
+    const desiredFlowCount = Math.min(4, Math.max(1, observedStateCount - 1));
+    const minimumAdmissibleFlowCount = 1;
+    for (let attempt = 0; attempt < 1 && mergedFlows.length < desiredFlowCount; attempt += 1) {
+      aiPayload = await requestStructuredJson({
+        aiConfig: normalized,
+        systemPrompt: planningSystemPrompt,
+        userPrompt: JSON.stringify(compactContext, null, 2),
+        timeoutMs: 210000,
+      });
+      planningPayload = Array.isArray(aiPayload?.plan)
+        ? { flows: aiPayload.plan }
+        : (aiPayload?.plan && typeof aiPayload.plan === "object" ? aiPayload.plan : aiPayload);
+      mergedFlows = mergeAiFlows(basePlan.flows, planningPayload?.flows, inspection.liveExploration, inspection);
+    }
+    if (mergedFlows.length < desiredFlowCount) {
+      transitionFlows = await authorFlowsPerObservedTransition({
+        aiConfig: normalized,
+        projectName: inspection.project?.name,
+        states: explorationStates,
+        steps: completedExplorationSteps,
+        desiredCount: desiredFlowCount,
+      });
+      mergedFlows = mergeAiFlows(basePlan.flows, transitionFlows, inspection.liveExploration, inspection);
+      planningPayload = { summary: "Model-authored flows decomposed by observed browser transition.", flows: transitionFlows };
+    }
+    if (mergedFlows.length < minimumAdmissibleFlowCount) {
+      throw createFlowGroundingError({
+        broadPayload: aiPayload,
+        transitionFlows,
+        projectName: inspection.project?.name,
+        allowedStateIds: explorationStates.map((state) => state.id),
+      });
+    }
     return {
       plan: {
         ...basePlan,
-        mode: "ai-augmented",
-        summary: choosePlanSummary(aiPayload.summary, basePlan.summary, inspection.projectSynopsis),
+        mode: basePlan.access?.mode === "authenticated" ? "authenticated-ai-first" : "ai-first",
+        summary: choosePlanSummary(planningPayload?.summary, basePlan.summary, inspection.projectSynopsis),
         flows: mergedFlows,
         ai: buildAiMetadata(normalized, inspection.liveExploration?.status === "completed" ? "flow-live-refinement" : "flow-refinement"),
       },
       usedModel: true,
     };
   } catch (error) {
-    return {
-      plan: {
-        ...basePlan,
-        mode: "heuristic-fallback",
-        ai: {
-          ...buildAiMetadata(normalized, "flow-fallback"),
-          error: error.message,
-        },
-        summary: `${basePlan.summary} The query to ${normalized.label} failed, so the plan stayed on the local heuristic path.`,
-      },
-      usedModel: false,
-    };
+    const wrapped = new Error(`AI-first pipeline stopped during flow planning: ${error.message}`);
+    wrapped.code = error.code || "AI_FLOW_PLANNING_FAILED";
+    wrapped.diagnostics = error.diagnostics || null;
+    throw wrapped;
   }
 }
 
-async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseInsights, aiConfig }) {
+function createFlowGroundingError({ broadPayload, transitionFlows, projectName, allowedStateIds }) {
+  const broadFlows = Array.isArray(broadPayload?.flows)
+    ? broadPayload.flows
+    : (Array.isArray(broadPayload?.plan) ? broadPayload.plan : broadPayload?.plan?.flows || []);
+  const returnedFlows = [...broadFlows, ...(transitionFlows || [])];
+  const rejectedTitles = [...new Set(returnedFlows.map((flow) => sanitizeText(flow?.title)).filter(Boolean))].slice(0, 3);
+  const titleSummary = rejectedTitles.length
+    ? ` Rejected examples: ${rejectedTitles.map((title) => `"${title}"`).join(", ")}.`
+    : "";
+  const error = new Error(`The model proposed flows, but none were grounded in the observed ${sanitizeText(projectName) || "target"} interface.${titleSummary} Rerun the exploration or select a model with stronger instruction following.`);
+  error.code = "AI_FLOW_GROUNDING_REJECTED";
+  error.diagnostics = {
+    stage: "flow-planning",
+    projectName: sanitizeText(projectName),
+    allowedStateIds: sanitizeStringArray(allowedStateIds),
+    broadPayload,
+    transitionFlows,
+    rejectedFlows: returnedFlows.slice(0, 8).map((flow) => ({
+      id: sanitizeFlowId(flow?.id || flow?.title || ""),
+      title: sanitizeText(flow?.title),
+      evidenceStateIds: sanitizeStringArray(flow?.evidenceStateIds),
+      criteriaCount: Array.isArray(flow?.criteria) ? flow.criteria.length : 0,
+    })),
+  };
+  return error;
+}
+
+async function authorFlowsPerObservedTransition({ aiConfig, projectName, states, steps, desiredCount }) {
+  const transitions = [];
+  const usedStateIds = new Set();
+  for (const step of steps) {
+    const resultingStateId = findStateIdByFingerprint(states, step.afterFingerprint);
+    if (!resultingStateId || usedStateIds.has(resultingStateId)) continue;
+    const resultingState = states.find((state) => state.id === resultingStateId);
+    if (!resultingState || !step.action?.name) continue;
+    usedStateIds.add(resultingStateId);
+    transitions.push({ step, resultingState, resultingStateId });
+  }
+
+  const flows = [];
+  for (const transition of transitions.slice(0, 6)) {
+    const payload = await requestStructuredJson({
+      aiConfig,
+      systemPrompt: [
+        "You are authoring exactly one E2E user flow from one browser transition that the model already executed.",
+        "The action label and resulting state are immutable facts. Describe only behavior directly visible in the supplied before/after evidence.",
+        "Do not invent dashboards, tools, drawing, products, routes, submission, authentication success, or controls that are absent.",
+        "A product named Canvas is not an HTML drawing canvas unless drawing controls are explicitly listed.",
+        "Return 1 to 3 concrete Given/When/Then criteria. Do not mention passwords, API keys, tokens, credentials, or secret values.",
+        "Return raw JSON only: {\"id\":\"semantic-id\",\"title\":\"...\",\"summary\":\"...\",\"confidence\":\"high|medium|low\",\"sourceSignals\":[\"...\"],\"assumptions\":[\"...\"],\"criteria\":[{\"title\":\"...\",\"given\":\"...\",\"when\":\"...\",\"then\":\"...\"}]}",
+      ].join(" "),
+      userPrompt: JSON.stringify({
+        project: projectName,
+        fixedAction: {
+          name: transition.step.action.name,
+          kind: transition.step.action.kind,
+          rationale: transition.step.rationale,
+        },
+        fixedResultingStateId: transition.resultingStateId,
+        resultingState: {
+          path: transition.resultingState.path,
+          title: transition.resultingState.title,
+          headings: transition.resultingState.headings,
+          buttons: transition.resultingState.buttons,
+          inputs: transition.resultingState.inputs,
+          visibleTextExcerpt: sanitizeText(transition.resultingState.visibleTextExcerpt).slice(0, 500),
+        },
+      }, null, 2),
+      timeoutMs: 150000,
+    });
+    flows.push({
+      ...payload,
+      id: sanitizeFlowId(payload?.id || transition.step.action.name),
+      evidenceStateIds: [transition.resultingStateId],
+      sourceSignals: sanitizeStringArray(payload?.sourceSignals).length
+        ? sanitizeStringArray(payload.sourceSignals)
+        : [`Executed action: ${transition.step.action.name}`],
+    });
+    if (flows.length >= Math.max(desiredCount + 1, 3)) break;
+  }
+  return flows;
+}
+
+async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseInsights, generatedTests = [], aiConfig }) {
   const normalized = normalizeAiConfig(aiConfig);
 
   if (!normalized.enabled) {
+    if (!isExplicitBaseline(aiConfig)) {
+      throw new Error("AI-first pipeline stopped during result interpretation: no model is configured.");
+    }
     return {
       insights: {
         ...baseInsights,
@@ -212,22 +325,44 @@ async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseIn
       durationMs: test.durationMs,
       error: test.error || "",
     })),
-    heuristicInsights: baseInsights,
+    exploration: {
+      status: inspection.liveExploration?.status || "unknown",
+      modelGuided: inspection.liveExploration?.agenticExploration?.usedModel === true,
+      completedActions: inspection.liveExploration?.agenticExploration?.metrics?.completedActions || 0,
+      observedStates: inspection.liveExploration?.agenticExploration?.metrics?.uniqueStates || 0,
+    },
+    generationModes: generatedTests.map((test) => test.generationMode).filter(Boolean),
+    objectiveInsights: baseInsights,
   };
 
   try {
-    const aiPayload = await requestStructuredJson({
-      aiConfig: normalized,
-      systemPrompt: [
-        "You are a technical analyst for an experimental E2E testing pipeline.",
-        "You will receive a summarized execution report and a set of heuristic insights.",
-        "Your response must be raw, objective JSON with no exaggerated conclusions.",
-        "Respond in this format:",
-        '{"overview":"...","insights":["..."],"limitations":["..."],"nextSteps":["..."]}',
-      ].join(" "),
-      userPrompt: JSON.stringify(compactContext, null, 2),
-      timeoutMs: 120000,
-    });
+    let aiPayload;
+    let validationFeedback = "";
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      aiPayload = await requestStructuredJson({
+        aiConfig: normalized,
+        systemPrompt: [
+          "You are a technical analyst for an experimental E2E testing pipeline.",
+          "You will receive objective execution facts and an objective local summary.",
+          "Do not call AI-derived tests heuristic, baseline, fallback, generic smoke tests, or deterministic QA output.",
+          "Do not claim exploration was absent when exploration.status is completed.",
+          validationFeedback ? `Your previous response was rejected: ${validationFeedback} Correct that contradiction.` : "",
+          "Your response must be raw, objective JSON with no exaggerated conclusions.",
+          "Respond in this format:",
+          '{"overview":"...","insights":["..."],"limitations":["..."],"nextSteps":["..."]}',
+        ].filter(Boolean).join(" "),
+        userPrompt: JSON.stringify(compactContext, null, 2),
+        timeoutMs: 120000,
+      });
+
+      try {
+        validateInsightPayload(aiPayload, compactContext);
+        break;
+      } catch (error) {
+        if (attempt === 1) throw error;
+        validationFeedback = error.message;
+      }
+    }
 
     return {
       insights: {
@@ -249,47 +384,162 @@ async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseIn
       usedModel: true,
     };
   } catch (error) {
-    return {
-      insights: {
-        ...baseInsights,
-        ai: {
-          ...buildAiMetadata(normalized, "insight-fallback"),
-          error: error.message,
-        },
-      },
-      usedModel: false,
-    };
+    throw new Error(`AI-first pipeline stopped during result interpretation: ${error.message}`);
   }
 }
 
-function mergeAiFlows(baseFlows, aiFlowsRaw) {
-  const aiFlows = Array.isArray(aiFlowsRaw) ? aiFlowsRaw : [];
-  const aiFlowMap = new Map(
-    aiFlows
-      .filter((flow) => flow && typeof flow.id === "string")
-      .map((flow) => [flow.id, flow])
+function validateInsightPayload(payload, context) {
+  const semanticText = [
+    payload?.overview,
+    ...(Array.isArray(payload?.insights) ? payload.insights : []),
+    ...(Array.isArray(payload?.limitations) ? payload.limitations : []),
+    ...(Array.isArray(payload?.nextSteps) ? payload.nextSteps : []),
+  ].map(sanitizeText).join(" ");
+  const hasAiDerivedTests = (context?.generationModes || []).some((mode) =>
+    ["model-assisted", "model-journey-compiled", "model-assisted-structured"].includes(mode)
   );
+  const completedModelExploration = context?.exploration?.status === "completed" && context?.exploration?.modelGuided;
 
+  const contradictsAiProvenance = /\b(?:heuristic|deterministic)(?:\s+\w+){0,2}\s+(?:fallback|generation|tests?)\b|\b(?:baseline|fallback)\s+(?:flow|journey|generation|tests?)\b/i.test(semanticText);
+  if (hasAiDerivedTests && contradictsAiProvenance) {
+    throw new Error("The model contradicted test provenance in its result interpretation.");
+  }
+  const deniesCompletedExploration = /\b(?:live\s+|interface\s+)?exploration\s+(?:(?:was|is)\s+)?(?:null|absent|missing|unavailable|not\s+(?:available|performed|completed)|did\s+not\s+occur|cannot\s+be\s+confirmed)\b|\b(?:no|without)\s+(?:live\s+|interface\s+)?exploration\b/i.test(semanticText);
+  if (completedModelExploration && deniesCompletedExploration) {
+    throw new Error("The model contradicted the recorded completed live exploration.");
+  }
+
+  return true;
+}
+
+function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection = null) {
+  const aiFlows = Array.isArray(aiFlowsRaw) ? aiFlowsRaw : [];
+  const baseFlowMap = new Map((baseFlows || []).map((flow) => [flow.id, flow]));
+  const explorationStates = liveExploration?.agenticExploration?.states || [];
+  const explorationSteps = liveExploration?.agenticExploration?.steps || [];
+  const knownStateIds = new Set(explorationStates.map((state) => state.id));
   const merged = [];
+  const terminalStates = new Set();
 
-  for (const baseFlow of baseFlows) {
-    if (!aiFlowMap.has(baseFlow.id)) {
+  for (const [index, aiFlow] of aiFlows.slice(0, 6).entries()) {
+    if (!aiFlow || typeof aiFlow !== "object") {
       continue;
     }
-
-    const aiFlow = aiFlowMap.get(baseFlow.id);
+    const requestedId = sanitizeFlowId(aiFlow.id || aiFlow.title || `model-flow-${index + 1}`);
+    const baseFlow = baseFlowMap.get(requestedId);
+    const criteria = normalizeCriteria(aiFlow.criteria);
+    const title = sanitizeText(aiFlow.title) || baseFlow?.title || `Observed journey ${index + 1}`;
+    if (!criteria.length || !title) {
+      continue;
+    }
+    const semanticText = [
+      title,
+      aiFlow.summary,
+      ...criteria.flatMap((criterion) => [criterion.title, criterion.given, criterion.when, criterion.then]),
+    ].join(" ");
+    if (/password|api\s*key|access\s*token|credential|secret|senha|chave\s+de\s+api|save key and connect|submit(?:ted)?\s+(?:the\s+)?(?:form|credentials?)|\bscroll(?:s|ed|ing)?\b|\brolar\b/i.test(semanticText)) {
+      continue;
+    }
+    const evidenceStateIds = sanitizeStringArray(aiFlow.evidenceStateIds)
+      .map(normalizeEvidenceStateId)
+      .filter((id) => knownStateIds.has(id));
+    if (!evidenceStateIds.length) {
+      continue;
+    }
+    const terminalStateId = evidenceStateIds.at(-1);
+    if (terminalStates.has(terminalStateId)) {
+      continue;
+    }
+    const terminalState = explorationStates.find((state) => state.id === terminalStateId);
+    const enteringStep = explorationSteps.find((step) => step.status === "completed" && step.afterFingerprint === terminalState?.fingerprint);
+    if (!flowGroundedInCitedEvidence({ title, criteria, evidenceStateIds, explorationStates, explorationSteps, inspection })) {
+      continue;
+    }
+    if (terminalStateId !== "state-1" && !flowMatchesEnteringAction(semanticText, enteringStep)) {
+      continue;
+    }
+    terminalStates.add(terminalStateId);
     merged.push({
-      ...baseFlow,
-      title: sanitizeText(aiFlow.title) || baseFlow.title,
-      summary: sanitizeText(aiFlow.summary) || baseFlow.summary,
-      confidence: normalizeConfidence(aiFlow.confidence, baseFlow.confidence),
-      sourceSignals: sanitizeStringArray(aiFlow.sourceSignals).length ? sanitizeStringArray(aiFlow.sourceSignals) : baseFlow.sourceSignals,
-      assumptions: sanitizeStringArray(aiFlow.assumptions).length ? sanitizeStringArray(aiFlow.assumptions) : baseFlow.assumptions,
-      criteria: normalizeCriteria(aiFlow.criteria).length ? normalizeCriteria(aiFlow.criteria) : baseFlow.criteria,
+      ...(baseFlow || {}),
+      id: requestedId || `model-flow-${index + 1}`,
+      title,
+      summary: sanitizeText(aiFlow.summary) || baseFlow?.summary || title,
+      confidence: normalizeConfidence(aiFlow.confidence, baseFlow?.confidence || "medium"),
+      sourceSignals: sanitizeStringArray(aiFlow.sourceSignals).length ? sanitizeStringArray(aiFlow.sourceSignals) : (baseFlow?.sourceSignals || []),
+      assumptions: sanitizeStringArray(aiFlow.assumptions).length ? sanitizeStringArray(aiFlow.assumptions) : (baseFlow?.assumptions || []),
+      evidenceStateIds,
+      criteria,
+      blueprint: evidenceStateIds.length
+        ? {
+            kind: "model-observed-journey",
+            evidenceStateIds,
+            baselineBlueprint: baseFlow?.blueprint || null,
+          }
+        : (baseFlow?.blueprint || null),
     });
   }
 
-  return merged.length ? merged : baseFlows;
+  return uniqueFlows(merged);
+}
+
+function flowGroundedInCitedEvidence({ title, criteria, evidenceStateIds, explorationStates, explorationSteps, inspection }) {
+  const citedStates = explorationStates.filter((state) => evidenceStateIds.includes(state.id));
+  const citedFingerprints = new Set(citedStates.map((state) => state.fingerprint).filter(Boolean));
+  const citedSteps = explorationSteps.filter((step) =>
+    step.status === "completed" && citedFingerprints.has(step.afterFingerprint)
+  );
+  const evidenceText = [
+    inspection?.project?.name,
+    inspection?.projectSynopsis,
+    ...(inspection?.uiHints?.headings || []).map((item) => item.text),
+    ...citedStates.flatMap((state) => [
+      state.title,
+      state.path,
+      state.visibleTextExcerpt,
+      ...(state.headings || []),
+      ...(state.buttons || []),
+      ...(state.inputs || []),
+      ...(state.links || []).map((link) => typeof link === "string" ? link : `${link.text || ""} ${link.href || ""}`),
+    ]),
+    ...citedSteps.flatMap((step) => [
+      step.action?.name,
+      step.rationale,
+      step.expectedOutcome,
+      step.observedAfter?.visibleTextExcerpt,
+    ]),
+  ].join(" ");
+  const evidenceTokens = semanticTokens(evidenceText);
+  const parts = [title, ...criteria.map((criterion) => `${criterion.title} ${criterion.given} ${criterion.when} ${criterion.then}`)];
+
+  return parts.every((part) => {
+    const tokens = semanticTokens(part);
+    return tokens.size > 0 && [...tokens].some((token) => evidenceTokens.has(token));
+  });
+}
+
+function normalizeEvidenceStateId(value) {
+  const normalized = sanitizeText(value).toLowerCase().replace(/_/g, "-");
+  const number = normalized.match(/(?:state-?)?(\d+)$/)?.[1];
+  return number ? `state-${Number(number)}` : normalized;
+}
+
+function flowMatchesEnteringAction(flowText, enteringStep) {
+  if (!enteringStep?.action?.name) return false;
+  const actionText = `${enteringStep.action.name} ${enteringStep.rationale || ""} ${enteringStep.expectedOutcome || ""}`;
+  const flowTokens = semanticTokens(flowText);
+  const actionTokens = semanticTokens(actionText);
+  return [...flowTokens].some((token) => actionTokens.has(token));
+}
+
+function semanticTokens(value) {
+  const ignored = new Set([
+    "user", "usuario", "application", "aplicacao", "interface", "page", "pagina", "button", "botao",
+    "click", "clicks", "clicar", "open", "opens", "opened", "abrir", "abre", "view", "views", "navigate", "navigates", "navigated", "loads", "load", "carrega", "display", "displays", "displayed", "screen", "visible", "visivel", "should", "becomes",
+    "given", "when", "then", "with", "from", "into", "their", "they", "that", "this", "para", "com",
+    "uma", "the", "and", "item", "product", "produto",
+  ]);
+  const normalized = String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return new Set(normalized.split(/[^a-z0-9]+/).filter((token) => token.length >= 4 && !ignored.has(token)).map((token) => token.slice(0, 7)));
 }
 
 function summarizeLiveExplorationForPrompt(liveExploration) {
@@ -309,6 +559,37 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
     mode: liveExploration.mode,
     baseUrl: liveExploration.baseUrl,
     summary: liveExploration.summary,
+    agenticExploration: liveExploration.agenticExploration
+      ? {
+          strategy: liveExploration.agenticExploration.strategy,
+          usedModel: liveExploration.agenticExploration.usedModel,
+          model: liveExploration.agenticExploration.model,
+          status: liveExploration.agenticExploration.status,
+          metrics: liveExploration.agenticExploration.metrics,
+          states: (liveExploration.agenticExploration.states || []).slice(0, 20).map((state) => ({
+            id: state.id,
+            path: state.path,
+            headings: sanitizeStringArray(state.headings),
+            buttons: sanitizeStringArray(state.buttons),
+            inputs: sanitizeStringArray(state.inputs),
+            inputDetails: (state.inputDetails || []).slice(0, 10),
+            dialogsCount: state.dialogsCount || 0,
+            visibleTextExcerpt: sanitizeText(String(state.visibleTextExcerpt || "").slice(0, 140)),
+            enteredByAction: findEnteringAction(liveExploration.agenticExploration.steps, state.fingerprint),
+          })),
+          completedActions: (liveExploration.agenticExploration.steps || [])
+            .filter((step) => step.status === "completed")
+            .slice(0, 20)
+            .map((step) => ({
+              step: step.step,
+              action: step.action,
+              rationale: sanitizeText(step.rationale),
+              changed: Boolean(step.changed),
+              observedAfter: step.observedAfter,
+              resultingStateId: findStateIdByFingerprint(liveExploration.agenticExploration.states, step.afterFingerprint),
+            })),
+        }
+      : null,
     routes: (liveExploration.routes || []).slice(0, 4).map((route) => ({
       path: route.path,
       title: route.title,
@@ -327,10 +608,25 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
       formsCount: route.formsCount || 0,
       dialogsCount: route.dialogsCount || 0,
       canvasesCount: route.canvasesCount || 0,
-      visibleTextExcerpt: sanitizeText(String(route.visibleTextExcerpt || "").slice(0, 280)),
+      visibleTextExcerpt: sanitizeText(String(route.visibleTextExcerpt || "").slice(0, 180)),
     })),
     warnings: sanitizeStringArray(liveExploration.warnings),
   };
+}
+
+function findStateIdByFingerprint(states, fingerprint) {
+  return (states || []).find((state) => state.fingerprint === fingerprint)?.id || "";
+}
+
+function findEnteringAction(steps, fingerprint) {
+  const step = (steps || []).find((candidate) => candidate.status === "completed" && candidate.afterFingerprint === fingerprint);
+  return step
+    ? {
+        name: sanitizeText(step.action?.name),
+        kind: sanitizeText(step.action?.kind),
+        rationale: sanitizeText(step.rationale),
+      }
+    : null;
 }
 
 function selectAiFlowCandidates(flows) {
@@ -457,6 +753,23 @@ function normalizeCriteria(criteriaRaw) {
     .slice(0, 6);
 }
 
+function sanitizeFlowId(value) {
+  return sanitizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 72);
+}
+
+function uniqueFlows(flows) {
+  const seen = new Set();
+  return flows.filter((flow) => {
+    if (!flow.id || seen.has(flow.id)) return false;
+    seen.add(flow.id);
+    return true;
+  });
+}
+
 function buildAiMetadata(normalized, stage) {
   return {
     provider: normalized.provider,
@@ -524,4 +837,7 @@ module.exports = {
   enhanceInspectionWithAi,
   enhanceFlowPlanWithAi,
   enhanceInsightsWithAi,
+  validateInsightPayload,
+  mergeAiFlows,
+  summarizeLiveExplorationForPrompt,
 };
