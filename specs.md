@@ -149,6 +149,7 @@ The UI is a pipeline coordinator, not the execution engine. The Express API vali
 | `src/services/live-explorer.js` | Headless browser exploration and extraction of rendered routes, controls, labels, and visible text. |
 | `src/services/agentic-explorer.js` | Bounded model-guided state exploration, action validation, state fingerprints, safety classification, and coverage metrics. |
 | `src/services/bug-discovery.js` | Blind UI-defect hypotheses, fact/reference validation, transition context, conservative model review, and report assembly. |
+| `src/services/hypothesis-reproducer.js` | Independent clean-context replay of the model journey and objective comparison with the cited interface state. |
 | `src/services/flow-planner.js` | Explicit non-AI experimental control and authenticated-flow support; it is not used for ordinary guest semantic planning. |
 | `src/services/ai-workflows.js` | Model-assisted inspection, flow/criteria refinement, and result-insight enrichment. |
 | `src/services/llm-provider.js` | Provider catalog, configuration normalization, model discovery, text and base64 image transport, Ollama calls, and OpenAI-compatible calls. |
@@ -224,7 +225,7 @@ When several manifests exist, candidates are scored. Web frameworks, frontend de
 
 ### 8.4 Step 2B: Runtime recommendation
 
-The runtime recommendation is evidence-derived. The prototype detects lockfiles or a declared package manager, startup scripts, framework defaults, explicit ports, README commands, and the selected manifest's working directory.
+The runtime recommendation is evidence-derived. The prototype detects lockfiles or a declared package manager, startup scripts, framework defaults, explicit ports, README commands, and the selected manifest's working directory. A package manager inferred only from a lockfile must also be available locally; otherwise E2P falls back to npm. An explicit `packageManager` declaration remains authoritative.
 
 The four runtime modes are:
 
@@ -271,7 +272,9 @@ The reviewer may use a separately selected model. Its output records four gates:
 
 For creation-like text fields that declare no minimum length, the action catalog may request a general one-character boundary probe. Safe guest input values are captured separately from rendered text so a value remaining in a field cannot be mistaken for a created item. When a completed action leaves the structured state unchanged despite a recorded expected outcome, E2P adds that transition as an objective fact. A compiled journey can use the expected created text as a Playwright oracle, enabling historical red/green validation.
 
-Retained items remain `hypothesis`, carry `requiresHumanValidation: true`, and visually separate `observed` facts from the inferred `expected` behavior. Browser console and page errors may be cited. The current experiment does not collect request or response records.
+Retained items remain `hypothesis`, carry `requiresHumanValidation: true`, and visually separate `observed` facts from the inferred `expected` behavior. Before critic review, the evidence contract rejects expectations grounded only in interface convention or model preference and rejects unsupported assumptions that specific content must exist. Browser console and page errors may be cited. The current experiment does not collect request or response records.
+
+Each retained guest hypothesis is replayed in a fresh browser context. E2P repeats the recorded safe actions, compares the resulting path, headings, controls, and visible text with the cited state, and stores a new screenshot. `observation-reproduced` means the UI observation was reached again; it does not prove that the model's inferred expectation is a product requirement. `observation-diverged` and `reproduction-blocked` remain explicit outcomes.
 
 ### 8.7 Step 3: Access mode and authenticated session preparation
 
@@ -298,7 +301,9 @@ Authenticated mode replaces these broad interaction candidates with `authenticat
 
 Each flow contains an ID, title, summary, confidence, source signals, assumptions, Given/When/Then criteria, and a test blueprint. Destructive or risky actions are filtered.
 
-The model may author up to four semantic flows, but every title and criterion must share meaningful domain vocabulary with its cited state. Generic words such as `view`, `display`, and `navigate` do not establish grounding. The terminal state must also be causally compatible with its entering action. Flow count is a coverage target, not an arbitrary validity quota: one genuinely grounded flow is admissible even when other proposals are rejected. If a broad multi-flow response is insufficient, E2P decomposes planning into one model request per observed transition and fixes only the factual resulting state ID; the model still authors intent and criteria. Planning stops only when no admissible model-authored flow remains.
+The model may author up to six semantic flows, but every title and criterion must share meaningful domain vocabulary with its cited state. Generic words such as `view`, `display`, and `navigate` do not establish grounding. Distinct executed actions may support separate flows even when they return the same terminal interface fingerprint. E2P derives adaptive coverage opportunities from completed actions and publishes the covered ratio and uncovered target IDs. If a broad response is insufficient, E2P decomposes planning into one model request per distinct observed action and fixes only the factual resulting state ID; the model still authors intent and criteria. Planning stops only when no admissible model-authored flow remains.
+
+For guest tests, Playwright source is compiled from the model-executed journey rather than accepted as free-form generated code. Each action must have an observed locator strategy, including test ID, DOM ID, label, placeholder, raw accessible-name occurrence, semantic tag occurrence, or captured visual selector occurrence. Accessible-name locators remain anchored to the complete observed name while tolerating case-only differences introduced by visual CSS transforms. Select controls use the actual option value observed in the browser. Execution failures are classified separately so locator and generation failures are not interpreted as target-application behavior.
 
 The UI presents every flow with:
 

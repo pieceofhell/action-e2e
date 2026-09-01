@@ -166,6 +166,35 @@ Feature: Turn explored states into reviewable defect hypotheses
     And its expected result names the source of the inference
     And the report marks the item as an unconfirmed hypothesis
 
+  Scenario: Replay a retained observation in a clean session
+    Given a guest hypothesis passed the evidence contract and conservative review
+    When E2P replays the model-executed journey in a fresh browser context
+    Then it compares the new interface state with the cited state
+    And reports observation-reproduced, observation-diverged, or reproduction-blocked
+    And it does not label the inferred expectation as an automatically confirmed defect
+
+  Scenario: Reject a preference before model critique
+    Given a candidate expects behavior only because of an interface convention or model preference
+    When the evidence contract screens the candidate
+    Then the candidate remains available in the rejected audit trail
+    And it is not presented as an evidence-grounded potential defect
+
+Feature: Preserve executed interaction coverage in generated flows
+
+  Scenario: Distinct actions return to the same interface state
+    Given the model executed two different meaningful controls
+    And both controls produced the same terminal interface fingerprint
+    When E2P asks the model to author flows
+    Then both actions may be represented by distinct grounded flows
+    And the plan reports covered and uncovered action opportunities
+
+  Scenario: Compile an unambiguous generated test
+    Given an approved flow reaches an observed evidence state
+    When E2P generates Playwright
+    Then it compiles only the actions actually executed by the model
+    And every action passes the observed-locator contract
+    And a generated selector failure is classified separately from a behavior assertion
+
   Scenario: Reject unsupported candidates
     Given a candidate describes normal empty-state behavior, an unexecuted action, or feedback contradicted by the screenshot
     When the conservative reviewer checks it

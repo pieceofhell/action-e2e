@@ -1,5 +1,21 @@
 # Implementation Updates
 
+## Evidence Quality, Coverage, and Independent Replay
+
+Date: August 26, 2026
+
+This update addresses the principal quality gaps found in the 20-application benchmark. Generated tests now compile exclusively from browser journeys that the selected model actually executed. The exploration record preserves raw accessible names, semantic element occurrences, tag positions, and real select-option values; every compiled interaction must pass an observed-locator contract before a test file is saved.
+
+Flow planning is no longer deduplicated by terminal state. Distinct executed actions may produce the same interface fingerprint and still become separate model-authored flows. E2P derives an adaptive set of coverage opportunities from completed actions, reports covered and uncovered opportunities, and calibrates model confidence against changed-state evidence, assumptions, and criterion depth.
+
+Potential-defect discovery now applies an evidence contract before conservative model review. Expectations based only on interface convention or model preference are rejected, ordinary content-availability assumptions require prior or documented evidence, and duplicate hypotheses are normalized semantically. Every retained guest hypothesis is then replayed in a clean browser context. Replay reports `observation-reproduced`, `observation-diverged`, or `reproduction-blocked`; it never converts the inferred requirement into an automatically confirmed defect.
+
+Playwright failures are classified as `automation-locator`, `automation-generation`, `target-runtime`, `behavior-assertion`, `execution-timeout`, or `unclassified`. This prevents E2P automation defects from being counted as target-application findings. The UI exposes locator validation, adaptive flow coverage, screening counts, clean-session replay evidence, and failure classes.
+
+The post-change automated regression suite passed **74/74 tests**. A five-repository public benchmark then completed 67 model-executed actions across 59 interface states. The two initial generated-automation failures were corrected and replayed successfully, and an expanded MDN Todo plan improved from one flow at 8% coverage to five passing flows at 42% coverage. The current evidence contract rejected all 25 initially retained target-defect hypotheses as unsupported or contradicted rather than reporting false findings. Full measurements and run paths are recorded in [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md).
+
+---
+
 ## Boundary-Probe Defect Trial and Confidence Audit
 
 Date: August 24, 2026

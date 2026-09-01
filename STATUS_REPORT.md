@@ -1,5 +1,7 @@
 # Action E2E Prototype - Status Report
 
+> Historical snapshot from August 11, 2026. It predates the AI-first realignment, defect-evidence contract, clean-session replay, and public benchmark improvements. Use `README.md`, `PROJECT_HANDOFF.md`, `specs.md`, and `updates.md` for the current state.
+
 Updated: 2026-08-11
 
 ## Executive Summary

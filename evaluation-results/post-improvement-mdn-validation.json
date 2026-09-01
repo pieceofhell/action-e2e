@@ -1,0 +1,829 @@
+{
+  "sourceRun": "mdn-todo-react-2026-08-27T00-08-12-541Z",
+  "validationRun": "mdn-todo-react-2026-08-27T00-43-32-822Z",
+  "flowCount": 5,
+  "coverage": {
+    "observedOpportunities": [
+      {
+        "id": "coverage-1",
+        "action": "What needs to be done?",
+        "kind": "fill",
+        "resultingStateId": "state-2",
+        "changed": true
+      },
+      {
+        "id": "coverage-2",
+        "action": "Add",
+        "kind": "click",
+        "resultingStateId": "state-3",
+        "changed": true
+      },
+      {
+        "id": "coverage-3",
+        "action": "Press Enter in What needs to be done?",
+        "kind": "press",
+        "resultingStateId": "state-4",
+        "changed": true
+      },
+      {
+        "id": "coverage-4",
+        "action": "Show Completed Tasks",
+        "kind": "click",
+        "resultingStateId": "state-5",
+        "changed": true
+      },
+      {
+        "id": "coverage-5",
+        "action": "Show All Tasks",
+        "kind": "click",
+        "resultingStateId": "state-4",
+        "changed": true
+      },
+      {
+        "id": "coverage-6",
+        "action": "Show Active Tasks",
+        "kind": "click",
+        "resultingStateId": "state-6",
+        "changed": true
+      },
+      {
+        "id": "coverage-7",
+        "action": "Interactive todo-label 4",
+        "kind": "click",
+        "resultingStateId": "state-7",
+        "changed": true
+      },
+      {
+        "id": "coverage-8",
+        "action": "Sleep",
+        "kind": "click",
+        "resultingStateId": "state-8",
+        "changed": true
+      },
+      {
+        "id": "coverage-9",
+        "action": "Edit Repeat",
+        "kind": "click",
+        "resultingStateId": "state-9",
+        "changed": true
+      },
+      {
+        "id": "coverage-10",
+        "action": "New name for Repeat",
+        "kind": "fill",
+        "resultingStateId": "state-10",
+        "changed": true
+      },
+      {
+        "id": "coverage-11",
+        "action": "Cancel renaming Repeat",
+        "kind": "click",
+        "resultingStateId": "state-8",
+        "changed": true
+      },
+      {
+        "id": "coverage-12",
+        "action": "Edit Test Task",
+        "kind": "click",
+        "resultingStateId": "state-11",
+        "changed": true
+      }
+    ],
+    "coveredTargetIds": [
+      "coverage-1",
+      "coverage-2",
+      "coverage-3",
+      "coverage-4",
+      "coverage-5"
+    ],
+    "uncoveredTargetIds": [
+      "coverage-6",
+      "coverage-7",
+      "coverage-8",
+      "coverage-9",
+      "coverage-10",
+      "coverage-11",
+      "coverage-12"
+    ],
+    "ratio": 0.42,
+    "method": "executed-action-opportunities"
+  },
+  "flows": [
+    {
+      "id": "what-needs-to-be-done-state-2",
+      "title": "Adding a New Task in TodoMatic",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-2"
+      ]
+    },
+    {
+      "id": "add-state-3",
+      "title": "Add a New Task in TodoMatic",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-3"
+      ]
+    },
+    {
+      "id": "press-enter-in-what-needs-to-be-done-state-4",
+      "title": "Adding a Todo Task in React Todo App",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-4"
+      ]
+    },
+    {
+      "id": "show-completed-tasks-state-5",
+      "title": "Show Completed Tasks User Flow",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-5"
+      ]
+    },
+    {
+      "id": "show-all-tasks-state-4",
+      "title": "Show All Tasks User Flow",
+      "confidence": "medium",
+      "evidenceStateIds": [
+        "state-4"
+      ]
+    }
+  ],
+  "generatedTests": [
+    {
+      "flowId": "what-needs-to-be-done-state-2",
+      "title": "Adding a New Task in TodoMatic",
+      "fileName": "what-needs-to-be-done-state-2.spec.cjs",
+      "filePath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\mdn-todo-react-2026-08-27T00-43-32-822Z\\tests\\what-needs-to-be-done-state-2.spec.cjs",
+      "generationMode": "model-journey-compiled",
+      "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+      "locatorValidation": {
+        "status": "passed",
+        "checkedActions": 1,
+        "strategies": [
+          "dom-id"
+        ]
+      }
+    },
+    {
+      "flowId": "add-state-3",
+      "title": "Add a New Task in TodoMatic",
+      "fileName": "add-state-3.spec.cjs",
+      "filePath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\mdn-todo-react-2026-08-27T00-43-32-822Z\\tests\\add-state-3.spec.cjs",
+      "generationMode": "model-journey-compiled",
+      "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+      "locatorValidation": {
+        "status": "passed",
+        "checkedActions": 2,
+        "strategies": [
+          "dom-id",
+          "tag-occurrence"
+        ]
+      }
+    },
+    {
+      "flowId": "press-enter-in-what-needs-to-be-done-state-4",
+      "title": "Adding a Todo Task in React Todo App",
+      "fileName": "press-enter-in-what-needs-to-be-done-state-4.spec.cjs",
+      "filePath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\mdn-todo-react-2026-08-27T00-43-32-822Z\\tests\\press-enter-in-what-needs-to-be-done-state-4.spec.cjs",
+      "generationMode": "model-journey-compiled",
+      "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+      "locatorValidation": {
+        "status": "passed",
+        "checkedActions": 5,
+        "strategies": [
+          "dom-id",
+          "tag-occurrence",
+          "dom-id",
+          "tag-occurrence",
+          "tag-occurrence"
+        ]
+      }
+    },
+    {
+      "flowId": "show-completed-tasks-state-5",
+      "title": "Show Completed Tasks User Flow",
+      "fileName": "show-completed-tasks-state-5.spec.cjs",
+      "filePath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\mdn-todo-react-2026-08-27T00-43-32-822Z\\tests\\show-completed-tasks-state-5.spec.cjs",
+      "generationMode": "model-journey-compiled",
+      "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+      "locatorValidation": {
+        "status": "passed",
+        "checkedActions": 4,
+        "strategies": [
+          "dom-id",
+          "tag-occurrence",
+          "dom-id",
+          "tag-occurrence"
+        ]
+      }
+    },
+    {
+      "flowId": "show-all-tasks-state-4",
+      "title": "Show All Tasks User Flow",
+      "fileName": "show-all-tasks-state-4.spec.cjs",
+      "filePath": "C:\\Users\\henri\\Documents\\action-e2e-prototype\\prototype-runs\\mdn-todo-react-2026-08-27T00-43-32-822Z\\tests\\show-all-tasks-state-4.spec.cjs",
+      "generationMode": "model-journey-compiled",
+      "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+      "locatorValidation": {
+        "status": "passed",
+        "checkedActions": 5,
+        "strategies": [
+          "dom-id",
+          "tag-occurrence",
+          "dom-id",
+          "tag-occurrence",
+          "tag-occurrence"
+        ]
+      }
+    }
+  ],
+  "execution": {
+    "summary": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 13982.804,
+      "failureClassification": {}
+    },
+    "tests": [
+      {
+        "title": "Add a New Task in TodoMatic",
+        "file": "add-state-3.spec.cjs",
+        "status": "passed",
+        "durationMs": 11291,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a Todo Task in React Todo App",
+        "file": "press-enter-in-what-needs-to-be-done-state-4.spec.cjs",
+        "status": "passed",
+        "durationMs": 12478,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show All Tasks User Flow",
+        "file": "show-all-tasks-state-4.spec.cjs",
+        "status": "passed",
+        "durationMs": 12476,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show Completed Tasks User Flow",
+        "file": "show-completed-tasks-state-5.spec.cjs",
+        "status": "passed",
+        "durationMs": 12212,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a New Task in TodoMatic",
+        "file": "what-needs-to-be-done-state-2.spec.cjs",
+        "status": "passed",
+        "durationMs": 11224,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      }
+    ],
+    "visualEvidence": [
+      {
+        "title": "Add a New Task in TodoMatic",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a Todo Task in React Todo App",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show All Tasks User Flow",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show Completed Tasks User Flow",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a New Task in TodoMatic",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      }
+    ]
+  },
+  "previousExecution": {
+    "summary": {
+      "total": 5,
+      "passed": 2,
+      "failed": 3,
+      "skipped": 0,
+      "durationMs": 61898.756,
+      "failureClassification": {
+        "execution-timeout": 3
+      }
+    },
+    "tests": [
+      {
+        "title": "Add a New Task in TodoMatic",
+        "file": "add-state-3.spec.cjs",
+        "status": "passed",
+        "durationMs": 6814,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a Todo Task in React Todo App",
+        "file": "press-enter-in-what-needs-to-be-done-state-4.spec.cjs",
+        "status": "timedOut",
+        "durationMs": 60318,
+        "error": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+        "failureClass": "execution-timeout",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show All Tasks User Flow",
+        "file": "show-all-tasks-state-4.spec.cjs",
+        "status": "timedOut",
+        "durationMs": 60321,
+        "error": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+        "failureClass": "execution-timeout",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show Completed Tasks User Flow",
+        "file": "show-completed-tasks-state-5.spec.cjs",
+        "status": "timedOut",
+        "durationMs": 60395,
+        "error": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+        "failureClass": "execution-timeout",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a New Task in TodoMatic",
+        "file": "what-needs-to-be-done-state-2.spec.cjs",
+        "status": "passed",
+        "durationMs": 6434,
+        "error": null,
+        "failureClass": null,
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      }
+    ],
+    "visualEvidence": [
+      {
+        "title": "Add a New Task in TodoMatic",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/add-state-3-Add-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a Todo Task in React Todo App",
+        "status": "timedOut",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/press-enter-in-what-needs--20749-Todo-Task-in-React-Todo-App/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show All Tasks User Flow",
+        "status": "timedOut",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-all-tasks-state-4-Show-All-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Show Completed Tasks User Flow",
+        "status": "timedOut",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/test-failed-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/video.webm"
+          },
+          {
+            "name": "error-context",
+            "kind": "attachment",
+            "contentType": "text/markdown",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/error-context.md"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/show-completed-tasks-state-5-Show-Completed-Tasks-User-Flow/trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "Adding a New Task in TodoMatic",
+        "status": "passed",
+        "evidence": [
+          {
+            "name": "screenshot",
+            "kind": "screenshot",
+            "contentType": "image/png",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/test-finished-1.png"
+          },
+          {
+            "name": "video",
+            "kind": "video",
+            "contentType": "video/webm",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/video.webm"
+          },
+          {
+            "name": "trace",
+            "kind": "trace",
+            "contentType": "application/zip",
+            "relativePath": "results/test-artifacts/what-needs-to-be-done-state-2-Adding-a-New-Task-in-TodoMatic/trace.zip"
+          }
+        ]
+      }
+    ]
+  },
+  "finalValidationAt": "2026-08-28T21:03:49.628Z"
+}

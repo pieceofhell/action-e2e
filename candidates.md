@@ -362,9 +362,25 @@ The run demonstrates generalized pipeline execution, but not adequate false-posi
 
 See [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md) for the complete run history and artifacts.
 
-## 11. Cross-Candidate Findings
+## 11. Five-Repository Public Benchmark
 
-### 10.1 What worked
+Five additional repositories were selected without consulting known defect reports. They broaden the candidate set with delayed overlays, multi-screen quizzes, dense control catalogs, semantic task management, and timer-driven state changes.
+
+| Candidate | Application profile | Final result under the corrected pipeline |
+| --- | --- | --- |
+| [`codewithsadee/anon-ecommerce-website`](https://github.com/codewithsadee/anon-ecommerce-website) | Static storefront with menus, search, repeated product controls, and a delayed promotional overlay. | 20 actions, 13 states, current scenario 1/1 passed; no evidence-supported target defect. |
+| [`jamesqquick/Build-A-Quiz-App-With-HTML-CSS-and-JavaScript`](https://github.com/jamesqquick/Build-A-Quiz-App-With-HTML-CSS-and-JavaScript) | Vanilla JavaScript quiz with progress, score, and high-score screens inside a tutorial collection. | 12 actions, 11 states, 1/1 passed; no evidence-supported target defect. |
+| [`cypress-io/cypress-example-kitchensink`](https://github.com/cypress-io/cypress-example-kitchensink) | Interaction catalog containing repeated links, forms, buttons, checkboxes, and navigation examples. | 12 actions, nine states, corrected scenario 1/1 passed; no evidence-supported target defect. |
+| [`mdn/todo-react`](https://github.com/mdn/todo-react) | Accessible React task manager with creation, filtering, completion, editing, and deletion. | 19 actions, 17 states; expanded plan 5/5 passed at 42% observed-opportunity coverage. |
+| [`TheNarh/The-React-Quiz`](https://github.com/TheNarh/The-React-Quiz) | Timed React quiz whose available controls change as the countdown progresses. | Four completed actions, nine states, 1/1 passed; no evidence-supported target defect. |
+
+These targets exposed general E2P weaknesses in dynamic-action recovery, inferred package managers, flow deduplication, semantic locator compilation, terminal assertions, and hypothesis screening. The corrections are part of the ordinary pipeline and contain no target-specific rules. Across the sample, 25 initially plausible defect hypotheses were rejected by the current evidence contract. Twelve underlying observations were reproducible, but reproduction did not support the inferred expectation; 13 replays were blocked by transient or accumulated state.
+
+The complete protocol, revision identifiers, per-project run IDs, aggregate metrics, and local evidence paths are in [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md).
+
+## 12. Cross-Candidate Findings
+
+### 12.1 What worked
 
 - E2P loaded and inspected all six candidates.
 - Runtime mode was correctly separated between static and command targets after the TodoMVC fix.
@@ -376,7 +392,7 @@ See [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md)
 - Deterministic fallbacks prevented several structurally unsafe or unsupported model drafts from being saved.
 - MDN demonstrated that accessible and semantically rich markup substantially improves useful generation.
 
-### 10.2 What did not work reliably
+### 12.2 What did not work reliably
 
 - The accepted local-model bodies passed only one of four times in this sample.
 - Locator validation checks observed names but does not yet validate all locator relationships.
@@ -386,7 +402,7 @@ See [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md)
 - Non-semantic visual controls, such as movie seats implemented as `div`s, were not converted into meaningful actions.
 - A passed smoke test can still have weak behavioral coverage.
 
-### 10.3 Recommended next implementation work
+### 12.3 Recommended next implementation work
 
 1. Record element visibility and state preconditions in live evidence, then validate model assertions against them.
 2. Reject or normalize chained semantic locator calls that do not represent valid DOM relationships.
@@ -396,7 +412,7 @@ See [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md)
 6. Add a coverage measure that distinguishes render-only smoke tests from state-changing journeys.
 7. Run the same candidates with a stronger coding model and with heuristics-only to separate model quality from pipeline quality.
 
-## 12. Candidate Ranking by Research Value
+## 13. Candidate Ranking by Research Value
 
 | Rank | Candidate | Why |
 | ---: | --- | --- |
@@ -410,7 +426,7 @@ See [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md)
 
 All seven should remain in the evaluation set. Removing failing or zero-finding candidates would make the prototype look more successful while reducing the suite's ability to guide engineering decisions.
 
-## 13. Reproduction Paths
+## 14. Reproduction Paths
 
 The locally cloned validation targets are:
 
