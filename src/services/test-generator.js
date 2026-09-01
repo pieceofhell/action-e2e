@@ -52,38 +52,25 @@ async function generateTestBundle({
     const specFilePath = path.join(run.testsDirectory, specFileName);
 
     let content = "";
-    let generationMode = baselineMode ? "explicit-baseline" : "model-assisted";
+    let generationMode = baselineMode ? "explicit-baseline" : "model-journey-compiled";
     let generationNote = "";
+    let locatorValidation = null;
 
     if (baselineMode) {
       content = buildHeuristicSpecContent(flow);
       generationNote = "Explicit baseline mode rendered this test without model inference.";
     } else {
-      try {
-        onProgress({
-          phase: "model-test-authoring",
-          message: `Asking the selected model to author test ${index + 1} of ${approvedFlows.length}: ${flow.title}`,
-          progress: 20 + Math.round((index / approvedFlows.length) * 60),
-        });
-        content = await buildSpecContentWithAi({
-          flow,
-          inspection,
-          approvedFlows,
-          normalizedRuntime,
-          aiConfig: normalizedAi,
-        });
-        generationMode = "model-assisted";
-        generationNote = "The selected model authored the Playwright body from approved criteria and observed evidence; structural validation ran before the file was saved.";
-      } catch (error) {
-        const compiledJourney = buildObservedJourneySpecContent(flow, inspection);
-        if (compiledJourney) {
-          content = compiledJourney;
-          generationMode = "model-journey-compiled";
-          generationNote = `The free-form model draft was rejected (${error.message}). E2P compiled the model's successfully executed browser journey into constrained Playwright instead of reducing the flow to a smoke fallback.`;
-        } else {
-          throw new Error(`AI-first test generation stopped for "${flow.title}": ${error.message} No successfully executed model journey could be compiled for this flow.`);
-        }
+      onProgress({
+        phase: "journey-compilation",
+        message: `Compiling the model-executed journey into test ${index + 1} of ${approvedFlows.length}: ${flow.title}`,
+        progress: 20 + Math.round((index / approvedFlows.length) * 60),
+      });
+      locatorValidation = validateObservedJourneyLocators(flow, inspection);
+      content = buildObservedJourneySpecContent(flow, inspection);
+      if (!content) {
+        throw new Error(`AI-first test generation stopped for "${flow.title}": no successfully executed model journey could be compiled for this flow.`);
       }
+      generationNote = "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.";
     }
 
     await writeText(specFilePath, content);
@@ -100,6 +87,7 @@ async function generateTestBundle({
       filePath: specFilePath,
       generationMode,
       generationNote,
+      locatorValidation,
     });
   }
 
@@ -864,7 +852,7 @@ function buildObservedJourneySpecContent(flow, inspection) {
       lines.push("await pauseForUi(currentPage, 300);");
     } else if (action.kind === "select" && action.name && action.value) {
       const locator = compiledInputLocator(action, "currentPage", "combobox");
-      lines.push(`await ${locator}.selectOption(${jsString(action.value)});`);
+      lines.push(`await ${locator}.selectOption(${compiledSelectOption(action)});`);
       lines.push("await pauseForUi(currentPage, 300);");
     } else if (action.kind === "press" && action.name) {
       const locator = compiledInputLocator(action, "currentPage");
@@ -878,13 +866,20 @@ function buildObservedJourneySpecContent(flow, inspection) {
   const expectsCreatedText = terminalStep?.action?.kind === "press"
     && /\b(appear|add(?:ed)?|creat(?:e|ed)|display(?:ed)?|list(?:ed)?|submitted?)\b/i.test(terminalStep.expectedOutcome || "")
     && priorFill?.action?.value;
-  const assertedButton = (targetState.buttons || []).find((label) => label && !isUnsafeActionLabel(label));
+  const assertedButton = (targetState.buttons || []).find((label) => label && !isUnsafeActionLabel(label) && /[a-z]/i.test(label));
+  const closesOverlay = terminalStep?.action?.kind === "click"
+    && /\b(?:close|dismiss|modal-close|close-overlay)\b/i.test(terminalStep.action.name || "");
+  const assertedHeading = (targetState.headings || []).find((heading) => (
+    heading && !/\b(?:sale|off|discount|deal|limited time)\b/i.test(heading)
+  ));
   if (expectsCreatedText) {
     lines.push(`await expect(currentPage.getByText(${jsString(priorFill.action.value)}, { exact: true }).first()).toBeVisible();`);
+  } else if (closesOverlay) {
+    lines.push('await expect(currentPage.locator("dialog:visible, [role=\\"dialog\\"]:visible, [aria-modal=\\"true\\"]:visible, .modal:visible, [class*=\\"drawer\\"]:visible")).toHaveCount(0);');
+  } else if (assertedHeading) {
+    lines.push(`await expect(currentPage.getByRole("heading", { name: ${jsString(assertedHeading)}, exact: true })).toBeVisible();`);
   } else if (assertedButton) {
-    lines.push(`await expect(currentPage.getByRole("button", { name: ${jsString(assertedButton)}, exact: true })).toBeVisible();`);
-  } else if ((targetState.headings || []).length) {
-    lines.push(`await expect(currentPage.getByRole("heading", { name: ${jsString(targetState.headings[0])}, exact: true })).toBeVisible();`);
+    lines.push(`await expect(currentPage.getByRole("button", { name: ${jsString(assertedButton)}, exact: true }).first()).toBeVisible();`);
   } else {
     lines.push("await expect(currentPage.locator('body')).toBeVisible();");
   }
@@ -905,11 +900,21 @@ function compiledClickLocator(action, states, pageVariable = "page") {
     return `${pageVariable}.locator(${jsString(action.visualSelector)}).nth(${action.visualIndex})`;
   }
   const role = action.role === "link" ? "link" : "button";
-  const accessibleLocator = `${pageVariable}.getByRole(${jsString(role)}, { name: ${jsString(action.name)}, exact: true })`;
-  if (Number.isInteger(action.accessibleIndex) && action.accessibleIndex >= 0) {
+  const accessibleName = action.accessibleName || action.name;
+  const exactAccessibleName = `^${escapeRegExp(accessibleName)}$`;
+  const accessibleLocator = `${pageVariable}.getByRole(${jsString(role)}, { name: new RegExp(${jsString(exactAccessibleName)}, "i") })`;
+  const hasRealAccessibleName = accessibleName && !/^Interactive\s/i.test(accessibleName);
+  if (hasRealAccessibleName && Number.isInteger(action.accessibleIndex) && action.accessibleIndex >= 0) {
     return `${accessibleLocator}.nth(${action.accessibleIndex})`;
   }
-  return `${accessibleLocator}.first()`;
+  if (hasRealAccessibleName) return `${accessibleLocator}.first()`;
+  if (action.tagName && Number.isInteger(action.tagIndex) && action.tagIndex >= 0) {
+    return `${pageVariable}.locator(${jsString(action.tagName)}).nth(${action.tagIndex})`;
+  }
+  if (action.nameAttribute && action.tagName) {
+    return `${pageVariable}.locator(${jsString(`${action.tagName}[name="${escapeCssAttribute(action.nameAttribute)}"]`)}).first()`;
+  }
+  return `${pageVariable}.locator("button").first()`;
 }
 
 function compiledInputLocator(action, pageVariable = "page", fallbackRole = "textbox") {
@@ -917,12 +922,79 @@ function compiledInputLocator(action, pageVariable = "page", fallbackRole = "tex
   if (action.domId) return `${pageVariable}.locator(${jsString(`#${escapeCssIdentifier(action.domId)}`)})`;
   if (action.placeholder) return `${pageVariable}.getByPlaceholder(${jsString(action.placeholder)}, { exact: true })`;
   if (action.label) return `${pageVariable}.getByLabel(${jsString(action.label)}, { exact: true })`;
-  const name = action.name.replace(/^Press Enter in /i, "");
-  return `${pageVariable}.getByRole(${jsString(fallbackRole)}, { name: ${jsString(name)}, exact: true })`;
+  if (action.tagName && Number.isInteger(action.tagIndex) && action.tagIndex >= 0) {
+    return `${pageVariable}.locator(${jsString(action.tagName)}).nth(${action.tagIndex})`;
+  }
+  if (action.nameAttribute && action.tagName) {
+    return `${pageVariable}.locator(${jsString(`${action.tagName}[name="${escapeCssAttribute(action.nameAttribute)}"]`)}).first()`;
+  }
+  const name = action.accessibleName || action.name.replace(/^Press Enter in /i, "");
+  const locator = `${pageVariable}.getByRole(${jsString(fallbackRole)}, { name: ${jsString(name)}, exact: true })`;
+  if (Number.isInteger(action.accessibleIndex) && action.accessibleIndex >= 0) return `${locator}.nth(${action.accessibleIndex})`;
+  return `${locator}.first()`;
+}
+
+function compiledSelectOption(action) {
+  const requested = String(action.value || "");
+  const option = (action.options || []).find((candidate) => (
+    candidate.value === requested || candidate.label === requested
+  ));
+  if (option) return `{ value: ${jsString(option.value)} }`;
+  return `{ label: ${jsString(requested)} }`;
+}
+
+function validateObservedJourneyLocators(flow, inspection) {
+  const exploration = inspection?.liveExploration?.agenticExploration;
+  const stateIds = flow.evidenceStateIds || flow.blueprint?.evidenceStateIds || [];
+  const targetState = (exploration?.states || []).filter((state) => stateIds.includes(state.id)).at(-1);
+  const targetStepIndex = (exploration?.steps || []).findLastIndex((step) => (
+    step.status === "completed" && step.afterFingerprint === targetState?.fingerprint
+  ));
+  if (!targetState || targetStepIndex < 0) {
+    throw new Error(`No executed journey reaches the evidence state for "${flow.title}".`);
+  }
+  const actions = exploration.steps.slice(0, targetStepIndex + 1)
+    .filter((step) => step.status === "completed")
+    .map((step) => step.action || {})
+    .filter((action) => ["click", "fill", "select", "press"].includes(action.kind));
+  const invalid = actions.filter((action) => !hasStableObservedLocator(action));
+  if (invalid.length) {
+    throw new Error(`Observed locator contract failed for: ${invalid.map((action) => action.name || action.kind).join(", ")}.`);
+  }
+  return {
+    status: "passed",
+    checkedActions: actions.length,
+    strategies: actions.map(locatorStrategy),
+  };
+}
+
+function hasStableObservedLocator(action) {
+  if (action.testId || action.domId || action.placeholder || action.label || action.visualSelector) return true;
+  if (action.nameAttribute && action.tagName) return true;
+  if (action.tagName && Number.isInteger(action.tagIndex) && action.tagIndex >= 0) return true;
+  if (action.accessibleName || action.name) {
+    return action.accessibleCount <= 1 || (Number.isInteger(action.accessibleIndex) && action.accessibleIndex >= 0);
+  }
+  return false;
+}
+
+function locatorStrategy(action) {
+  if (action.testId) return "test-id";
+  if (action.domId) return "dom-id";
+  if (action.placeholder) return "placeholder";
+  if (action.label) return "label";
+  if (action.visualSelector) return "observed-css-occurrence";
+  if (action.nameAttribute) return "name-attribute-occurrence";
+  if (action.tagName) return "tag-occurrence";
+  return "accessible-name-occurrence";
 }
 
 function escapeCssIdentifier(value) {
   return String(value).replace(/([^a-zA-Z0-9_-])/g, "\\$1");
+}
+
+function escapeCssAttribute(value) {
+  return String(value).replace(/([\\"])/g, "\\$1");
 }
 
 function buildFlowBody(flow) {
@@ -1244,7 +1316,9 @@ function indent(text, spaces) {
 module.exports = {
   buildObservedJourneySpecContent,
   compiledClickLocator,
+  compiledInputLocator,
   generateTestBundle,
   hasLiveEvidence,
   validateAiTestBody,
+  validateObservedJourneyLocators,
 };

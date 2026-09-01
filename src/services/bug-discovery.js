@@ -81,7 +81,13 @@ async function discoverPotentialBugs({
   }
 
   const batchFailureCount = errors.length;
-  const candidateHypotheses = deduplicateHypotheses(hypotheses).slice(0, 12);
+  const deduplicatedHypotheses = deduplicateHypotheses(hypotheses).slice(0, 12);
+  const deterministicScreen = screenHypotheses(deduplicatedHypotheses, {
+    states,
+    steps: exploration?.steps || [],
+    inspection,
+  });
+  const candidateHypotheses = deterministicScreen.retained;
   const criticReview = await critiqueHypotheses({
     hypotheses: candidateHypotheses,
     inspection,
@@ -94,6 +100,7 @@ async function discoverPotentialBugs({
   });
   errors.push(...criticReview.errors);
   const uniqueHypotheses = criticReview.retained;
+  const rejectedHypotheses = [...deterministicScreen.rejected, ...criticReview.rejected];
   return {
     status: batchFailureCount === batches.length
       ? "failed"
@@ -109,17 +116,20 @@ async function discoverPotentialBugs({
     analyzedStateCount: states.length,
     analyzedBatchCount: batches.length,
     hypotheses: uniqueHypotheses,
-    rejectedHypotheses: criticReview.rejected,
+    rejectedHypotheses,
     screening: {
+      authoredCandidates: hypotheses.length,
+      deduplicatedCandidates: deduplicatedHypotheses.length,
       candidates: candidateHypotheses.length,
       retained: uniqueHypotheses.length,
-      rejected: criticReview.rejected.length,
+      deterministicRejected: deterministicScreen.rejected.length,
+      rejected: rejectedHypotheses.length,
       criticRole: "conservative-model-reviewer",
     },
     diagnostics: diagnosticEvidence.publicSummary,
     limitations: [
       "A retained item is a hypothesis, not a confirmed application defect.",
-      "Expected behavior may be inferred from documentation, cross-state consistency, interface conventions, or model judgment.",
+      "Only expectations grounded in project documentation, cross-state consistency, or a directly related runtime diagnostic can be retained.",
       "States not reached during model-guided exploration were not evaluated.",
       "Visual and semantic model judgments can be wrong even when their evidence references are valid.",
     ],
@@ -531,12 +541,119 @@ function deduplicateHypotheses(hypotheses) {
   const output = [];
   const seen = new Set();
   for (const hypothesis of hypotheses) {
-    const key = `${hypothesis.title}|${hypothesis.observed.result}`.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const key = hypothesisSemanticKey(hypothesis);
     if (!key || seen.has(key)) continue;
     seen.add(key);
     output.push(hypothesis);
   }
   return output;
+}
+
+function screenHypotheses(hypotheses, { states = [], steps = [], inspection = null } = {}) {
+  const retained = [];
+  const rejected = [];
+  const strongSources = new Set(["project-documentation", "cross-state-consistency", "runtime-diagnostic"]);
+  for (const hypothesis of hypotheses || []) {
+    let reason = "";
+    if (!strongSources.has(hypothesis.expected?.source)) {
+      reason = "The expected behavior is based only on an interface convention or model inference, not on project evidence.";
+    } else if (hypothesis.expected?.source === "project-documentation" && !documentationSupportsExpectation(hypothesis, inspection)) {
+      reason = "The cited project documentation does not explicitly support the specific expected behavior.";
+    } else if (hypothesis.expected?.source === "cross-state-consistency" && !hasCrossStateEvidence(hypothesis)) {
+      reason = "A cross-state expectation must cite observed facts from at least two distinct interface states.";
+    } else if (hypothesis.expected?.source === "cross-state-consistency" && /\b(?:input|field).{0,80}\b(?:remain|retain|clear|focus|default)\b/i.test(hypothesis.expected?.result || "")) {
+      reason = "Input lifecycle behavior cannot be inferred from state consistency alone without an explicit documented requirement.";
+    } else if (isUnsupportedContentAvailabilityClaim(hypothesis, states)) {
+      reason = "The claim assumes that particular content must exist, but that content was not observed earlier or stated by project evidence.";
+    } else if (observedEvidenceSatisfiesExpectation(hypothesis, states)) {
+      reason = "The cited interface evidence already contains the expected outcome, so it does not support the claimed anomaly.";
+    } else if (hypothesis.expected?.source !== "runtime-diagnostic" && !claimedActionWasCompleted(hypothesis, steps)) {
+      reason = "The action claimed by the hypothesis was not completed in the cited interface transition.";
+    }
+    if (reason) {
+      rejected.push({
+        id: hypothesis.id,
+        title: hypothesis.title,
+        reason,
+        verdict: "reject",
+        screeningStage: "evidence-contract",
+        authorConfidence: hypothesis.confidence,
+        authorSeverity: hypothesis.severity,
+      });
+    } else {
+      retained.push(hypothesis);
+    }
+  }
+  return { retained, rejected };
+}
+
+function claimedActionWasCompleted(hypothesis, steps) {
+  const ids = new Set(hypothesis.evidenceStateIds || []);
+  const claimTokens = new Set(meaningfulTokens(`${hypothesis.title} ${hypothesis.affectedFlow} ${(hypothesis.reproductionSteps || []).join(" ")}`));
+  return (steps || []).some((step) => {
+    if (step.status !== "completed" || (!ids.has(step.beforeStateId) && !ids.has(step.afterStateId))) return false;
+    const actionName = sanitizeText(step.action?.name).toLowerCase();
+    const actionTokens = meaningfulTokens(`${step.action?.context || ""} ${actionName}`);
+    if (actionName.length >= 4 && `${hypothesis.reproductionSteps || []}`.toLowerCase().includes(actionName)) return true;
+    const overlap = actionTokens.filter((token) => claimTokens.has(token));
+    return actionTokens.length > 0 && overlap.length >= Math.min(2, actionTokens.length) && overlap.length / actionTokens.length >= 0.6;
+  });
+}
+
+function isUnsupportedContentAvailabilityClaim(hypothesis, states) {
+  const text = `${hypothesis.title} ${hypothesis.observed?.result} ${hypothesis.expected?.result}`;
+  if (!/\b(no results?|not found|empty|missing item|does not appear|did not appear)\b/i.test(text)) return false;
+  const cited = new Set(hypothesis.evidenceStateIds || []);
+  const priorText = (states || []).filter((state) => !cited.has(state.id)).map((state) => state.visibleTextExcerpt || "").join(" ");
+  const expectedTokens = meaningfulTokens(hypothesis.expected?.result).filter((token) => token.length >= 5);
+  return expectedTokens.length > 0 && !expectedTokens.some((token) => priorText.toLowerCase().includes(token));
+}
+
+function observedEvidenceSatisfiesExpectation(hypothesis, states) {
+  if (/\b(?:not|no longer|removed|absent|hidden|disabled|prevented|blocked)\b/i.test(hypothesis.expected?.result || "")) return false;
+  const cited = new Set(hypothesis.evidenceStateIds || []);
+  const evidenceText = (states || []).filter((state) => cited.has(state.id)).flatMap((state) => [
+    state.visibleTextExcerpt,
+    ...(state.headings || []),
+    ...(state.buttons || []),
+  ]).join(" ").toLowerCase();
+  const expectedTokens = meaningfulTokens(hypothesis.expected?.result).filter((token) => token.length >= 5);
+  if (/\b(?:progress|question)\b/i.test(hypothesis.expected?.result || "") && /\bquestion\s+[2-9]\s*(?:\/|of)\s*\d+/i.test(evidenceText)) return true;
+  const matched = expectedTokens.filter((token) => evidenceText.includes(token)).length;
+  return expectedTokens.length >= 2 && matched >= 2 && matched / expectedTokens.length >= 0.4;
+}
+
+function documentationSupportsExpectation(hypothesis, inspection) {
+  const documentation = (inspection?.relevantFiles || [])
+    .filter((file) => /readme|spec|requirement|docs?\//i.test(file?.relativePath || ""))
+    .map((file) => file.excerpt || "")
+    .join(" ")
+    .toLowerCase();
+  if (!documentation) return false;
+  const expectation = `${hypothesis.expected?.result || ""} ${hypothesis.expected?.justification || ""}`;
+  const tokens = meaningfulTokens(expectation).filter((token) => token.length >= 5);
+  const matched = tokens.filter((token) => documentation.includes(token));
+  const specialRequirements = [...expectation.toLowerCase().matchAll(/\b(confirm(?:ation)?|focus(?:ed)?|default|invalid|minimum|single character|clear(?:ed)?|redirect(?:ed)?|enabled|disabled)\b/g)].map((match) => match[1]);
+  if (specialRequirements.some((term) => !documentation.includes(term.split(" ")[0]))) return false;
+  return matched.length >= 2 && matched.length / Math.max(tokens.length, 1) >= 0.3;
+}
+
+function hasCrossStateEvidence(hypothesis) {
+  const stateRefs = new Set((hypothesis.observed?.facts || []).flatMap((fact) => (
+    fact.evidenceRefs || []
+  )).filter((ref) => /^state-\d+$/i.test(ref)));
+  return stateRefs.size >= 2;
+}
+
+function hypothesisSemanticKey(hypothesis) {
+  const tokens = meaningfulTokens(`${hypothesis.title} ${hypothesis.affectedFlow}`).slice(0, 8);
+  const action = hypothesis.evidence?.executedActions?.at(-1)?.action || {};
+  return `${tokens.join("-")}|${sanitizeText(action.kind)}|${sanitizeText(action.name)}`.toLowerCase();
+}
+
+function meaningfulTokens(value) {
+  const stopWords = new Set(["the", "and", "that", "this", "with", "from", "when", "then", "user", "should", "page", "application", "expected", "result"]);
+  return String(value || "").toLowerCase().match(/[a-z0-9]+/g)?.filter((token) => token.length > 2 && !stopWords.has(token)) || [];
 }
 
 function buildUnavailableReport(error) {
@@ -585,5 +702,6 @@ module.exports = {
   expandTransitionStates,
   normalizeDiagnostics,
   normalizeHypotheses,
+  screenHypotheses,
   validateCriticReview,
 };

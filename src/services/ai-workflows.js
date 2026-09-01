@@ -111,6 +111,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
   const explorationStates = inspection.liveExploration?.agenticExploration?.states || [];
   const completedExplorationSteps = (inspection.liveExploration?.agenticExploration?.steps || [])
     .filter((step) => step.status === "completed");
+  const coverageTargets = deriveCoverageTargets(explorationStates, completedExplorationSteps);
 
   const compactContext = {
     project: { name: inspection.project?.name },
@@ -122,6 +123,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
       observedHeadings: [...new Set(explorationStates.flatMap((state) => state.headings || []))].slice(0, 12),
       observedButtons: [...new Set(explorationStates.flatMap((state) => state.buttons || []))].slice(0, 16),
       observedInputs: [...new Set(explorationStates.flatMap((state) => state.inputs || []))].slice(0, 12),
+      coverageTargets,
     },
   };
 
@@ -137,7 +139,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         "Never mention products, carts, favorites, authentication, or another domain unless those exact concepts appear in the supplied current-project states and completed actions.",
         "Write application-grounded acceptance criteria from scratch.",
         "Prefer distinct flows that cover different parts of the interface or different user intents.",
-        "Each flow must end in a different terminal evidence state. Do not split headings from one page into multiple flows and do not describe scrolling or reading as separate journeys unless the model actually performed those actions.",
+        "Distinct executed actions may legitimately produce the same terminal state. Preserve them as separate flows when they exercise different user intents or controls.",
         "If access.mode is authenticated, propose only navigation and observation flows. Never propose creating, changing, publishing, sending, uploading, joining, enrolling, or deleting data.",
         "Authentication values, cookies, headers, environment references, and password fields are never part of your context and must never be requested.",
         "For guest exploration, never propose entering, revealing, validating, or submitting passwords, API keys, access tokens, credentials, or other authentication material, even when those fields were visible.",
@@ -149,7 +151,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         "Build semantic flow IDs from exact current-project labels and intents; never use placeholders or examples from another domain.",
         "For each behavior-rich flow, cite the state reached after the relevant completed action, not only state-1.",
         "Use resultingStateId from completedActions as the authoritative action-to-state mapping. Never infer state numbers from action order.",
-        "Return at most 4 flows. Each selected flow should contain 2 to 4 concrete criteria.",
+        "Cover as many supplied coverageTargets as the evidence supports, up to 6 flows. Each selected flow should contain 2 to 4 concrete criteria.",
         "Return raw JSON in this format:",
         '{"summary":"...","flows":[{"id":"...","title":"...","summary":"...","confidence":"high|medium|low","evidenceStateIds":["state-1"],"sourceSignals":["..."],"assumptions":["..."],"criteria":[{"title":"...","given":"...","when":"...","then":"..."}]}]}',
         "The only top-level keys are summary and flows. Do not return a browser action list, plan.flow, candidates, or copied evidence objects.",
@@ -158,11 +160,10 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
     let aiPayload = null;
     let planningPayload = null;
     let transitionFlows = [];
-    const observedStateCount = inspection.liveExploration?.agenticExploration?.states?.length || 0;
-    const desiredFlowCount = Math.min(4, Math.max(1, observedStateCount - 1));
+    const desiredFlowCount = Math.min(6, Math.max(1, coverageTargets.length));
     const minimumAdmissibleFlowCount = 1;
     for (let attempt = 0; attempt < 1 && mergedFlows.length < desiredFlowCount; attempt += 1) {
-      aiPayload = await requestStructuredJson({
+      aiPayload = await requestPlanningJson({
         aiConfig: normalized,
         systemPrompt: planningSystemPrompt,
         userPrompt: JSON.stringify(compactContext, null, 2),
@@ -181,7 +182,8 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         steps: completedExplorationSteps,
         desiredCount: desiredFlowCount,
       });
-      mergedFlows = mergeAiFlows(basePlan.flows, transitionFlows, inspection.liveExploration, inspection);
+      const broadFlows = Array.isArray(planningPayload?.flows) ? planningPayload.flows : [];
+      mergedFlows = mergeAiFlows(basePlan.flows, [...broadFlows, ...transitionFlows], inspection.liveExploration, inspection);
       planningPayload = { summary: "Model-authored flows decomposed by observed browser transition.", flows: transitionFlows };
     }
     if (mergedFlows.length < minimumAdmissibleFlowCount) {
@@ -192,12 +194,14 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         allowedStateIds: explorationStates.map((state) => state.id),
       });
     }
+    const coverage = measureFlowCoverage(mergedFlows, coverageTargets, completedExplorationSteps, explorationStates);
     return {
       plan: {
         ...basePlan,
         mode: basePlan.access?.mode === "authenticated" ? "authenticated-ai-first" : "ai-first",
         summary: choosePlanSummary(planningPayload?.summary, basePlan.summary, inspection.projectSynopsis),
         flows: mergedFlows,
+        coverage,
         ai: buildAiMetadata(normalized, inspection.liveExploration?.status === "completed" ? "flow-live-refinement" : "flow-refinement"),
       },
       usedModel: true,
@@ -239,19 +243,20 @@ function createFlowGroundingError({ broadPayload, transitionFlows, projectName, 
 
 async function authorFlowsPerObservedTransition({ aiConfig, projectName, states, steps, desiredCount }) {
   const transitions = [];
-  const usedStateIds = new Set();
+  const usedActionKeys = new Set();
   for (const step of steps) {
     const resultingStateId = findStateIdByFingerprint(states, step.afterFingerprint);
-    if (!resultingStateId || usedStateIds.has(resultingStateId)) continue;
+    const actionKey = semanticActionKey(step.action);
+    if (!resultingStateId || !actionKey || usedActionKeys.has(actionKey)) continue;
     const resultingState = states.find((state) => state.id === resultingStateId);
     if (!resultingState || !step.action?.name) continue;
-    usedStateIds.add(resultingStateId);
+    usedActionKeys.add(actionKey);
     transitions.push({ step, resultingState, resultingStateId });
   }
 
   const flows = [];
   for (const transition of transitions.slice(0, 6)) {
-    const payload = await requestStructuredJson({
+    const payload = await requestPlanningJson({
       aiConfig,
       systemPrompt: [
         "You are authoring exactly one E2E user flow from one browser transition that the model already executed.",
@@ -282,15 +287,32 @@ async function authorFlowsPerObservedTransition({ aiConfig, projectName, states,
     });
     flows.push({
       ...payload,
-      id: sanitizeFlowId(payload?.id || transition.step.action.name),
+      id: sanitizeFlowId(`${transition.step.action.name}-${transition.resultingStateId}`),
       evidenceStateIds: [transition.resultingStateId],
       sourceSignals: sanitizeStringArray(payload?.sourceSignals).length
         ? sanitizeStringArray(payload.sourceSignals)
         : [`Executed action: ${transition.step.action.name}`],
+      observedAction: {
+        name: transition.step.action.name,
+        kind: transition.step.action.kind,
+        resultingStateId: transition.resultingStateId,
+      },
     });
     if (flows.length >= Math.max(desiredCount + 1, 3)) break;
   }
   return flows;
+}
+
+async function requestPlanningJson(options) {
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await requestStructuredJson(options);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
 }
 
 async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseInsights, generatedTests = [], aiConfig }) {
@@ -419,7 +441,7 @@ function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection 
   const explorationSteps = liveExploration?.agenticExploration?.steps || [];
   const knownStateIds = new Set(explorationStates.map((state) => state.id));
   const merged = [];
-  const terminalStates = new Set();
+  const acceptedJourneys = new Set();
 
   for (const [index, aiFlow] of aiFlows.slice(0, 6).entries()) {
     if (!aiFlow || typeof aiFlow !== "object") {
@@ -447,26 +469,32 @@ function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection 
       continue;
     }
     const terminalStateId = evidenceStateIds.at(-1);
-    if (terminalStates.has(terminalStateId)) {
-      continue;
-    }
     const terminalState = explorationStates.find((state) => state.id === terminalStateId);
-    const enteringStep = explorationSteps.find((step) => step.status === "completed" && step.afterFingerprint === terminalState?.fingerprint);
+    const enteringSteps = explorationSteps.filter((step) => step.status === "completed" && step.afterFingerprint === terminalState?.fingerprint);
+    const contractedStep = enteringSteps.find((step) => (
+      aiFlow.observedAction?.resultingStateId === terminalStateId
+        && sanitizeText(aiFlow.observedAction?.kind) === sanitizeText(step.action?.kind)
+        && sanitizeText(aiFlow.observedAction?.name) === sanitizeText(step.action?.name)
+    ));
+    const enteringStep = contractedStep || enteringSteps.find((step) => flowMatchesEnteringAction(semanticText, step)) || enteringSteps[0];
     if (!flowGroundedInCitedEvidence({ title, criteria, evidenceStateIds, explorationStates, explorationSteps, inspection })) {
       continue;
     }
-    if (terminalStateId !== "state-1" && !flowMatchesEnteringAction(semanticText, enteringStep)) {
+    if (terminalStateId !== "state-1" && !contractedStep && !flowMatchesEnteringAction(semanticText, enteringStep)) {
       continue;
     }
-    terminalStates.add(terminalStateId);
+    const journeyKey = `${terminalStateId}|${semanticActionKey(enteringStep?.action) || sanitizeFlowId(title)}`;
+    if (acceptedJourneys.has(journeyKey)) continue;
+    acceptedJourneys.add(journeyKey);
+    const assumptions = sanitizeStringArray(aiFlow.assumptions).length ? sanitizeStringArray(aiFlow.assumptions) : (baseFlow?.assumptions || []);
     merged.push({
       ...(baseFlow || {}),
       id: requestedId || `model-flow-${index + 1}`,
       title,
       summary: sanitizeText(aiFlow.summary) || baseFlow?.summary || title,
-      confidence: normalizeConfidence(aiFlow.confidence, baseFlow?.confidence || "medium"),
+      confidence: calibrateFlowConfidence({ requested: aiFlow.confidence, assumptions, criteria, enteringStep }),
       sourceSignals: sanitizeStringArray(aiFlow.sourceSignals).length ? sanitizeStringArray(aiFlow.sourceSignals) : (baseFlow?.sourceSignals || []),
-      assumptions: sanitizeStringArray(aiFlow.assumptions).length ? sanitizeStringArray(aiFlow.assumptions) : (baseFlow?.assumptions || []),
+      assumptions,
       evidenceStateIds,
       criteria,
       blueprint: evidenceStateIds.length
@@ -480,6 +508,58 @@ function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection 
   }
 
   return uniqueFlows(merged);
+}
+
+function deriveCoverageTargets(states, steps) {
+  const seen = new Set();
+  return (steps || []).flatMap((step) => {
+    const key = semanticActionKey(step.action);
+    if (!key || seen.has(key)) return [];
+    seen.add(key);
+    return [{
+      id: `coverage-${seen.size}`,
+      action: sanitizeText(step.action?.name),
+      kind: sanitizeText(step.action?.kind),
+      resultingStateId: step.afterStateId || findStateIdByFingerprint(states, step.afterFingerprint),
+      changed: Boolean(step.changed),
+    }];
+  }).slice(0, 12);
+}
+
+function measureFlowCoverage(flows, targets, steps, states) {
+  const covered = [];
+  for (const target of targets) {
+    const matchingStep = (steps || []).find((step) => semanticActionKey(step.action) === semanticActionKey({ kind: target.kind, name: target.action }));
+    const matched = (flows || []).some((flow) => {
+      const text = `${flow.title} ${flow.summary} ${(flow.sourceSignals || []).join(" ")} ${(flow.criteria || []).map((item) => `${item.when} ${item.then}`).join(" ")}`;
+      return flow.evidenceStateIds?.includes(target.resultingStateId)
+        && (!matchingStep || flowMatchesEnteringAction(text, matchingStep));
+    });
+    if (matched) covered.push(target.id);
+  }
+  const coveredSet = new Set(covered);
+  return {
+    observedOpportunities: targets,
+    coveredTargetIds: covered,
+    uncoveredTargetIds: targets.filter((target) => !coveredSet.has(target.id)).map((target) => target.id),
+    ratio: targets.length ? Number((covered.length / targets.length).toFixed(2)) : 1,
+    method: "executed-action-opportunities",
+  };
+}
+
+function semanticActionKey(action = {}) {
+  const tokens = [...semanticTokens(`${action.context || ""} ${action.name || ""}`)].sort().join("-");
+  return `${sanitizeText(action.kind).toLowerCase()}|${tokens}`;
+}
+
+function calibrateFlowConfidence({ requested, assumptions, criteria, enteringStep }) {
+  const requestedConfidence = normalizeConfidence(requested, "medium");
+  if (!enteringStep || (assumptions || []).length > 1) return "low";
+  const evidenceCeiling = enteringStep.changed && !(assumptions || []).length && (criteria || []).length >= 2
+    ? "high"
+    : "medium";
+  const rank = { low: 0, medium: 1, high: 2 };
+  return rank[requestedConfidence] <= rank[evidenceCeiling] ? requestedConfidence : evidenceCeiling;
 }
 
 function flowGroundedInCitedEvidence({ title, criteria, evidenceStateIds, explorationStates, explorationSteps, inspection }) {
@@ -834,10 +914,14 @@ function choosePlanSummary(candidate, fallback, projectSynopsis) {
 }
 
 module.exports = {
+  authorFlowsPerObservedTransition,
+  calibrateFlowConfidence,
+  deriveCoverageTargets,
   enhanceInspectionWithAi,
   enhanceFlowPlanWithAi,
   enhanceInsightsWithAi,
   validateInsightPayload,
   mergeAiFlows,
+  measureFlowCoverage,
   summarizeLiveExplorationForPrompt,
 };

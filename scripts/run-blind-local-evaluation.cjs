@@ -22,7 +22,7 @@ const aiConfig = {
 
 async function main() {
   if (!process.argv[2]) {
-    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [ollama-model]");
+    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [author-ollama-model] [reviewer-ollama-model]");
   }
   const stat = await fs.stat(targetPath);
   if (!stat.isDirectory()) throw new Error("The target path must be a local directory.");
@@ -194,7 +194,7 @@ function selectFlows(flows) {
   return [...(flows || [])]
     .filter((flow) => Array.isArray(flow.evidenceStateIds) && flow.evidenceStateIds.length)
     .sort((left, right) => (confidenceScore[right.confidence] || 0) - (confidenceScore[left.confidence] || 0))
-    .slice(0, 3);
+    .slice(0, 6);
 }
 
 function readGitValue(cwd, args) {

@@ -160,6 +160,7 @@ function parsePlaywrightReport(report, { runDirectory } = {}) {
     failed: tests.filter((test) => !["passed", "skipped"].includes(test.status)).length,
     skipped: tests.filter((test) => test.status === "skipped").length,
     durationMs: report.stats?.duration || 0,
+    failureClassification: summarizeFailureClasses(tests),
   };
 
   return {
@@ -177,15 +178,43 @@ function collectSuiteTests(suite, collector, context) {
   for (const spec of suite.specs || []) {
     const allResults = spec.tests?.flatMap((test) => test.results || []) || [];
     const lastResult = allResults[allResults.length - 1] || {};
+    const error = extractResultError(lastResult);
     collector.push({
       title: spec.title,
       file: spec.file || "",
       status: lastResult.status || "unknown",
       durationMs: lastResult.duration || 0,
-      error: extractResultError(lastResult),
+      error,
+      failureClass: classifyTestFailure(lastResult.status, error),
       evidence: normalizeAttachments(lastResult.attachments, context.runDirectory),
     });
   }
+}
+
+function classifyTestFailure(status, error) {
+  if (["passed", "skipped"].includes(status)) return null;
+  const message = String(error || "");
+  if (/strict mode violation|locator\(.+\)|getBy(?:Role|Text|Label|Placeholder|TestId)|waiting for .*locator|element\(s\) not found/i.test(message)) {
+    return "automation-locator";
+  }
+  if (/syntaxerror|referenceerror|is not defined|unexpected token/i.test(message)) {
+    return "automation-generation";
+  }
+  if (/development runtime error|error overlay|application failed to start|page crashed/i.test(message)) {
+    return "target-runtime";
+  }
+  if (/expect\(|expect\.|toBeVisible|toHaveText|toContainText|toHaveURL|assertion/i.test(message)) {
+    return "behavior-assertion";
+  }
+  if (/timeout/i.test(message)) return "execution-timeout";
+  return "unclassified";
+}
+
+function summarizeFailureClasses(tests) {
+  return tests.reduce((summary, test) => {
+    if (test.failureClass) summary[test.failureClass] = (summary[test.failureClass] || 0) + 1;
+    return summary;
+  }, {});
 }
 
 function extractResultError(result) {
@@ -258,6 +287,7 @@ function validateRunPaths({ prototypeRoot, runDirectory, resultsDirectory }) {
 
 module.exports = {
   buildVisualEvidenceIndex,
+  classifyTestFailure,
   parsePlaywrightReport,
   runGeneratedTests,
   validateRunPaths,

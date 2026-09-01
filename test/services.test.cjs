@@ -4,10 +4,11 @@ const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
 const cheerio = require("cheerio");
+const { chromium } = require("playwright");
 const { normalizeAiConfig, requestStructuredJson, supportsVisionInput } = require("../src/services/llm-provider");
-const { parsePlaywrightReport, validateRunPaths } = require("../src/services/test-runner");
-const { buildObservedJourneySpecContent, compiledClickLocator, hasLiveEvidence, validateAiTestBody } = require("../src/services/test-generator");
-const { detectAppType, recommendRuntime } = require("../src/services/project-inspector");
+const { classifyTestFailure, parsePlaywrightReport, validateRunPaths } = require("../src/services/test-runner");
+const { buildObservedJourneySpecContent, compiledClickLocator, compiledInputLocator, hasLiveEvidence, validateAiTestBody, validateObservedJourneyLocators } = require("../src/services/test-generator");
+const { detectAppType, detectPackageManager, recommendRuntime } = require("../src/services/project-inspector");
 const { generateFlowPlan } = require("../src/services/flow-planner");
 const {
   buildRestrictedChildEnvironment,
@@ -29,9 +30,39 @@ const {
   buildBaselineResult,
   classifyExplorationAction,
   estimateAdaptiveExplorationBudget,
+  executeDecision,
   validateAgentDecision,
 } = require("../src/services/agentic-explorer");
-const { mergeAiFlows, validateInsightPayload } = require("../src/services/ai-workflows");
+
+test("refreshes exploration when a newly appeared overlay intercepts an observed action", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.setContent('<button data-e2p-action-id="underlay">Open search</button><div id="overlay" style="display:none;position:fixed;inset:0;background:white;z-index:10"></div>');
+    await page.evaluate(() => { document.getElementById("overlay").style.display = "block"; });
+    await assert.rejects(
+      executeDecision(page, { action: "click" }, { id: "underlay", locatorId: "underlay" }),
+      (error) => error.code === "E2P_ACTION_UNAVAILABLE",
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("refreshes exploration when an observed control becomes hidden", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.setContent('<button data-e2p-action-id="stale" style="display:none">Stale action</button>');
+    await assert.rejects(
+      executeDecision(page, { action: "click" }, { id: "stale", locatorId: "stale" }),
+      (error) => error.code === "E2P_ACTION_UNAVAILABLE",
+    );
+  } finally {
+    await browser.close();
+  }
+});
+const { calibrateFlowConfidence, deriveCoverageTargets, mergeAiFlows, measureFlowCoverage, validateInsightPayload } = require("../src/services/ai-workflows");
 const { buildInsights } = require("../src/services/insight-builder");
 const { requireAiForStage, requireCompletedAiExploration } = require("../src/services/pipeline-policy");
 
@@ -153,6 +184,45 @@ test("accepts novel model-authored flows only with traceable live state evidence
   assert.equal(merged.length, 1);
   assert.equal(merged[0].blueprint.kind, "model-observed-journey");
   assert.deepEqual(merged[0].evidenceStateIds, ["state-1"]);
+});
+
+test("preserves distinct executed actions even when they share a terminal state", () => {
+  const states = [{ id: "state-2", fingerprint: "catalog-state", visibleTextExcerpt: "Catalog Cart Favorites", buttons: ["Cart", "Favorites"] }];
+  const steps = [
+    { status: "completed", afterStateId: "state-2", afterFingerprint: "catalog-state", changed: true, action: { kind: "click", name: "Open Cart" }, rationale: "Review cart" },
+    { status: "completed", afterStateId: "state-2", afterFingerprint: "catalog-state", changed: true, action: { kind: "click", name: "Open Favorites" }, rationale: "Review favorites" },
+  ];
+  const flows = mergeAiFlows([], [
+    { id: "cart", title: "Open Cart", confidence: "high", evidenceStateIds: ["state-2"], criteria: [{ title: "Cart", given: "the catalog", when: "Open Cart is selected", then: "Cart is displayed" }] },
+    { id: "favorites", title: "Open Favorites", confidence: "high", evidenceStateIds: ["state-2"], criteria: [{ title: "Favorites", given: "the catalog", when: "Open Favorites is selected", then: "Favorites is displayed" }] },
+  ], { agenticExploration: { states, steps } });
+  assert.equal(flows.length, 2);
+  const targets = deriveCoverageTargets(states, steps);
+  const coverage = measureFlowCoverage(flows, targets, steps, states);
+  assert.equal(coverage.ratio, 1);
+  assert.equal(coverage.uncoveredTargetIds.length, 0);
+});
+
+test("keeps distinct grounded flows even when a model repeats a placeholder id", () => {
+  const states = [
+    { id: "state-2", fingerprint: "filled", visibleTextExcerpt: "New task field contains Test", inputs: ["New task"] },
+    { id: "state-3", fingerprint: "added", visibleTextExcerpt: "Test task added", buttons: ["Add"] },
+  ];
+  const steps = [
+    { status: "completed", afterFingerprint: "filled", action: { kind: "fill", name: "New task" }, changed: true },
+    { status: "completed", afterFingerprint: "added", action: { kind: "click", name: "Add" }, changed: true },
+  ];
+  const flows = mergeAiFlows([], [
+    { id: "new-task-state-2", title: "Fill New task", observedAction: { kind: "fill", name: "New task", resultingStateId: "state-2" }, evidenceStateIds: ["state-2"], criteria: [{ title: "Fill", given: "New task is visible", when: "New task is filled", then: "New task contains text" }] },
+    { id: "add-state-3", title: "Add Test task", observedAction: { kind: "click", name: "Add", resultingStateId: "state-3" }, evidenceStateIds: ["state-3"], criteria: [{ title: "Add", given: "Test task is entered", when: "Add is clicked", then: "Test task is added" }] },
+  ], { agenticExploration: { states, steps } });
+  assert.equal(flows.length, 2);
+});
+
+test("calibrates model confidence against observed evidence quality", () => {
+  assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: ["Maybe signed in", "Maybe data exists"], criteria: [{}, {}], enteringStep: { changed: true } }), "low");
+  assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: [], criteria: [{}], enteringStep: { changed: true } }), "medium");
+  assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: [], criteria: [{}, {}], enteringStep: { changed: true } }), "high");
 });
 
 test("rejects a model flow whose cited state was produced by an unrelated action", () => {
@@ -608,6 +678,11 @@ test("infers a safe command runtime from the selected application manifest", () 
   assert.equal(runtime.source, "package-manifest");
 });
 
+test("falls back to npm when a lockfile package manager is unavailable", () => {
+  assert.equal(detectPackageManager([{ relativePath: "yarn.lock" }], {}, () => false), "npm");
+  assert.equal(detectPackageManager([{ relativePath: "pnpm-lock.yaml" }], {}, (command) => command === "pnpm"), "pnpm");
+});
+
 test("derives the base URL from the selected start script only", () => {
   const runtime = recommendRuntime({
     files: [{ relativePath: "package-lock.json" }],
@@ -692,8 +767,67 @@ test("compiles repeated accessible links to an explicit observed occurrence", ()
     name: "Cart",
   }, [], "currentPage");
 
-  assert.equal(secondCartLink, 'currentPage.getByRole("link", { name: "Cart", exact: true }).nth(1)');
-  assert.equal(legacyCartLink, 'currentPage.getByRole("link", { name: "Cart", exact: true }).first()');
+  assert.equal(secondCartLink, 'currentPage.getByRole("link", { name: new RegExp("^Cart$", "i") }).nth(1)');
+  assert.equal(legacyCartLink, 'currentPage.getByRole("link", { name: new RegExp("^Cart$", "i") }).first()');
+});
+
+test("prefers a unique accessible link name over a global tag position", () => {
+  const locator = compiledClickLocator({
+    kind: "click",
+    role: "link",
+    name: "Querying",
+    accessibleName: "Querying",
+    accessibleIndex: 0,
+    accessibleCount: 1,
+    tagName: "a",
+    tagIndex: 7,
+  }, [], "currentPage");
+  assert.equal(locator, 'currentPage.getByRole("link", { name: new RegExp("^Querying$", "i") }).nth(0)');
+});
+
+test("compiles observed selects by stable tag occurrence and actual option value", () => {
+  const locator = compiledInputLocator({
+    kind: "select",
+    tagName: "select",
+    tagIndex: 1,
+    accessibleName: "Choose an airport",
+  }, "currentPage", "combobox");
+  assert.equal(locator, 'currentPage.locator("select").nth(1)');
+
+  const fingerprint = "selected-airport";
+  const inspection = {
+    liveExploration: {
+      agenticExploration: {
+        states: [{ id: "state-1", fingerprint: "initial", headings: [], buttons: [] }, { id: "state-2", fingerprint, headings: [], buttons: [] }],
+        steps: [{
+          status: "completed",
+          afterFingerprint: fingerprint,
+          action: {
+            kind: "select",
+            name: "Choose an airport",
+            accessibleName: "Choose an airport",
+            value: "London Heathrow",
+            options: [{ label: "London Heathrow", value: "LHR" }],
+            tagName: "select",
+            tagIndex: 0,
+          },
+        }],
+      },
+    },
+  };
+  const flow = { title: "Choose airport", evidenceStateIds: ["state-2"] };
+  assert.deepEqual(validateObservedJourneyLocators(flow, inspection), {
+    status: "passed",
+    checkedActions: 1,
+    strategies: ["tag-occurrence"],
+  });
+  assert.match(buildObservedJourneySpecContent(flow, inspection), /locator\("select"\)\.nth\(0\)\.selectOption\(\{ value: "LHR" \}\)/);
+});
+
+test("classifies generated locator failures separately from behavior assertions", () => {
+  assert.equal(classifyTestFailure("failed", "locator.click: strict mode violation: getByRole('button') resolved to 8 elements"), "automation-locator");
+  assert.equal(classifyTestFailure("failed", "expect(locator).toHaveText failed"), "behavior-assertion");
+  assert.equal(classifyTestFailure("failed", "expect(received).toEqual(expected) assertion failed"), "behavior-assertion");
 });
 
 test("compiles a failed text submission through its terminal action and expected outcome", () => {
@@ -717,6 +851,18 @@ test("compiles a failed text submission through its terminal action and expected
   assert.match(source, /getByTestId\("text-input"\)\.fill\("a"\)/);
   assert.match(source, /getByTestId\("text-input"\)\.press\("Enter"\)/);
   assert.match(source, /getByText\("a", \{ exact: true \}\)\.first\(\)/);
+});
+
+test("asserts a closed overlay instead of a rotating promotional heading", () => {
+  const fingerprint = "overlay-closed";
+  const source = buildObservedJourneySpecContent({ title: "Close promotion", evidenceStateIds: ["state-2"] }, {
+    liveExploration: { agenticExploration: {
+      states: [{ id: "state-1", fingerprint: "initial" }, { id: "state-2", fingerprint, headings: ["WOMEN'S LATEST FASHION SALE"], buttons: ["0"] }],
+      steps: [{ status: "completed", afterFingerprint: fingerprint, action: { kind: "click", name: "Interactive modal-close-btn 0", tagName: "button", tagIndex: 0 } }],
+    } },
+  });
+  assert.match(source, /\.modal:visible/);
+  assert.doesNotMatch(source, /WOMEN'S LATEST FASHION SALE/);
 });
 
 test("builds loopback fallbacks and reads the URL announced by a dev server", () => {

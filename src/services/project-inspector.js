@@ -1,6 +1,7 @@
 ﻿const fs = require("fs/promises");
 const path = require("path");
 const cheerio = require("cheerio");
+const { spawnSync } = require("child_process");
 
 const MAX_DEPTH = 4;
 const MAX_FILES = 600;
@@ -333,15 +334,20 @@ function recommendRuntime({ files, manifestCandidate, framework, readmeExcerpt }
   };
 }
 
-function detectPackageManager(files, packageManifest = {}) {
+function detectPackageManager(files, packageManifest = {}, commandAvailable = isCommandAvailable) {
   const declaredManager = String(packageManifest?.packageManager || "").toLowerCase();
   if (declaredManager.startsWith("bun@")) return "bun";
   if (declaredManager.startsWith("pnpm@")) return "pnpm";
   if (declaredManager.startsWith("yarn@")) return "yarn";
   if (files.some((file) => /(^|\/)bun\.lockb?$/i.test(file.relativePath))) return "bun";
-  if (files.some((file) => file.relativePath === "pnpm-lock.yaml")) return "pnpm";
-  if (files.some((file) => file.relativePath === "yarn.lock")) return "yarn";
+  if (files.some((file) => file.relativePath === "pnpm-lock.yaml") && commandAvailable("pnpm")) return "pnpm";
+  if (files.some((file) => file.relativePath === "yarn.lock") && commandAvailable("yarn")) return "yarn";
   return "npm";
+}
+
+function isCommandAvailable(command) {
+  const lookup = process.platform === "win32" ? "where.exe" : "which";
+  return spawnSync(lookup, [command], { stdio: "ignore", windowsHide: true }).status === 0;
 }
 
 function buildInstallCommand(packageManager) {
@@ -909,6 +915,7 @@ function buildWarnings({ appType, runtime, readmeExcerpt, uiHints }) {
 
 module.exports = {
   detectAppType,
+  detectPackageManager,
   inspectProject,
   recommendRuntime,
 };

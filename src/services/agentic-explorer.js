@@ -189,8 +189,12 @@ async function runAgenticExploration({
         action: {
           kind: decision.action,
           name: selectedAction.name,
+          accessibleName: selectedAction.accessibleName || selectedAction.name,
           context: selectedAction.context || "",
           role: selectedAction.role,
+          tagName: selectedAction.tagName || "",
+          nameAttribute: selectedAction.nameAttribute || "",
+          tagIndex: Number.isInteger(selectedAction.tagIndex) ? selectedAction.tagIndex : -1,
           value: ["fill", "select"].includes(decision.action) ? String(decision.value || "").slice(0, 64) : "",
           label: selectedAction.label || "",
           placeholder: selectedAction.placeholder || "",
@@ -611,11 +615,13 @@ function countUniqueSafeActions(states, current) {
 
 async function executeDecision(page, decision, selectedAction) {
   const locator = page.locator(`[data-e2p-action-id="${selectedAction.locatorId || selectedAction.id}"]`).first();
-  await locator.waitFor({ state: "visible", timeout: 5000 });
-  if (!await locator.isEnabled()) {
-    const error = new Error("The selected control became unavailable after the last interface observation.");
-    error.code = "E2P_ACTION_UNAVAILABLE";
-    throw error;
+  try {
+    await locator.waitFor({ state: "visible", timeout: 5000 });
+    if (!await locator.isEnabled()) throw new Error("The observed control is disabled.");
+  } catch (error) {
+    const unavailable = new Error("The selected control became unavailable after the last interface observation.");
+    unavailable.code = "E2P_ACTION_UNAVAILABLE";
+    throw unavailable;
   }
 
   if (decision.action === "fill") {
@@ -635,7 +641,16 @@ async function executeDecision(page, decision, selectedAction) {
   }
 
   const pagesBefore = new Set(page.context().pages());
-  await locator.click({ timeout: 7000 });
+  try {
+    await locator.click({ timeout: 7000 });
+  } catch (error) {
+    if (/intercepts pointer events|not receive pointer events|element is not attached|element is not visible/i.test(error.message || "")) {
+      const unavailable = new Error("The interface changed after observation and another visible layer now owns the interaction.");
+      unavailable.code = "E2P_ACTION_UNAVAILABLE";
+      throw unavailable;
+    }
+    throw error;
+  }
   await page.waitForTimeout(350);
   const openedPage = page.context().pages().find((candidate) => !pagesBefore.has(candidate));
   if (openedPage) {
@@ -725,7 +740,11 @@ function summarizeState(observation) {
       kind: action.kind,
       role: action.role,
       name: action.name,
+      accessibleName: action.accessibleName,
       context: action.context || "",
+      tagName: action.tagName,
+      nameAttribute: action.nameAttribute,
+      tagIndex: action.tagIndex,
       options: action.options,
       label: action.label,
       placeholder: action.placeholder,
@@ -797,6 +816,7 @@ module.exports = {
   buildBaselineResult,
   classifyExplorationAction,
   estimateAdaptiveExplorationBudget,
+  executeDecision,
   fingerprintObservation,
   runAgenticExploration,
   validateAgentDecision,

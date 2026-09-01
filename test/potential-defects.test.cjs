@@ -7,9 +7,90 @@ const {
   expandTransitionStates,
   normalizeDiagnostics,
   normalizeHypotheses,
+  screenHypotheses,
   validateCriticReview,
 } = require("../src/services/bug-discovery");
+
+test("screens speculative interface conventions before model critique", () => {
+  const hypothesis = {
+    id: "hypothesis-1",
+    title: "Search should clear after submission",
+    affectedFlow: "Search catalog",
+    evidenceStateIds: ["state-2"],
+    expected: { result: "The search field should clear", source: "interface-convention" },
+    observed: { result: "The field remains populated" },
+    confidence: "high",
+    severity: "medium",
+  };
+  const result = screenHypotheses([hypothesis], {
+    states: [{ id: "state-2", visibleTextExcerpt: "Search results" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-2", action: { kind: "click", name: "Add item" } }],
+  });
+  assert.equal(result.retained.length, 0);
+  assert.equal(result.rejected[0].screeningStage, "evidence-contract");
+});
+
+test("keeps a cross-state inconsistency tied to an executed action", () => {
+  const hypothesis = {
+    id: "hypothesis-2",
+    title: "Counter does not update after adding an item",
+    affectedFlow: "Add item",
+    evidenceStateIds: ["state-1", "state-2"],
+    expected: { result: "The counter displays the newly added item", source: "cross-state-consistency" },
+    observed: { result: "The counter remains unchanged", facts: [{ statement: "Counter was zero before and after", evidenceRefs: ["state-1", "state-2"] }] },
+    evidence: { executedActions: [{ action: { kind: "click", name: "Add item" } }] },
+    confidence: "medium",
+    severity: "medium",
+  };
+  const result = screenHypotheses([hypothesis], {
+    states: [{ id: "state-1", visibleTextExcerpt: "Cart 0" }, { id: "state-2", visibleTextExcerpt: "Cart 0" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-2", action: { kind: "click", name: "Add item" } }],
+  });
+  assert.equal(result.retained.length, 1);
+});
+
+test("rejects input lifecycle preferences inferred only from adjacent states", () => {
+  const result = screenHypotheses([{
+    id: "input-lifecycle",
+    title: "Edit field clears after Enter",
+    affectedFlow: "Edit task",
+    reproductionSteps: ["Fill Edit task", "Press Enter in Edit task"],
+    evidenceStateIds: ["state-1", "state-2"],
+    observed: { result: "The field clears", facts: [{ statement: "Value existed before and not after", evidenceRefs: ["state-1", "state-2"] }] },
+    expected: { result: "The input field should remain filled", source: "cross-state-consistency" },
+    confidence: "medium",
+    severity: "low",
+  }], {
+    states: [{ id: "state-1" }, { id: "state-2" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-2", action: { kind: "press", name: "Press Enter in Edit task" } }],
+  });
+  assert.equal(result.retained.length, 0);
+});
 const { capturePageObservation } = require("../src/services/live-explorer");
+const { findReplayAction, stateSimilarity } = require("../src/services/hypothesis-reproducer");
+
+test("matches a replay control by observed tag occurrence instead of display text alone", () => {
+  const candidate = findReplayAction([
+    { id: "first", kind: "click", tagName: "button", tagIndex: 0, name: "?" },
+    { id: "second", kind: "click", tagName: "button", tagIndex: 1, name: "?" },
+  ], { kind: "click", tagName: "button", tagIndex: 1, name: "?" });
+  assert.equal(candidate.id, "second");
+});
+
+test("scores an independently replayed interface state from visible UI evidence", () => {
+  const score = stateSimilarity({
+    path: "/cart",
+    headings: ["Shopping cart"],
+    buttons: ["Checkout"],
+    visibleTextExcerpt: "Shopping cart contains Aurora",
+  }, {
+    path: "/cart",
+    headings: ["Shopping cart"],
+    buttons: [{ text: "Checkout" }],
+    visibleTextExcerpt: "Shopping cart contains Aurora",
+  });
+  assert.equal(score, 1);
+});
 
 test("retains a potential defect only when observed facts cite real evidence", () => {
   const diagnostics = normalizeDiagnostics({

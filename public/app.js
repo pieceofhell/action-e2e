@@ -1011,7 +1011,7 @@ function renderBugDiscovery() {
     <article class="defect-report-summary">
       <div>
         <strong>${escapeHtml(report.summary || "Defect discovery finished without a summary.")}</strong>
-        <p>${escapeHtml(report.model || "No model recorded")} &middot; ${escapeHtml(report.evidenceMode || "structured evidence")} &middot; ${report.analyzedStateCount || 0} state(s) &middot; ${report.screening?.rejected || 0} candidate(s) filtered by the critic</p>
+        <p>${escapeHtml(report.model || "No model recorded")} &middot; ${escapeHtml(report.evidenceMode || "structured evidence")} &middot; ${report.analyzedStateCount || 0} state(s) &middot; ${report.screening?.deterministicRejected || 0} evidence-contract rejection(s) &middot; ${report.screening?.rejected || 0} total rejection(s)</p>
       </div>
       ${reportUrl ? `<a class="button button--quiet" href="${escapeHtml(reportUrl)}" target="_blank" rel="noopener">Open JSON report</a>` : ""}
     </article>
@@ -1020,7 +1020,7 @@ function renderBugDiscovery() {
       : `<article class="summary-card"><strong>No retained hypothesis</strong><p>The model did not find enough grounded evidence in the states it reached. This is not proof that the application has no defects.</p></article>`}
     ${(report.rejectedHypotheses || []).length ? `
       <details class="rejected-hypotheses">
-        <summary>${report.rejectedHypotheses.length} candidate hypothesis${report.rejectedHypotheses.length === 1 ? "" : "es"} rejected by conservative review</summary>
+        <summary>${report.rejectedHypotheses.length} candidate hypothesis${report.rejectedHypotheses.length === 1 ? "" : "es"} rejected before reporting</summary>
         <div class="stack">${report.rejectedHypotheses.map((item) => `
           <article>
             <strong>${escapeHtml(item.title || "Untitled candidate")}</strong>
@@ -1045,6 +1045,7 @@ function renderBugHypothesis(hypothesis, index) {
   const facts = Array.isArray(observed.facts) ? observed.facts : [];
   const screenshots = Array.isArray(evidence.screenshots) ? evidence.screenshots : [];
   const consoleErrors = [...(evidence.consoleErrors || []), ...(evidence.pageErrors || [])];
+  const reproduction = hypothesis.reproduction || null;
 
   return `
     <article class="defect-card">
@@ -1091,6 +1092,12 @@ function renderBugHypothesis(hypothesis, index) {
       `).join("")}</div>` : ""}
       ${consoleErrors.length ? `<details class="defect-diagnostics"><summary>Browser errors (${consoleErrors.length})</summary>${renderList(consoleErrors.map((item) => item.message || String(item)), "")}</details>` : ""}
       ${hypothesis.criticReview ? `<p class="defect-critic"><strong>Conservative review:</strong> ${escapeHtml(hypothesis.criticReview.reason)} (${escapeHtml(hypothesis.criticReview.confidence || "low")} confidence)</p>` : ""}
+      ${reproduction ? `<div class="defect-critic">
+        <strong>Independent clean-session replay: ${escapeHtml(reproduction.status || "unknown")}</strong>
+        <p>${escapeHtml(reproduction.interpretation || "No replay interpretation was recorded.")}</p>
+        <p>${reproduction.replayedActions || 0} action(s) replayed &middot; interface-state similarity ${Math.round((reproduction.stateSimilarity || 0) * 100)}%</p>
+        ${reproduction.screenshot?.artifactUrl ? `<a href="${escapeHtml(reproduction.screenshot.artifactUrl)}" target="_blank" rel="noopener">Open replay screenshot</a>` : ""}
+      </div>` : ""}
     </article>
   `;
 }
@@ -1117,6 +1124,11 @@ function renderFlows() {
       <strong>Model participation</strong>
       <p>${escapeHtml(describePlanAi(state.plan.ai))}</p>
     </article>
+    ${state.plan.coverage ? `<article class="summary-card">
+      <strong>Observed-action coverage</strong>
+      <p>${state.plan.coverage.coveredTargetIds?.length || 0} of ${state.plan.coverage.observedOpportunities?.length || 0} executed interaction opportunities are represented by the proposed flows (${Math.round((state.plan.coverage.ratio || 0) * 100)}%).</p>
+      ${(state.plan.coverage.uncoveredTargetIds || []).length ? `<p class="muted">Uncovered opportunities remain explicit: ${escapeHtml(state.plan.coverage.uncoveredTargetIds.join(", "))}.</p>` : ""}
+    </article>` : ""}
     ${state.plan.flows.map(renderFlowCard).join("")}
   `;
 
@@ -1290,6 +1302,7 @@ function renderResults() {
           <span class="confidence confidence--${testItem.status === "passed" ? "high" : testItem.status === "failed" ? "low" : "medium"}">${escapeHtml(testItem.status)}</span>
         </div>
         <p>File: <code>${escapeHtml(testItem.file || "n/a")}</code></p>
+        ${testItem.failureClass ? `<p>Failure class: <strong>${escapeHtml(testItem.failureClass)}</strong></p>` : ""}
         ${testItem.error ? `<pre class="code-block">${escapeHtml(testItem.error)}</pre>` : ""}
       </article>
     `).join("")}
@@ -1408,11 +1421,11 @@ function renderAiUsage() {
     </article>
     <article class="usage-card">
       <strong>Step 7: test generation</strong>
-      <p>Model-authored Playwright is validated before saving. If its code is unsafe or ungrounded, E2P may compile only the journey the model actually executed; without that evidence, the pipeline stops.</p>
+      <p>E2P compiles Playwright only from the journey the model actually executed. Every interaction must pass an observed-locator contract before the file is saved; without that evidence, the pipeline stops.</p>
     </article>
     <article class="usage-card">
       <strong>Step 8: results and insights</strong>
-      <p>Execution data remains objective and local. Screenshots, video, traces, and coverage distinguish free-form AI tests from compiled model journeys before the model synthesizes insights.</p>
+      <p>Execution data remains objective and local. Screenshots, video, traces, locator-failure classes, coverage, and clean-session hypothesis replays remain distinct from the model's final interpretation.</p>
     </article>
   `;
 }

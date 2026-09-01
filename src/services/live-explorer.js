@@ -1,6 +1,7 @@
 const { chromium } = require("playwright");
 const { classifyExplorationAction, runAgenticExploration } = require("./agentic-explorer");
 const { discoverPotentialBugs } = require("./bug-discovery");
+const { reproduceHypotheses } = require("./hypothesis-reproducer");
 const { normalizeAuthConfig, redactSecrets, toPublicAuthMetadata } = require("./auth-config");
 const { createAuthenticatedSession } = require("./auth-session");
 const { supportsVisionInput } = require("./llm-provider");
@@ -201,6 +202,18 @@ async function exploreLiveProject({
       if (bugDiscovery.status === "failed") {
         throw new Error(`Exploratory defect discovery failed: ${bugDiscovery.errors?.[0] || bugDiscovery.summary}`);
       }
+      bugDiscovery.hypotheses = await reproduceHypotheses({
+        browser,
+        baseUrl: runtimeHandle.baseUrl,
+        exploration: agenticExploration,
+        hypotheses: bugDiscovery.hypotheses,
+        observeCurrentPage: (page) => capturePageObservation({ page, baseUrl: runtimeHandle.baseUrl }),
+        evidenceDirectory: artifactRun?.evidenceDirectory || "",
+        artifactBaseUrl: artifactRun?.artifactBaseUrl
+          ? `${artifactRun.artifactBaseUrl}/artifacts/exploration`
+          : "",
+        onProgress,
+      });
     }
 
     onProgress({ phase: "exploration-summary", message: `Summarizing evidence from ${routes.length} observed route(s) and ${bugDiscovery.hypotheses?.length || 0} potential defect(s)...`, progress: 96 });
@@ -383,8 +396,8 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
       return normalizeText(
         element.getAttribute("aria-label")
         || element.getAttribute("title")
-        || element.innerText
         || element.textContent
+        || element.innerText
         || element.value
         || element.querySelector("img[alt]")?.getAttribute("alt")
         || element.getAttribute("placeholder")
@@ -479,7 +492,7 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
         ? element.minLength
         : -1;
       const boundaryProbe = (tag === "input" || tag === "textarea")
-        && ["text", "search"].includes(inputType)
+        && inputType === "text"
         && declaredMinLength < 2
         && /\b(new|add|create|task|todo|item|name|title|message|comment)\b/i.test(actionName)
         && !/\b(search|filter|find)\b/i.test(actionName);
@@ -496,10 +509,11 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
           ? inputLabel(candidate) || normalizeText(candidate.getAttribute("placeholder") || candidate.getAttribute("name") || "")
           : "";
         const candidateBaseName = candidateInputName || accessibleName(candidate);
-        const candidateContext = nearestActionContext(candidate, candidateBaseName);
-        const candidateName = candidateContext ? `${candidateBaseName} — ${candidateContext}` : candidateBaseName;
-        return candidateName === actionName;
+        return candidateBaseName === baseActionName;
       });
+      const tagPeers = visualInfo ? [] : semanticElements.filter((candidate) => (
+        candidate.tagName.toLowerCase() === tag
+      ));
       const idBase = stableActionId(`${tag}|${actionName}|${element.getAttribute("href") || ""}|${element.getAttribute("placeholder") || ""}`);
       const occurrence = actionIdOccurrences.get(idBase) || 0;
       actionIdOccurrences.set(idBase, occurrence + 1);
@@ -511,7 +525,11 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
         kind: tag === "select" ? "select" : (tag === "input" || tag === "textarea" ? "fill" : "click"),
         role: visualInfo ? "visual" : semanticRole,
         name: actionName,
+        accessibleName: baseActionName,
         context: actionContext,
+        tagName: tag,
+        nameAttribute: normalizeText(element.getAttribute("name") || ""),
+        tagIndex: visualInfo ? -1 : tagPeers.indexOf(element),
         label: tag === "input" || tag === "textarea" || tag === "select" ? inputLabel(element) : "",
         testId: normalizeText(element.getAttribute("data-testid") || ""),
         domId: normalizeText(element.getAttribute("id") || ""),
