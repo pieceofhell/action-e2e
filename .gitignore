@@ -6,3 +6,21 @@ prototype-runs/*
 ui-check.png
 .playwright-cli/
 output/playwright/
+
+# Local inference assets and credentials
+models/
+runtimes/
+*.gguf
+.env.*
+!.env.example
+
+# Paper build intermediates and local archives (keep latex/main.pdf)
+latex/archive/
+latex/tmp/
+latex/*.aux
+latex/*.log
+latex/*.bbl
+latex/*.blg
+latex/*.synctex.gz
+latex/main_revisado.pdf
+output/pdf/

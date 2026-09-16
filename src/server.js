@@ -26,6 +26,7 @@ const {
 } = require("./services/ai-workflows");
 const { runAiConsoleTurn } = require("./services/ai-console");
 const { operationTracker } = require("./services/operation-tracker");
+const { listRuns, readRun, saveReview } = require("./services/run-history");
 const {
   isBaselineModeEnabled,
   isExplicitBaseline,
@@ -67,6 +68,19 @@ app.get("/api/health", (request, response) => {
     now: new Date().toISOString(),
     requestToken,
   });
+});
+
+app.get('/api/history', requireLocalRequestToken, async (request, response, next) => {
+  try { response.json({ runs: await listRuns(path.join(prototypeRoot, 'prototype-runs')) }); }
+  catch (error) { next(error); }
+});
+app.get('/api/history/:runId', requireLocalRequestToken, async (request, response, next) => {
+  try { response.json({ run: await readRun(path.join(prototypeRoot, 'prototype-runs'), request.params.runId) }); }
+  catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
+});
+app.post('/api/history/:runId/reviews', requireLocalRequestToken, async (request, response) => {
+  try { response.json({ review: await saveReview(path.join(prototypeRoot, 'prototype-runs'), request.params.runId, request.body) }); }
+  catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
 });
 
 app.get("/api/operations/:operationId", (request, response) => {
@@ -196,6 +210,7 @@ app.post("/api/project/explore-live", requireLocalRequestToken, async (request, 
     // Planning receives the full live evidence directly, so repeating semantic
     // inspection here would add latency without adding a distinct evaluation stage.
     const enhancedInspection = mergedInspection;
+    await writeJson(path.join(run.runDirectory, 'inspection.json'), enhancedInspection);
 
     if (!isExplicitBaseline(aiConfig)) {
       requireCompletedAiExploration(enhancedInspection, "flow planning");
@@ -333,6 +348,8 @@ app.post("/api/tests/run", requireLocalRequestToken, async (request, response, n
       actionPlans: generated.actionPlans,
       onProgress: operation.update,
     });
+
+    await writeJson(path.join(generated.runDirectory, 'results', 'execution.json'), execution);
 
     operation.update({ phase: "insight-consolidation", message: "Consolidating outcomes, limitations, and visual evidence...", progress: 88 });
     const baseInsights = buildInsights({

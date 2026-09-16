@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 const {
   buildBugHunterPrompt,
+  buildDiagnosticHypotheses,
   buildJourneyForStates,
   expandTransitionStates,
   normalizeDiagnostics,
@@ -67,7 +68,7 @@ test("rejects input lifecycle preferences inferred only from adjacent states", (
   assert.equal(result.retained.length, 0);
 });
 const { capturePageObservation } = require("../src/services/live-explorer");
-const { findReplayAction, stateSimilarity } = require("../src/services/hypothesis-reproducer");
+const { findReplayAction, gateReproducedHypotheses, stateSimilarity } = require("../src/services/hypothesis-reproducer");
 
 test("matches a replay control by observed tag occurrence instead of display text alone", () => {
   const candidate = findReplayAction([
@@ -257,6 +258,94 @@ test("normalizes only browser console and page errors, never network traffic", (
   assert.equal(diagnostics.validIds.length, 2);
 });
 
+test("promotes actionable page exceptions as deterministic runtime hypotheses", () => {
+  const diagnostics = normalizeDiagnostics({
+    pageErrors: [{ message: "TypeError: Cannot set properties of null", url: "http://127.0.0.1/script.js" }],
+    consoleErrors: ["Failed to load resource: the server responded with a status of 404"],
+  });
+  const hypotheses = buildDiagnosticHypotheses(diagnostics, [{ id: "state-1", visualEvidence: [] }]);
+
+  assert.equal(hypotheses.length, 1);
+  assert.equal(hypotheses[0].expected.source, "runtime-diagnostic");
+  assert.match(hypotheses[0].title, /TypeError/);
+  assert.equal(hypotheses[0].criticReview.verdict, "retain");
+});
+
+test("rejects audible-output claims when the run captured only DOM evidence", () => {
+  const result = screenHypotheses([{
+    id: "silent-speech",
+    title: "Text is not spoken",
+    affectedFlow: "Read text aloud",
+    reproductionSteps: ["Click Read Text"],
+    evidenceStateIds: ["state-1", "state-2"],
+    observed: { result: "No speech was heard", facts: [{ statement: "The DOM remained unchanged", evidenceRefs: ["state-1", "state-2"] }] },
+    expected: { result: "The text should be read aloud", source: "cross-state-consistency" },
+    evidence: {},
+    confidence: "medium",
+    severity: "medium",
+  }], {
+    states: [{ id: "state-1", visibleTextExcerpt: "Read Text" }, { id: "state-2", visibleTextExcerpt: "Read Text" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-2", action: { kind: "click", name: "Read Text" } }],
+  });
+
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /captured no audio/i);
+});
+
+test("rejects drag claims when the journey contains only clicks", () => {
+  const result = screenHypotheses([{
+    id: "imaginary-drag",
+    title: "Drag and drop does not reorder the list",
+    affectedFlow: "Reorder list",
+    reproductionSteps: ["Drag item into position"],
+    evidenceStateIds: ["state-1"],
+    observed: { result: "The list remains unchanged", facts: [{ statement: "Order is unchanged", evidenceRefs: ["state-1"] }] },
+    expected: { result: "Dragging should reorder items", source: "project-documentation" },
+    confidence: "medium",
+    severity: "medium",
+  }], {
+    states: [{ id: "state-1", visibleTextExcerpt: "List" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-1", action: { kind: "click", name: "Item" } }],
+    inspection: { relevantFiles: [{ relativePath: "readme.md", excerpt: "Drag and drop to reorder items" }] },
+  });
+
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /never executed/i);
+});
+
+test("drops hypotheses whose independent replay diverged or was blocked", () => {
+  const gated = gateReproducedHypotheses([
+    { id: "good", reproduction: { status: "observation-reproduced" } },
+    { id: "diverged", title: "Diverged", reproduction: { status: "observation-diverged" } },
+    { id: "blocked", title: "Blocked", reproduction: { status: "reproduction-blocked" } },
+  ]);
+
+  assert.deepEqual(gated.retained.map((item) => item.id), ["good"]);
+  assert.deepEqual(gated.rejected.map((item) => item.id), ["diverged", "blocked"]);
+  assert.ok(gated.rejected.every((item) => item.screeningStage === "independent-reproduction"));
+});
+
+test("rejects persistence claims that never cite a reload transition", () => {
+  const result = screenHypotheses([{
+    id: "persistence-without-reload",
+    title: "Difficulty setting is not persisted",
+    affectedFlow: "Choose difficulty",
+    reproductionSteps: ["Select Easy", "Press Enter"],
+    evidenceStateIds: ["state-1", "state-2"],
+    observed: { result: "The difficulty is not remembered", facts: [{ statement: "The setting is not stored", evidenceRefs: ["state-1", "state-2"] }] },
+    expected: { result: "Difficulty should persist in local storage", source: "project-documentation" },
+    confidence: "medium",
+    severity: "medium",
+  }], {
+    states: [{ id: "state-1" }, { id: "state-2" }],
+    steps: [{ status: "completed", beforeStateId: "state-1", afterStateId: "state-2", action: { kind: "select", name: "Difficulty", value: "easy" } }],
+    inspection: { relevantFiles: [{ relativePath: "readme.md", excerpt: "Store difficulty setting in local storage" }] },
+  });
+
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /requires a recorded reload/i);
+});
+
 test("adds only immediate before and after states to a focal defect review", () => {
   const states = ["state-1", "state-2", "state-3", "state-4"].map((id) => ({ id }));
   const steps = [
@@ -341,6 +430,8 @@ test("adds card context to generic icon actions without polluting global navigat
         <h1>No saved items yet</h1>
         <label for="new-task">New task</label>
         <input id="new-task" type="text" value="a">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty"><option selected>Easy</option><option>Hard</option></select>
         <article>
           <h2>Canvas backpack</h2>
           <button aria-label="Add to favorites">Heart</button>
@@ -354,6 +445,7 @@ test("adds card context to generic icon actions without polluting global navigat
     assert.ok(names.includes("Add to favorites — Canvas backpack"));
     assert.equal(names.some((name) => name.includes("Cart — No saved items yet")), false);
     assert.equal(observation.inputs.find((input) => input.label === "New task")?.value, "a");
+    assert.equal(observation.inputs.find((input) => input.label === "Difficulty")?.value, "Easy");
     assert.equal(observation.actions.find((action) => action.name === "New task")?.boundaryProbe, true);
   } finally {
     await browser.close();

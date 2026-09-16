@@ -18,9 +18,12 @@
     <header class="hero">
       <div class="hero__bar">
         <h1>Action E2E</h1>
+        <div class="button-row">
+        <button id="historyButton" class="button button--quiet" type="button">Run history</button>
         <button id="howItWorksButton" class="button button--quiet" type="button">
           About the workflow
         </button>
+        </div>
       </div>
       <span id="healthBadge" hidden>Connecting...</span>
     </header>
@@ -521,8 +524,21 @@
       </div>
     </dialog>
 
+    <dialog id="historyDialog" class="history-dialog" aria-labelledby="historyTitle">
+      <header class="history-header">
+        <h2 id="historyTitle">Run history</h2>
+        <button class="button button--quiet" id="closeHistoryButton" type="button">Close</button>
+      </header>
+      <div class="history-content">
+        <label class="field"><span>Filter by project, run, or model</span><input id="historyFilter" type="search" /></label>
+        <p id="historyStatus" role="status"></p>
+        <div id="historyList" class="stack"></div>
+        <div id="historyDetail" class="stack"></div>
+      </div>
+    </dialog>
     <div id="toast" class="toast" hidden></div>
 
     <script src="./app.js" defer></script>
+    <script src="./history.js" defer></script>
   </body>
 </html>

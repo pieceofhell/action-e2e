@@ -1,6 +1,47 @@
 const { normalizeAiConfig, requestStructuredJson } = require("./llm-provider");
 const { isExplicitBaseline, requireCompletedAiExploration } = require("./pipeline-policy");
 
+const FLOW_CRITERION_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["title", "given", "when", "then"],
+  properties: {
+    title: { type: "string" },
+    given: { type: "string" },
+    when: { type: "string" },
+    then: { type: "string" },
+  },
+};
+const FLOW_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["id", "title", "summary", "confidence", "evidenceStateIds", "sourceSignals", "assumptions", "criteria"],
+  properties: {
+    id: { type: "string" },
+    title: { type: "string" },
+    summary: { type: "string" },
+    confidence: { type: "string", enum: ["high", "medium", "low"] },
+    evidenceStateIds: { type: "array", items: { type: "string" }, maxItems: 8 },
+    sourceSignals: { type: "array", items: { type: "string" }, maxItems: 8 },
+    assumptions: { type: "array", items: { type: "string" }, maxItems: 6 },
+    criteria: { type: "array", items: FLOW_CRITERION_SCHEMA, minItems: 1, maxItems: 4 },
+  },
+};
+const FLOW_PLAN_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["summary", "flows"],
+  properties: {
+    summary: { type: "string" },
+    flows: { type: "array", items: FLOW_SCHEMA, minItems: 1, maxItems: 6 },
+  },
+};
+const SINGLE_FLOW_SCHEMA = {
+  ...FLOW_SCHEMA,
+  required: FLOW_SCHEMA.required.filter((key) => key !== "evidenceStateIds"),
+  properties: Object.fromEntries(Object.entries(FLOW_SCHEMA.properties).filter(([key]) => key !== "evidenceStateIds")),
+};
+
 async function enhanceInspectionWithAi({ inspection, aiConfig }) {
   const normalized = normalizeAiConfig(aiConfig);
 
@@ -45,6 +86,7 @@ async function enhanceInspectionWithAi({ inspection, aiConfig }) {
         "You are a technical analyst for an experimental E2E test-generation prototype.",
         "You will receive a structured summary of a software project, and sometimes a live exploration of the rendered interface.",
         "When live exploration data exists, treat it as stronger evidence than static heuristics.",
+        "If live exploration is absent, do not report that as a limitation: this understanding stage normally runs before browser exploration.",
         "Do not invent missing details. When uncertainty exists, lower the confidence.",
         "Your response must be valid raw JSON in this format:",
         '{"projectSynopsis":"...","userPersona":"...","mainCapabilities":["..."],"confidence":"high|medium|low","reasoning":["..."],"warnings":["..."]}',
@@ -112,6 +154,14 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
   const completedExplorationSteps = (inspection.liveExploration?.agenticExploration?.steps || [])
     .filter((step) => step.status === "completed");
   const coverageTargets = deriveCoverageTargets(explorationStates, completedExplorationSteps);
+  const qaGoals = (inspection.liveExploration?.agenticExploration?.qaCoverage?.goals || []).map((goal) => ({
+    id: goal.id,
+    title: goal.title,
+    category: goal.category,
+    priority: goal.priority,
+    status: goal.status,
+    evidence: goal.evidence,
+  }));
 
   const compactContext = {
     project: { name: inspection.project?.name },
@@ -124,6 +174,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
       observedButtons: [...new Set(explorationStates.flatMap((state) => state.buttons || []))].slice(0, 16),
       observedInputs: [...new Set(explorationStates.flatMap((state) => state.inputs || []))].slice(0, 12),
       coverageTargets,
+      qaGoals,
     },
   };
 
@@ -142,7 +193,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         "Distinct executed actions may legitimately produce the same terminal state. Preserve them as separate flows when they exercise different user intents or controls.",
         "If access.mode is authenticated, propose only navigation and observation flows. Never propose creating, changing, publishing, sending, uploading, joining, enrolling, or deleting data.",
         "Authentication values, cookies, headers, environment references, and password fields are never part of your context and must never be requested.",
-        "For guest exploration, never propose entering, revealing, validating, or submitting passwords, API keys, access tokens, credentials, or other authentication material, even when those fields were visible.",
+        "For guest exploration, never propose entering, revealing, or submitting passwords, API keys, access tokens, credentials, or other authentication material. Observing already-visible validation messages about those fields is allowed; it does not mean credentials were entered.",
         "Do not claim that an account was connected, a form was submitted, or a route changed unless the completed actions prove that exact outcome.",
         "When live exploration exists, ground your criteria in observed headings, route paths, links, inputs, buttons, and visible text.",
         "When concrete labels are available, mention those labels in the criteria instead of generic wording.",
@@ -152,6 +203,7 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         "For each behavior-rich flow, cite the state reached after the relevant completed action, not only state-1.",
         "Use resultingStateId from completedActions as the authoritative action-to-state mapping. Never infer state numbers from action order.",
         "Cover as many supplied coverageTargets as the evidence supports, up to 6 flows. Each selected flow should contain 2 to 4 concrete criteria.",
+        "Prioritize complete ordinary user journeys and meaningful state changes actually observed. Use evidenceContract.qaGoals to report gaps, not to replace application understanding with boundary tests. Preserve an observed validation-and-correction journey when available.",
         "Return raw JSON in this format:",
         '{"summary":"...","flows":[{"id":"...","title":"...","summary":"...","confidence":"high|medium|low","evidenceStateIds":["state-1"],"sourceSignals":["..."],"assumptions":["..."],"criteria":[{"title":"...","given":"...","when":"...","then":"..."}]}]}',
         "The only top-level keys are summary and flows. Do not return a browser action list, plan.flow, candidates, or copied evidence objects.",
@@ -168,6 +220,9 @@ async function enhanceFlowPlanWithAi({ inspection, basePlan, aiConfig }) {
         systemPrompt: planningSystemPrompt,
         userPrompt: JSON.stringify(compactContext, null, 2),
         timeoutMs: 210000,
+        responseSchema: FLOW_PLAN_SCHEMA,
+        schemaName: "e2p_flow_plan",
+        maxTokens: 3000,
       });
       planningPayload = Array.isArray(aiPayload?.plan)
         ? { flows: aiPayload.plan }
@@ -223,7 +278,7 @@ function createFlowGroundingError({ broadPayload, transitionFlows, projectName, 
   const titleSummary = rejectedTitles.length
     ? ` Rejected examples: ${rejectedTitles.map((title) => `"${title}"`).join(", ")}.`
     : "";
-  const error = new Error(`The model proposed flows, but none were grounded in the observed ${sanitizeText(projectName) || "target"} interface.${titleSummary} Rerun the exploration or select a model with stronger instruction following.`);
+  const error = new Error(`The proposed flows did not pass the observed-evidence and action-policy checks for ${sanitizeText(projectName) || "target"}.${titleSummary} Review the recorded actions and blocked controls before repeating exploration. This can reflect limited exploration or an overly broad policy check, not only model quality.`);
   error.code = "AI_FLOW_GROUNDING_REJECTED";
   error.diagnostics = {
     stage: "flow-planning",
@@ -284,6 +339,9 @@ async function authorFlowsPerObservedTransition({ aiConfig, projectName, states,
         },
       }, null, 2),
       timeoutMs: 150000,
+      responseSchema: SINGLE_FLOW_SCHEMA,
+      schemaName: "e2p_single_flow",
+      maxTokens: 1200,
     });
     flows.push({
       ...payload,
@@ -304,15 +362,7 @@ async function authorFlowsPerObservedTransition({ aiConfig, projectName, states,
 }
 
 async function requestPlanningJson(options) {
-  let lastError;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      return await requestStructuredJson(options);
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  throw lastError;
+  return requestStructuredJson(options);
 }
 
 async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseInsights, generatedTests = [], aiConfig }) {
@@ -352,6 +402,7 @@ async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseIn
       modelGuided: inspection.liveExploration?.agenticExploration?.usedModel === true,
       completedActions: inspection.liveExploration?.agenticExploration?.metrics?.completedActions || 0,
       observedStates: inspection.liveExploration?.agenticExploration?.metrics?.uniqueStates || 0,
+      qaCoverage: inspection.liveExploration?.agenticExploration?.qaCoverage?.summary || null,
     },
     generationModes: generatedTests.map((test) => test.generationMode).filter(Boolean),
     objectiveInsights: baseInsights,
@@ -368,6 +419,7 @@ async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseIn
           "You will receive objective execution facts and an objective local summary.",
           "Do not call AI-derived tests heuristic, baseline, fallback, generic smoke tests, or deterministic QA output.",
           "Do not claim exploration was absent when exploration.status is completed.",
+          "A passing generated test characterizes only its approved journey; never convert it into a product-wide health claim, especially when QA coverage goals remain uncovered.",
           validationFeedback ? `Your previous response was rejected: ${validationFeedback} Correct that contradiction.` : "",
           "Your response must be raw, objective JSON with no exaggerated conclusions.",
           "Respond in this format:",
@@ -459,7 +511,8 @@ function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection 
       aiFlow.summary,
       ...criteria.flatMap((criterion) => [criterion.title, criterion.given, criterion.when, criterion.then]),
     ].join(" ");
-    if (/password|api\s*key|access\s*token|credential|secret|senha|chave\s+de\s+api|save key and connect|submit(?:ted)?\s+(?:the\s+)?(?:form|credentials?)|\bscroll(?:s|ed|ing)?\b|\brolar\b/i.test(semanticText)) {
+    if (criteria.some(criterion => /(?:fill|type|enter|reveal|submit|save|preench|digita|envia)[^.!?]{0,60}(?:password|api\s*key|access\s*token|credential|secret|senha|chave\s+de\s+api)/i.test(criterion.when))
+      || /save key and connect|\bscroll(?:s|ed|ing)?\b|\brolar\b/i.test(semanticText)) {
       continue;
     }
     const evidenceStateIds = sanitizeStringArray(aiFlow.evidenceStateIds)
@@ -646,6 +699,19 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
           model: liveExploration.agenticExploration.model,
           status: liveExploration.agenticExploration.status,
           metrics: liveExploration.agenticExploration.metrics,
+          qaCoverage: liveExploration.agenticExploration.qaCoverage
+            ? {
+                summary: liveExploration.agenticExploration.qaCoverage.summary,
+                goals: liveExploration.agenticExploration.qaCoverage.goals.map((goal) => ({
+                  id: goal.id,
+                  title: goal.title,
+                  category: goal.category,
+                  priority: goal.priority,
+                  status: goal.status,
+                  evidence: goal.evidence,
+                })),
+              }
+            : null,
           states: (liveExploration.agenticExploration.states || []).slice(0, 20).map((state) => ({
             id: state.id,
             path: state.path,

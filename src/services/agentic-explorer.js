@@ -2,6 +2,12 @@ const crypto = require("crypto");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { normalizeAiConfig, requestStructuredJson } = require("./llm-provider");
+const {
+  actionableUncoveredGoals,
+  buildSyntheticCoverageActions,
+  evaluateQaCoverage,
+  rankActionsByCoverage,
+} = require("./qa-coverage");
 
 const BLOCKED_ACTION_PATTERN = /\b(checkout|finalizar|finalize|confirm(?:ar| order)?|place order|pay|payment|purchase|buy now|comprar agora|submit|save|salvar|publish|publicar|send|enviar|upload|delete|deletar|destroy|clear cart|empty cart|limpar carrinho|esvaziar carrinho|remove account|sign out|log out|logout)\b/i;
 const COVERAGE_RULES = [
@@ -11,6 +17,18 @@ const COVERAGE_RULES = [
   { id: "cart", pattern: /cart|carrinho|basket|sacola|add to cart|adicionar/i },
   { id: "navigation", pattern: /menu|home|in[ií]cio|back|voltar|next|pr[oó]xim/i },
 ];
+const EXPLORATION_DECISION_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["decision", "actionId", "value", "rationale", "expectedOutcome"],
+  properties: {
+    decision: { type: "string", enum: ["act", "finish"] },
+    actionId: { type: "string" },
+    value: { type: "string" },
+    rationale: { type: "string" },
+    expectedOutcome: { type: "string" },
+  },
+};
 
 async function runAgenticExploration({
   page,
@@ -25,6 +43,8 @@ async function runAgenticExploration({
   evidenceDirectory = "",
   artifactBaseUrl = "",
   visionEnabled = false,
+  coveragePlan = null,
+  isolateModelThinkTime = false,
 }) {
   const normalized = normalizeAiConfig(aiConfig);
   if (!normalized.enabled) {
@@ -44,9 +64,13 @@ async function runAgenticExploration({
   states[0].visualEvidence = currentVisual.evidence;
   const steps = [];
   const usedActionKeys = new Set();
+  const exhaustedActionFamilies = new Set();
   let current = initialObservation;
   let activePage = page;
+  let qaCoverage = evaluateQaCoverage(coveragePlan, { steps, states });
   let invalidDecisions = 0;
+  let modelClockPauseCount = 0;
+  let isolatedModelThinkTimeMs = 0;
   let terminationReason = "action-limit";
   let fatalError = "";
   let adaptiveBudget = estimateAdaptiveExplorationBudget({
@@ -54,6 +78,7 @@ async function runAgenticExploration({
     states,
     hardMaxSteps: maxSteps,
     hardMaxDurationMs: maxDurationMs,
+    coverageGoalCount: qaCoverage.summary.total,
   });
 
   for (let attempt = 0; attempt < maxSteps + 4; attempt += 1) {
@@ -62,6 +87,7 @@ async function runAgenticExploration({
       states,
       hardMaxSteps: maxSteps,
       hardMaxDurationMs: maxDurationMs,
+      coverageGoalCount: qaCoverage.summary.total,
     });
     if (Date.now() - startedAt >= adaptiveBudget.durationMs) {
       terminationReason = "time-budget";
@@ -72,11 +98,17 @@ async function runAgenticExploration({
       terminationReason = "adaptive-action-budget";
       break;
     }
-    const safeActions = (current.actions || [])
+    const safeActions = rankActionsByCoverage([
+      ...(current.actions || []),
+      ...buildSyntheticCoverageActions(qaCoverage, { current, steps }),
+    ]
       .filter((action) => action.safe)
       .filter((action) => !current.dialogsCount || action.inOverlay)
-      .filter((action) => !usedActionKeys.has(actionSemanticKey(action)))
-      .slice(0, 30);
+      .filter((action) => !usedActionKeys.has(actionSemanticKey(action)) || canCorrectInput(action, steps, current))
+      .filter((action) => !exhaustedActionFamilies.has(actionFamilyKey(action)))
+      // Discovery uses ordinary inputs. Boundary flags are reserved for explicit defect probes.
+      .map((action) => ({ ...action, boundaryProbe: false }))
+      .slice(0, 40), { ...qaCoverage, goals: qaCoverage.goals.filter(goal => goal.category !== 'boundary') }).slice(0, 30);
 
     if (!safeActions.length) {
       terminationReason = "safe-actions-exhausted";
@@ -100,21 +132,37 @@ async function runAgenticExploration({
 
     let decision;
     let rawDecision;
+    let modelClockPaused = false;
+    let modelClockPausedAt = 0;
     try {
+      if (isolateModelThinkTime) {
+        modelClockPausedAt = Date.now();
+        modelClockPaused = await pauseApplicationClock(activePage);
+        if (modelClockPaused) modelClockPauseCount += 1;
+      }
       let validationFeedback = "";
       for (let repairAttempt = 0; repairAttempt <= maxDecisionRepairs; repairAttempt += 1) {
+        try {
         rawDecision = await requestExplorationDecision({
           aiConfig: normalized,
           current,
           states,
           steps,
           safeActions,
+          qaCoverage,
           remainingSteps: adaptiveBudget.stepLimit - completedCount,
           validationFeedback,
           images: visionEnabled ? currentVisual.images : [],
         });
-        try {
           decision = validateAgentDecision(rawDecision, safeActions);
+          const minimumUsefulActions = Math.min(2, countUniqueSafeActions(states, current));
+          if (decision.action === "finish" && completedCount < minimumUsefulActions) {
+            throw new Error("The model ended exploration before exercising the minimum safe interface coverage.");
+          }
+          const unfamiliarActions = safeActions.filter(action => !usedActionKeys.has(actionSemanticKey(action)) && !['wait', 'reload'].includes(action.kind));
+          if (decision.action === "finish" && unfamiliarActions.length && completedCount < Math.min(adaptiveBudget.stepLimit, 6)) {
+            throw new Error('Explore the remaining ordinary controls before finishing interface discovery.');
+          }
           break;
         } catch (error) {
           if (repairAttempt >= maxDecisionRepairs) throw error;
@@ -126,10 +174,6 @@ async function runAgenticExploration({
           });
         }
       }
-      const minimumUsefulActions = Math.min(2, countUniqueSafeActions(states, current));
-      if (decision.action === "finish" && completedCount < minimumUsefulActions) {
-        throw new Error("The model ended exploration before exercising the minimum safe interface coverage.");
-      }
     } catch (error) {
       invalidDecisions += 1;
       steps.push({
@@ -139,9 +183,18 @@ async function runAgenticExploration({
         proposedActionId: sanitizeText(rawDecision?.actionId),
         error: error.message,
       });
+      if (completedCount > 0) {
+        terminationReason = "model-decision-exhausted-after-useful-coverage";
+        break;
+      }
       fatalError = `Model-guided exploration failed at decision ${attempt + 1}: ${error.message}`;
-      terminationReason = "invalid-model-decision";
+      terminationReason = "invalid-model-decision-before-useful-coverage";
       break;
+    } finally {
+      if (modelClockPaused) {
+        isolatedModelThinkTimeMs += Date.now() - modelClockPausedAt;
+        await resumeApplicationClock(activePage);
+      }
     }
 
     if (decision.action === "finish") {
@@ -208,6 +261,8 @@ async function runAgenticExploration({
           accessibleCount: Number.isInteger(selectedAction.accessibleCount) ? selectedAction.accessibleCount : 0,
           minLength: Number.isInteger(selectedAction.minLength) ? selectedAction.minLength : -1,
           boundaryProbe: Boolean(selectedAction.boundaryProbe),
+          durationMs: Number.isFinite(selectedAction.durationMs) ? selectedAction.durationMs : 0,
+          coverageGoalIds: selectedAction.coverageGoalIds || [],
         },
         rationale: decision.rationale,
         expectedOutcome: decision.expectedOutcome,
@@ -220,6 +275,11 @@ async function runAgenticExploration({
         observedAfter: summarizeState(next),
       };
       steps.push(evidence);
+      qaCoverage = evaluateQaCoverage(coveragePlan, { steps, states });
+      if (!changed) {
+        const familyKey = actionFamilyKey(selectedAction);
+        if (familyKey) exhaustedActionFamilies.add(familyKey);
+      }
       current = next;
       currentVisual = nextVisual;
 
@@ -300,6 +360,9 @@ async function runAgenticExploration({
 
   return {
     strategy: "model-guided-stateful",
+    purpose: 'interface-discovery',
+    constraints: [...new Set((current.actions || []).filter(action => !action.safe).map(action => action.name))],
+    interpretation: 'Completed means the available discovery actions finished, not that the complete application journey was exercised. Boundary testing and defect adjudication are separate concerns.',
     usedModel: true,
     model: normalized.model,
     provider: normalized.provider,
@@ -308,6 +371,7 @@ async function runAgenticExploration({
     terminationReason,
     steps,
     states,
+    qaCoverage,
     metrics: {
       adaptiveStepLimit: adaptiveBudget.stepLimit,
       adaptiveDurationMs: adaptiveBudget.durationMs,
@@ -320,6 +384,15 @@ async function runAgenticExploration({
       failedActions: steps.filter((step) => step.status === "execution-failed").length,
       coverageAreas,
       observedOpportunities,
+      qaCoverageRatio: qaCoverage.summary.ratio,
+      qaCoverageGoals: qaCoverage.summary.total,
+      qaCoverageCovered: qaCoverage.summary.covered,
+      qaCoverageHighPriorityUncovered: qaCoverage.summary.highPriorityUncovered,
+      modelThinkTimeIsolation: {
+        enabled: Boolean(isolateModelThinkTime),
+        pauseCount: modelClockPauseCount,
+        isolatedDurationMs: isolatedModelThinkTimeMs,
+      },
       durationMs: Date.now() - startedAt,
     },
   };
@@ -390,6 +463,7 @@ async function requestExplorationDecision({
   states,
   steps,
   safeActions,
+  qaCoverage,
   remainingSteps,
   validationFeedback = "",
   images = [],
@@ -397,18 +471,19 @@ async function requestExplorationDecision({
   return requestStructuredJson({
     aiConfig,
     systemPrompt: [
-      "You are a QA exploration agent controlling a browser through a constrained action protocol.",
-      "Your purpose is to discover meaningful, evidence-grounded E2E scenarios rather than only smoke-test the landing page.",
+      "You are exploring this application as a curious first-time user through a constrained action protocol.",
+      "Learn what the application does and complete ordinary user journeys so realistic test cases can be planned. Defect assessment is a separate phase after this exploration.",
       images.length
         ? "Viewport screenshots of the current state are attached. Use them together with the structured control catalog; still select only a supplied actionId."
         : "No screenshot is attached. Base the decision only on the structured browser state and supplied action catalog.",
       "Select exactly one actionId from the supplied safeActions, or finish only after at least three useful actions when further actions would add no coverage.",
       "Do not choose or repeat the action kind. E2P derives click, fill, select, or press from the selected actionId and executes it through the safe browser adapter.",
       "Prefer breadth across product or item details, search and filtering, favorites or wishlists, cart-like ephemeral state, dialogs, and navigation when those capabilities are visible.",
-      "Do not repeat a user intent already covered. Prefer controls likely to reveal a new state.",
+      "Use uncoveredQaGoals as context about the application, not obligations to provoke errors. Prefer ordinary interactions with unfamiliar controls and understand their visible effects.",
+      "If validation appears, read its guidance and correct the same field with an ordinary valid-looking synthetic value when a correction action is offered. Explore other available controls before ending.",
       "Never attempt checkout, payment, final submission, account changes, publishing, uploads, deletion, or external navigation.",
       "For fill actions, use a short value grounded in the visible purpose of the field. Do not enter personal data, credentials, scripts, or secrets.",
-      "Apply ordinary QA boundary probing: when a text field visibly creates, searches, or filters items and declares no minimum length, prefer one ordinary character on its first use. State the expected visible outcome so the next evidence can confirm or contradict it.",
+      "Use plausible fictional values such as sampleuser or a meaningful search term, respecting visible constraints. Do not start with single-character, empty, malformed, or extreme inputs to provoke validation. The expected visible outcome is a tentative prediction to learn from, not a test oracle or bug verdict.",
       "For a text input, choose its fill action before its press action; use press only after the completed actions show that the same input was filled.",
       "For select controls, choose one supplied option value that differs from the current value.",
       "Return raw JSON only: {\"decision\":\"act|finish\",\"actionId\":\"...\",\"value\":\"\",\"rationale\":\"...\",\"expectedOutcome\":\"...\"}.",
@@ -424,6 +499,15 @@ async function requestExplorationDecision({
         dialogsCount: state.dialogsCount,
         visibleTextExcerpt: String(state.visibleTextExcerpt || "").slice(0, 180),
       })),
+      uncoveredQaGoals: (qaCoverage?.goals || [])
+        .filter((goal) => goal.status !== "covered")
+        .map((goal) => ({
+          id: goal.id,
+          title: goal.title,
+          priority: goal.priority,
+          status: goal.status,
+          rationale: goal.rationale,
+        })),
       completedActions: steps
         .filter((step) => step.status === "completed")
         .slice(-12)
@@ -442,10 +526,16 @@ async function requestExplorationDecision({
         boundaryProbe: Boolean(action.boundaryProbe),
         options: action.options,
         inOverlay: Boolean(action.inOverlay),
+        durationMs: Number.isFinite(action.durationMs) ? action.durationMs : undefined,
+        coverageGoalIds: action.coverageGoalIds || [],
+        coverageScore: action.coverageScore || 0,
       })),
     }),
     images,
     timeoutMs: 120000,
+    responseSchema: EXPLORATION_DECISION_SCHEMA,
+    schemaName: "exploration_decision",
+    maxTokens: 360,
   });
 }
 
@@ -559,7 +649,7 @@ function validateAgentDecision(rawDecision, safeActions) {
   if (actionId) {
     throw new Error("The model selected an action that was not present in the current safe action set.");
   }
-  if (requestedDecision && !["act", "click", "fill", "select", "press"].includes(requestedDecision)) {
+  if (requestedDecision && !["act", "click", "fill", "select", "press", "wait", "reload"].includes(requestedDecision)) {
     throw new Error("The model returned an unsupported exploration action.");
   }
   throw new Error("The model did not select an actionId from the current safe action set.");
@@ -595,14 +685,21 @@ function validateSelectedAction(rawDecision, selected, requestedDecision, action
   };
 }
 
-function estimateAdaptiveExplorationBudget({ current, states = [], hardMaxSteps = 20, hardMaxDurationMs = 180000 }) {
+function estimateAdaptiveExplorationBudget({
+  current,
+  states = [],
+  hardMaxSteps = 20,
+  hardMaxDurationMs = 180000,
+  coverageGoalCount = 0,
+}) {
   const safeActionCount = countUniqueSafeActions(states, current);
   const discoveredStateCount = Math.max(1, states.length);
   const stateExpansionAllowance = Math.min(6, Math.max(0, discoveredStateCount - 1) * 2);
   const evidenceDrivenTarget = Math.ceil(safeActionCount * 0.75) + stateExpansionAllowance + 1;
-  const stepLimit = Math.max(1, Math.min(hardMaxSteps, Math.max(2, evidenceDrivenTarget)));
+  const coverageTarget = Math.min(10, Math.max(0, coverageGoalCount) + 1);
+  const stepLimit = Math.max(1, Math.min(hardMaxSteps, Math.max(2, evidenceDrivenTarget, coverageTarget)));
   const durationMs = Math.max(45000, Math.min(hardMaxDurationMs, 30000 + (stepLimit * 7500)));
-  return { stepLimit, durationMs, safeActionCount, discoveredStateCount };
+  return { stepLimit, durationMs, safeActionCount, discoveredStateCount, coverageGoalCount };
 }
 
 function countUniqueSafeActions(states, current) {
@@ -614,6 +711,17 @@ function countUniqueSafeActions(states, current) {
 }
 
 async function executeDecision(page, decision, selectedAction) {
+  if (decision.action === "wait") {
+    const durationMs = Math.max(250, Math.min(12000, Number(selectedAction.durationMs) || 3000));
+    await page.waitForTimeout(durationMs);
+    return page;
+  }
+
+  if (decision.action === "reload") {
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 15000 });
+    return page;
+  }
+
   const locator = page.locator(`[data-e2p-action-id="${selectedAction.locatorId || selectedAction.id}"]`).first();
   try {
     await locator.waitFor({ state: "visible", timeout: 5000 });
@@ -658,6 +766,24 @@ async function executeDecision(page, decision, selectedAction) {
     return openedPage;
   }
   return page;
+}
+
+async function pauseApplicationClock(page) {
+  try {
+    await page.clock.pauseAt(await page.evaluate(() => Date.now()));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resumeApplicationClock(page) {
+  try {
+    await page.clock.resume();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function classifyExplorationAction(action, { authenticated = false } = {}) {
@@ -788,6 +914,30 @@ function actionSemanticKey(action) {
   return `${action.kind}|${action.role}|${sanitizeText(action.name).toLowerCase()}`;
 }
 
+function canCorrectInput(action, steps, current) {
+  if (!['fill', 'press'].includes(action.kind)) return false;
+  const matching = steps.filter(step => step.status === 'completed' && actionSemanticKey(step.action) === actionSemanticKey(action));
+  if (matching.length !== 1) return false;
+  const last = matching[0];
+  const subsequent = steps.slice(steps.indexOf(last) + 1).filter(step => step.status === 'completed');
+  const sameField = step => (step.action.domId && step.action.domId === action.domId)
+    || (step.action.accessibleName && step.action.accessibleName === action.accessibleName);
+  if (action.kind === 'press') return subsequent.some(step => step.action.kind === 'fill' && sameField(step));
+  const field = (current.inputs || []).find(input => (action.domId && input.domId === action.domId)
+    || (action.accessibleName && input.label === action.accessibleName));
+  if (field && Object.hasOwn(field, 'validationMessage') && !field.validationMessage) return false;
+  return /must|required|invalid|not valid|at least|too short|obrigat|inválid|mínimo/i.test(current.visibleTextExcerpt || '')
+    && subsequent.some(step => ['press', 'click'].includes(step.action.kind));
+}
+
+function actionFamilyKey(action) {
+  const visualSelector = sanitizeText(action?.visualSelector).toLowerCase();
+  if (action?.role === "visual" && visualSelector) {
+    return `${action.kind}|visual|${visualSelector}`;
+  }
+  return "";
+}
+
 function inferCoverageAreas(states, steps) {
   if (!states.length) {
     const covered = new Set();
@@ -815,9 +965,12 @@ function sanitizeText(value) {
 module.exports = {
   buildBaselineResult,
   classifyExplorationAction,
+  canCorrectInput,
   estimateAdaptiveExplorationBudget,
   executeDecision,
   fingerprintObservation,
+  pauseApplicationClock,
+  resumeApplicationClock,
   runAgenticExploration,
   validateAgentDecision,
 };

@@ -33,6 +33,10 @@ async function createRunDirectory(runsRoot, projectPath) {
     ensureDirectory(artifactsDirectory),
   ]);
 
+  await writeJson(path.join(runDirectory, "run-metadata.json"), {
+    runId, projectPath: path.resolve(projectPath), createdAt: new Date().toISOString(),
+  });
+
   return {
     runId,
     runDirectory,

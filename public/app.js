@@ -1,6 +1,6 @@
 const DEFAULT_AI_CONFIG = {
-  provider: "ollama",
-  endpoint: "http://127.0.0.1:11434",
+  provider: "llama-cpp",
+  endpoint: "http://127.0.0.1:8081/v1",
   model: "",
   criticModel: "",
   apiKey: "",
@@ -186,9 +186,53 @@ function wireEvents() {
   elements.howItWorksDialog.addEventListener("click", handleWorkflowDialogClick);
   elements.howItWorksDialog.addEventListener("close", handleWorkflowDialogClosed);
   elements.explorationToggleButton.addEventListener("click", handleExplorationViewerToggle);
+  elements.resultsPanel.addEventListener("error", handleEvidenceMediaError, true);
+  elements.resultsPanel.addEventListener("load", handleEvidenceMediaReady, true);
+  elements.resultsPanel.addEventListener("loadedmetadata", handleEvidenceMediaReady, true);
+  elements.resultsPanel.addEventListener("click", handleEvidenceRetry);
   document.querySelectorAll(".auth-config-grid input, .auth-config-grid textarea").forEach((input) => {
     input.addEventListener("input", handleAuthConfigInput);
   });
+}
+
+function handleEvidenceMediaError(event) {
+  const media = event.target.closest?.("[data-evidence-media]");
+  if (!media) return;
+
+  const frame = media.closest(".evidence-media");
+  const fallback = frame?.querySelector(".evidence-media__fallback");
+  media.hidden = true;
+  frame?.classList.add("evidence-media--unavailable");
+  if (fallback) fallback.hidden = false;
+}
+
+function handleEvidenceMediaReady(event) {
+  const media = event.target.closest?.("[data-evidence-media]");
+  if (!media) return;
+
+  const frame = media.closest(".evidence-media");
+  const fallback = frame?.querySelector(".evidence-media__fallback");
+  media.hidden = false;
+  frame?.classList.remove("evidence-media--unavailable");
+  if (fallback) fallback.hidden = true;
+}
+
+function handleEvidenceRetry(event) {
+  const retryButton = event.target.closest?.("[data-evidence-retry]");
+  if (!retryButton) return;
+
+  const frame = retryButton.closest(".evidence-media");
+  const media = frame?.querySelector("[data-evidence-media]");
+  const fallback = frame?.querySelector(".evidence-media__fallback");
+  const source = media?.dataset.evidenceSource;
+  if (!media || !source) return;
+
+  const separator = source.includes("?") ? "&" : "?";
+  media.hidden = false;
+  frame.classList.remove("evidence-media--unavailable");
+  if (fallback) fallback.hidden = true;
+  media.src = `${source}${separator}retry=${Date.now()}`;
+  if (media instanceof HTMLVideoElement) media.load();
 }
 
 function handleExplorationViewerToggle() {
@@ -952,6 +996,7 @@ function renderLiveExplorationCard(liveExploration) {
   }
 
   const summary = liveExploration.summary || {};
+  const qaCoverage = liveExploration.agenticExploration?.qaCoverage?.summary || summary.qaCoverage;
   const access = liveExploration.access || { mode: "guest" };
   const routeItems = (liveExploration.routes || []).slice(0, 4).map((route) => {
     const heading = route.headings?.[0] || "No strong heading captured";
@@ -970,6 +1015,9 @@ function renderLiveExplorationCard(liveExploration) {
       <p>Observed routes: ${summary.routeCount ?? 0}</p>
       <p>Unique visible actions: ${(summary.uniqueButtons || []).length}</p>
       <p>Unique visible inputs: ${(summary.uniqueInputs || []).length}</p>
+      ${liveExploration.agenticExploration?.purpose ? `<p>Purpose: interface discovery through ordinary user journeys. Defect assessment runs afterward.</p><p>Stopped because: ${escapeHtml(liveExploration.agenticExploration.terminationReason || 'unknown')}</p>` : ''}
+      ${liveExploration.agenticExploration?.constraints?.length ? `<p>Controls excluded by the current action policy: ${escapeHtml(liveExploration.agenticExploration.constraints.join(', '))}. Their full journeys were not exercised.</p>` : ''}
+      ${qaCoverage ? `<p>Risk-guided QA coverage: ${qaCoverage.covered || 0}/${qaCoverage.total || 0} goals (${Math.round((qaCoverage.ratio || 0) * 100)}%)${qaCoverage.highPriorityUncovered ? `; ${qaCoverage.highPriorityUncovered} high-priority gap(s)` : ""}</p>` : ""}
       <p>Runtime health: ${escapeHtml(liveExploration.health || "unknown")}</p>
       ${renderList(routeItems, "No route-level observations were captured.")}
       ${renderList(liveExploration.runtimeErrors || [], "No development runtime overlay was detected.")}
@@ -1038,7 +1086,7 @@ function renderBugDiscovery() {
   `;
 }
 
-function renderBugHypothesis(hypothesis, index) {
+function renderBugHypothesis(hypothesis, index, reviewRunId) {
   const observed = hypothesis.observed || {};
   const expected = hypothesis.expected || {};
   const evidence = hypothesis.evidence || {};
@@ -1058,7 +1106,7 @@ function renderBugHypothesis(hypothesis, index) {
         <div class="defect-badges">
           <span class="confidence confidence--${escapeHtml(hypothesis.severity || "medium")}">${escapeHtml(hypothesis.severity || "medium")} severity</span>
           <span class="confidence confidence--${escapeHtml(hypothesis.confidence || "low")}">${escapeHtml(hypothesis.confidence || "low")} confidence</span>
-          <span class="status-chip is-warning">Unconfirmed</span>
+          <span class="status-chip is-warning">Model hypothesis</span>
         </div>
       </header>
 
@@ -1091,6 +1139,7 @@ function renderBugHypothesis(hypothesis, index) {
         </a>
       `).join("")}</div>` : ""}
       ${consoleErrors.length ? `<details class="defect-diagnostics"><summary>Browser errors (${consoleErrors.length})</summary>${renderList(consoleErrors.map((item) => item.message || String(item)), "")}</details>` : ""}
+      ${window.E2PHistory?.reviewForm(typeof reviewRunId === 'string' ? reviewRunId : state.inspection?.liveExploration?.artifactRun?.runId, hypothesis) || ''}
       ${hypothesis.criticReview ? `<p class="defect-critic"><strong>Conservative review:</strong> ${escapeHtml(hypothesis.criticReview.reason)} (${escapeHtml(hypothesis.criticReview.confidence || "low")} confidence)</p>` : ""}
       ${reproduction ? `<div class="defect-critic">
         <strong>Independent clean-session replay: ${escapeHtml(reproduction.status || "unknown")}</strong>
@@ -1309,14 +1358,17 @@ function renderResults() {
   `;
 }
 
-function renderEvidenceGallery(tests) {
-  const items = (tests || []).flatMap((testItem) => (testItem.evidence || []).map((evidence) => ({
-    ...evidence,
-    testTitle: testItem.title,
-    testStatus: testItem.status,
-  })));
+function renderEvidenceGallery(tests, options = {}) {
+  const evidenceTests = (tests || [])
+    .map((testItem) => ({
+      title: testItem.title,
+      status: testItem.status,
+      evidence: testItem.evidence || [],
+    }))
+    .filter((testItem) => testItem.evidence.length > 0);
+  const artifactCount = evidenceTests.reduce((total, testItem) => total + testItem.evidence.length, 0);
 
-  if (!items.length) {
+  if (!artifactCount) {
     return `
       <article class="result-card evidence-empty">
         <strong>Visual evidence</strong>
@@ -1326,15 +1378,41 @@ function renderEvidenceGallery(tests) {
   }
 
   return `
-    <article class="result-card">
-      <strong>Visual evidence</strong>
-      <p>${state.execution?.auth?.mode === "authenticated"
+    <article class="result-card evidence-gallery">
+      <div class="evidence-gallery__header">
+        <div>
+          <strong>Visual evidence</strong>
+          <p>${(options.authMode || state.execution?.auth?.mode) === "authenticated"
         ? "Authenticated runs keep post-authentication screenshots only. Traces, videos, headers, cookies, and network payloads are intentionally excluded."
-        : "Each guest test keeps screenshots, video, and a trace whenever Playwright produced them. Open an item below to validate what was exercised."}</p>
-      <div class="evidence-grid">
-        ${items.map((item) => renderEvidenceItem(item)).join("")}
+        : "Evidence is grouped by test. Expand a result to compare its screenshot and recording, or open the trace for step-by-step inspection."}</p>
+        </div>
+        <span class="evidence-gallery__count">${evidenceTests.length} test${evidenceTests.length === 1 ? "" : "s"} · ${artifactCount} artifact${artifactCount === 1 ? "" : "s"}</span>
+      </div>
+      <div class="evidence-test-list">
+        ${evidenceTests.map((testItem, index) => renderEvidenceTest(testItem, index === 0 || testItem.status === "failed", options.baseUrl)).join("")}
       </div>
     </article>
+  `;
+}
+
+function renderEvidenceTest(testItem, initiallyOpen, baseUrl) {
+  const statusClass = testItem.status === "passed" ? "high" : testItem.status === "failed" ? "low" : "medium";
+  const media = testItem.evidence.filter((item) => item.kind === "screenshot" || item.kind === "video");
+  const files = testItem.evidence.filter((item) => item.kind !== "screenshot" && item.kind !== "video");
+
+  return `
+    <details class="evidence-test"${initiallyOpen ? " open" : ""}>
+      <summary class="evidence-test__summary">
+        <span class="confidence confidence--${statusClass}">${escapeHtml(testItem.status)}</span>
+        <span class="evidence-test__title">${escapeHtml(testItem.title)}</span>
+        <span class="evidence-test__meta">${testItem.evidence.length} artifact${testItem.evidence.length === 1 ? "" : "s"}</span>
+        <span class="evidence-test__chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="evidence-test__body">
+        ${media.length ? `<div class="evidence-media-grid">${media.map((item) => renderEvidenceMedia(item, baseUrl)).join("")}</div>` : ""}
+        ${files.length ? `<div class="evidence-file-list">${files.map((item) => renderEvidenceFile(item, baseUrl)).join("")}</div>` : ""}
+      </div>
+    </details>
   `;
 }
 
@@ -1353,52 +1431,82 @@ function renderExecutionAccessSummary(execution) {
   `;
 }
 
-function renderEvidenceItem(item) {
-  const url = artifactUrl(item.relativePath);
-  const title = `${item.testTitle} - ${item.kind}`;
-  const statusClass = item.testStatus === "passed" ? "high" : item.testStatus === "failed" ? "low" : "medium";
+function renderEvidenceMedia(item, baseUrl) {
+  const url = artifactUrl(item.relativePath, baseUrl);
+  const label = item.kind === "screenshot" ? "Screenshot" : "Recording";
+  const unavailableMessage = item.kind === "screenshot"
+    ? "Screenshot unavailable"
+    : "Recording unavailable";
 
   if (item.kind === "screenshot") {
     return `
-      <figure class="evidence-card evidence-card--image">
-        <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer" title="Open full-size screenshot">
-          <img src="${escapeHtml(url)}" alt="${escapeHtml(title)}" loading="lazy" />
-        </a>
-        <figcaption>
-          <span class="confidence confidence--${statusClass}">${escapeHtml(item.testStatus)}</span>
-          <strong>${escapeHtml(item.testTitle)}</strong>
-          <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open screenshot</a>
+      <figure class="evidence-preview">
+        <div class="evidence-media">
+          <a class="evidence-media__viewport" href="${escapeHtml(url)}" target="_blank" rel="noreferrer" title="Open full-size screenshot">
+            <img src="${escapeHtml(url)}" data-evidence-source="${escapeHtml(url)}" data-evidence-media alt="Test result screenshot" loading="lazy" />
+          </a>
+          ${renderEvidenceFallback(unavailableMessage)}
+        </div>
+        <figcaption class="evidence-preview__caption">
+          <span>${label}</span>
+          <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open original <span aria-hidden="true">↗</span></a>
         </figcaption>
       </figure>
     `;
   }
 
-  if (item.kind === "video") {
-    return `
-      <article class="evidence-card">
-        <video controls preload="metadata" src="${escapeHtml(url)}"></video>
-        <div class="evidence-card__meta">
-          <span class="confidence confidence--${statusClass}">${escapeHtml(item.testStatus)}</span>
-          <strong>${escapeHtml(item.testTitle)}</strong>
-          <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open video</a>
-        </div>
-      </article>
-    `;
-  }
-
   return `
-    <article class="evidence-card evidence-card--file">
-      <span class="evidence-card__type">${escapeHtml(item.kind)}</span>
-      <strong>${escapeHtml(item.testTitle)}</strong>
-      <p>${escapeHtml(item.name || item.relativePath)}</p>
-      <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open ${escapeHtml(item.kind)}</a>
-    </article>
+    <figure class="evidence-preview">
+      <div class="evidence-media">
+        <video controls preload="metadata" src="${escapeHtml(url)}" data-evidence-source="${escapeHtml(url)}" data-evidence-media aria-label="Test recording"></video>
+        ${renderEvidenceFallback(unavailableMessage)}
+      </div>
+      <figcaption class="evidence-preview__caption">
+        <span>${label}</span>
+        <a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open original <span aria-hidden="true">↗</span></a>
+      </figcaption>
+    </figure>
   `;
 }
 
-function artifactUrl(relativePath) {
-  const base = state.generated?.artifactBaseUrl || "";
-  return encodeURI(`${base}/${String(relativePath || "").replace(/^\/+/, "")}`);
+function renderEvidenceFallback(message) {
+  return `
+    <div class="evidence-media__fallback" hidden>
+      <span class="evidence-media__fallback-icon" aria-hidden="true">!</span>
+      <strong>${escapeHtml(message)}</strong>
+      <span>The artifact server may be offline or the file may have moved.</span>
+      <button class="button button--ghost button--small" type="button" data-evidence-retry>Retry</button>
+    </div>
+  `;
+}
+
+function renderEvidenceFile(item, baseUrl) {
+  const url = artifactUrl(item.relativePath, baseUrl);
+  const label = item.kind === "trace" ? "Playwright trace" : (item.name || item.kind || "Artifact");
+  const description = item.kind === "trace"
+    ? "Inspect steps, locators, console messages, network activity, and snapshots."
+    : (item.name || item.relativePath);
+
+  return `
+    <a class="evidence-file" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">
+      <span class="evidence-file__icon" aria-hidden="true">${item.kind === "trace" ? "TRACE" : "FILE"}</span>
+      <span class="evidence-file__copy">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(description)}</span>
+      </span>
+      <span class="evidence-file__action">Open <span aria-hidden="true">↗</span></span>
+    </a>
+  `;
+}
+
+function artifactUrl(relativePath, baseUrl) {
+  const base = String(baseUrl ?? state.generated?.artifactBaseUrl ?? "").replace(/\/+$/, "");
+  const encodedPath = String(relativePath || "")
+    .replace(/^\/+/, "")
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  return `${base}/${encodedPath}`;
 }
 
 function renderAiUsage() {
@@ -1579,8 +1687,9 @@ function ensureAiDefaults(forceReset = false) {
   const currentProvider = providers.find((provider) => provider.id === state.aiConfig.provider);
 
   if (!state.aiTouched) {
+    const llamaCpp = providers.find((provider) => provider.id === "llama-cpp" && provider.available !== false);
     const ollama = providers.find((provider) => provider.id === "ollama" && provider.available !== false);
-    const firstAvailable = ollama || providers.find((provider) => provider.available !== false);
+    const firstAvailable = llamaCpp || ollama || providers.find((provider) => provider.available !== false);
     state.aiConfig = firstAvailable
       ? {
           provider: firstAvailable.id,
@@ -1621,7 +1730,8 @@ function getPreferredModel(models) {
     return "";
   }
 
-  const preferred = models.find((model) => /qwen3:8b/i.test(model.name))
+  const preferred = models.find((model) => /qwen3\.8.*iq1m.*64k/i.test(model.name))
+    || models.find((model) => /qwen3:8b/i.test(model.name))
     || models.find((model) => /qwen/i.test(model.name))
     || models.find((model) => /openllama/i.test(model.name));
   return preferred?.name || models[0].name || "";
@@ -1634,6 +1744,15 @@ function getCurrentAiProvider() {
 function buildFallbackAiCatalog(errorMessage = "") {
   return {
     providers: [
+      {
+        id: "llama-cpp",
+        label: "Local llama.cpp",
+        available: false,
+        endpoint: "http://127.0.0.1:8081/v1",
+        models: [],
+        error: errorMessage || "Could not query the local runtime.",
+        description: "Uses the optimized local GGUF server directly through llama.cpp.",
+      },
       {
         id: "ollama",
         label: "Local Ollama",
@@ -1700,7 +1819,7 @@ function renderAiProviderNote(provider) {
     return;
   }
 
-  if (provider.id === "ollama" || provider.id === "lm-studio") {
+  if (provider.id === "llama-cpp" || provider.id === "ollama" || provider.id === "lm-studio") {
     const modelNames = (provider.models || []).map((model) => model.name);
     elements.aiProviderNote.innerHTML = `
       <strong>${escapeHtml(provider.label)}</strong>

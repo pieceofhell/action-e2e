@@ -26,6 +26,7 @@ const {
   startTargetRuntime,
 } = require("../src/services/runtime-orchestrator");
 const { createOperationTracker } = require("../src/services/operation-tracker");
+const { mergeLiveExplorationIntoInspection } = require("../src/services/live-explorer");
 const {
   buildBaselineResult,
   classifyExplorationAction,
@@ -132,10 +133,11 @@ test("adapts exploration budgets to observed interface complexity", () => {
   assert.ok(rich.durationMs > simple.durationMs);
 });
 
-test("keeps general text-boundary probing in the model exploration contract", () => {
+test("prioritizes ordinary user discovery and separates defect judgments", () => {
   const source = fs.readFileSync(path.join(__dirname, "..", "src", "services", "agentic-explorer.js"), "utf8");
-  assert.match(source, /ordinary QA boundary probing/);
-  assert.match(source, /declares no minimum length/);
+  assert.match(source, /curious first-time user/);
+  assert.match(source, /Defect assessment is a separate phase/);
+  assert.match(source, /Do not start with single-character/);
   assert.match(source, /expected visible outcome/);
 });
 
@@ -443,6 +445,7 @@ test("normalizes local and hosted provider configurations", () => {
   const ollama = normalizeAiConfig({
     provider: "ollama",
     model: "openllama:8b",
+    contextLength: 65536,
   });
   const groqWithoutKey = normalizeAiConfig({
     provider: "groq",
@@ -452,10 +455,22 @@ test("normalizes local and hosted provider configurations", () => {
     provider: "lm-studio",
     model: "local-model",
   });
+  const llamaCpp = normalizeAiConfig({
+    provider: "llama-cpp",
+    model: "qwen3.8-vl-27b-iq1m-64k",
+  });
+  const profiledModel = normalizeAiConfig({
+    provider: "ollama",
+    model: "qwen3.8-e2p:27b-64k",
+  });
 
   assert.equal(ollama.enabled, true);
+  assert.equal(ollama.contextLength, 65536);
+  assert.equal(profiledModel.contextLength, 65536);
   assert.equal(groqWithoutKey.enabled, false);
   assert.equal(lmStudio.endpoint, "http://127.0.0.1:1234/v1");
+  assert.equal(llamaCpp.endpoint, "http://127.0.0.1:8081/v1");
+  assert.equal(llamaCpp.contextLength, 65536);
 });
 
 test("enables screenshot input only for a vision model served on loopback", async () => {
@@ -532,7 +547,7 @@ test("formats vision evidence for OpenAI-compatible multimodal providers", async
     const address = server.address();
     const image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
     const result = await requestStructuredJson({
-      aiConfig: { provider: "openai-compatible", endpoint: `http://127.0.0.1:${address.port}`, model: "vision-test" },
+      aiConfig: { provider: "llama-cpp", endpoint: `http://127.0.0.1:${address.port}`, model: "qwen3.8-vl-27b-iq1m-64k" },
       systemPrompt: "Inspect the image.",
       userPrompt: "Return JSON.",
       images: [image],
@@ -541,9 +556,70 @@ test("formats vision evidence for OpenAI-compatible multimodal providers", async
     assert.deepEqual(result, { accepted: true });
     assert.equal(requestBody.messages[1].content[0].type, "text");
     assert.match(requestBody.messages[1].content[1].image_url.url, /^data:image\/png;base64,/);
+    assert.deepEqual(requestBody.response_format, { type: "json_object" });
+    assert.deepEqual(requestBody.chat_template_kwargs, { enable_thinking: false });
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
+});
+
+test("sends a strict JSON schema and stage-specific output budget to llama.cpp", async () => {
+  let requestBody;
+  const server = http.createServer((request, response) => {
+    let body = "";
+    request.on("data", (chunk) => { body += chunk; });
+    request.on("end", () => {
+      requestBody = JSON.parse(body);
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ choices: [{ message: { content: '{"ok":true}' } }] }));
+    });
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const address = server.address();
+    const schema = {
+      type: "object",
+      additionalProperties: false,
+      required: ["ok"],
+      properties: { ok: { type: "boolean" } },
+    };
+    const result = await requestStructuredJson({
+      aiConfig: { provider: "llama-cpp", endpoint: `http://127.0.0.1:${address.port}`, model: "local-model" },
+      systemPrompt: "Return JSON.",
+      userPrompt: "Confirm readiness.",
+      responseSchema: schema,
+      schemaName: "readiness",
+      maxTokens: 96,
+    });
+
+    assert.deepEqual(result, { ok: true });
+    assert.equal(requestBody.max_tokens, 96);
+    assert.equal(requestBody.response_format.type, "json_schema");
+    assert.equal(requestBody.response_format.json_schema.name, "readiness");
+    assert.deepEqual(requestBody.response_format.json_schema.schema, schema);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("removes stale pre-exploration warnings after live exploration completes", () => {
+  const merged = mergeLiveExplorationIntoInspection({
+    inspection: {
+      signals: [],
+      warnings: ["No live exploration data available, relying on static analysis", "Keep this real warning"],
+    },
+    liveExploration: {
+      status: "completed",
+      baseUrl: "http://127.0.0.1:1234",
+      routes: [{ path: "/" }],
+      summary: { uniqueHeadings: [], uniqueButtons: [] },
+      bugDiscovery: { hypotheses: [] },
+      warnings: [],
+    },
+  });
+
+  assert.deepEqual(merged.warnings, ["Keep this real warning"]);
 });
 
 test("keeps Playwright evidence and multi-error failures in the parsed report", () => {
@@ -827,10 +903,11 @@ test("compiles observed selects by stable tag occurrence and actual option value
 test("classifies generated locator failures separately from behavior assertions", () => {
   assert.equal(classifyTestFailure("failed", "locator.click: strict mode violation: getByRole('button') resolved to 8 elements"), "automation-locator");
   assert.equal(classifyTestFailure("failed", "expect(locator).toHaveText failed"), "behavior-assertion");
+  assert.equal(classifyTestFailure("failed", "Error: expect(locator).toHaveValue(expected) failed"), "behavior-assertion");
   assert.equal(classifyTestFailure("failed", "expect(received).toEqual(expected) assertion failed"), "behavior-assertion");
 });
 
-test("compiles a failed text submission through its terminal action and expected outcome", () => {
+test("asserts a retained input value as a value instead of rendered page text", () => {
   const fingerprint = "same-after-submit";
   const source = buildObservedJourneySpecContent({
     id: "flow-boundary",
@@ -839,7 +916,7 @@ test("compiles a failed text submission through its terminal action and expected
   }, {
     liveExploration: {
       agenticExploration: {
-        states: [{ id: "state-1", fingerprint: "initial", headings: ["todos"], buttons: [] }, { id: "state-2", fingerprint, headings: ["todos"], buttons: [] }],
+        states: [{ id: "state-1", fingerprint: "initial", headings: ["todos"], buttons: [] }, { id: "state-2", fingerprint, headings: ["todos"], buttons: [], inputDetails: [{ value: "a" }] }],
         steps: [
           { status: "completed", afterFingerprint: fingerprint, action: { kind: "fill", name: "New task", value: "a", testId: "text-input" } },
           { status: "completed", afterFingerprint: fingerprint, expectedOutcome: "A new item labeled a should appear", action: { kind: "press", name: "Press Enter in New task", testId: "text-input" } },
@@ -850,7 +927,8 @@ test("compiles a failed text submission through its terminal action and expected
 
   assert.match(source, /getByTestId\("text-input"\)\.fill\("a"\)/);
   assert.match(source, /getByTestId\("text-input"\)\.press\("Enter"\)/);
-  assert.match(source, /getByText\("a", \{ exact: true \}\)\.first\(\)/);
+  assert.match(source, /getByTestId\("text-input"\)\)\.toHaveValue\("a"\)/);
+  assert.doesNotMatch(source, /getByText\("a"/);
 });
 
 test("asserts a closed overlay instead of a rotating promotional heading", () => {
@@ -906,8 +984,8 @@ test("keeps long UI surfaces friendly to Firefox compositing", () => {
   assert.match(css, /\.background-grid\s*\{[^}]*position:\s*absolute/s);
   assert.match(css, /content-visibility:\s*auto/);
   assert.match(css, /contain-intrinsic-size:\s*auto\s+680px/);
-  assert.match(appSource, /provider:\s*"ollama"/);
-  assert.match(appSource, /qwen3:8b/);
+  assert.match(appSource, /provider:\s*"llama-cpp"/);
+  assert.match(appSource, /iq1m.*64k/i);
   assert.doesNotMatch(appSource, /heuristic reading was preserved/);
 });
 

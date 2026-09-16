@@ -1,10 +1,11 @@
 const { chromium } = require("playwright");
 const { classifyExplorationAction, runAgenticExploration } = require("./agentic-explorer");
 const { discoverPotentialBugs } = require("./bug-discovery");
-const { reproduceHypotheses } = require("./hypothesis-reproducer");
+const { gateReproducedHypotheses, reproduceHypotheses } = require("./hypothesis-reproducer");
 const { normalizeAuthConfig, redactSecrets, toPublicAuthMetadata } = require("./auth-config");
 const { createAuthenticatedSession } = require("./auth-session");
 const { supportsVisionInput } = require("./llm-provider");
+const { buildQaCoveragePlan } = require("./qa-coverage");
 const {
   maybeInstallTargetProject,
   normalizeRuntimeConfig,
@@ -97,6 +98,15 @@ async function exploreLiveProject({
     const visited = new Set();
 
     const initialPage = await context.newPage();
+    let modelClockInstalled = false;
+    if (normalizedAuth.mode !== "authenticated") {
+      try {
+        await initialPage.clock.install();
+        modelClockInstalled = true;
+      } catch (error) {
+        warnings.push(`Application-time isolation was unavailable: ${error.message}`);
+      }
+    }
     const initialTarget = normalizedAuth.mode === "authenticated"
       ? new URL(normalizedAuth.initialPath, runtimeHandle.baseUrl).toString()
       : runtimeHandle.baseUrl;
@@ -111,6 +121,7 @@ async function exploreLiveProject({
     }
     routes.push(homeObservation);
     visited.add(homeObservation.path || "/");
+    const coveragePlan = buildQaCoveragePlan({ inspection, initialObservation: homeObservation });
     onProgress({ phase: "route-discovery", message: `Captured the initial route with ${homeObservation.buttons?.length || 0} action(s) and ${homeObservation.inputs?.length || 0} input(s).`, progress: 74 });
 
     agenticExploration = await runAgenticExploration({
@@ -125,6 +136,8 @@ async function exploreLiveProject({
       onProgress,
       allowVisualPreview: normalizedAuth.mode !== "authenticated",
       visionEnabled,
+      coveragePlan,
+      isolateModelThinkTime: modelClockInstalled,
       evidenceDirectory: artifactRun?.evidenceDirectory || "",
       artifactBaseUrl: artifactRun?.artifactBaseUrl
         ? `${artifactRun.artifactBaseUrl}/artifacts/exploration`
@@ -132,6 +145,9 @@ async function exploreLiveProject({
     });
     if (agenticExploration.status !== "completed") {
       throw new Error(agenticExploration.error || "The selected model did not complete a useful live interface exploration.");
+    }
+    if (modelClockInstalled) {
+      await initialPage.clock.resume().catch(() => {});
     }
 
     const safeLinks = normalizedAuth.mode === "authenticated"
@@ -202,7 +218,7 @@ async function exploreLiveProject({
       if (bugDiscovery.status === "failed") {
         throw new Error(`Exploratory defect discovery failed: ${bugDiscovery.errors?.[0] || bugDiscovery.summary}`);
       }
-      bugDiscovery.hypotheses = await reproduceHypotheses({
+      const reproducedHypotheses = await reproduceHypotheses({
         browser,
         baseUrl: runtimeHandle.baseUrl,
         exploration: agenticExploration,
@@ -214,6 +230,22 @@ async function exploreLiveProject({
           : "",
         onProgress,
       });
+      const reproductionGate = gateReproducedHypotheses(reproducedHypotheses);
+      bugDiscovery.hypotheses = reproductionGate.retained;
+      bugDiscovery.rejectedHypotheses = [
+        ...(bugDiscovery.rejectedHypotheses || []),
+        ...reproductionGate.rejected,
+      ];
+      bugDiscovery.screening = {
+        ...(bugDiscovery.screening || {}),
+        retainedBeforeReproduction: reproducedHypotheses.length,
+        reproductionRejected: reproductionGate.rejected.length,
+        retained: reproductionGate.retained.length,
+        rejected: (bugDiscovery.rejectedHypotheses || []).length,
+      };
+      bugDiscovery.summary = reproductionGate.retained.length
+        ? `${reproductionGate.retained.length} independently reproduced potential defect(s) require human validation.`
+        : "No potential defect survived independent reproduction.";
     }
 
     onProgress({ phase: "exploration-summary", message: `Summarizing evidence from ${routes.length} observed route(s) and ${bugDiscovery.hypotheses?.length || 0} potential defect(s)...`, progress: 96 });
@@ -287,7 +319,9 @@ function mergeLiveExplorationIntoInspection({
   liveExploration,
 }) {
   const signals = [...(inspection.signals || [])];
-  const warnings = [...(inspection.warnings || [])];
+  const warnings = [...(inspection.warnings || [])].filter((warning) => (
+    liveExploration?.status !== "completed" || !deniesAvailableLiveExploration(warning)
+  ));
 
   if (liveExploration?.status === "completed") {
     signals.unshift(
@@ -317,6 +351,10 @@ function mergeLiveExplorationIntoInspection({
     signals: uniqueStrings(signals).slice(0, 16),
     warnings: uniqueStrings(warnings).slice(0, 12),
   };
+}
+
+function deniesAvailableLiveExploration(value) {
+  return /\b(?:no|without)\s+(?:live\s+|interface\s+)?exploration\b|\b(?:live\s+|interface\s+)?exploration\s+(?:data\s+)?(?:is\s+|was\s+)?(?:absent|missing|unavailable|not\s+available)\b/i.test(String(value || ""));
 }
 
 async function observePage({ page, targetUrl, baseUrl }) {
@@ -610,12 +648,17 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
           const name = normalizeText(element.getAttribute("name") || "");
           const canExposeValue = ["text", "search", "textarea"].includes(type)
             && !/password|email|phone|address|credential|token|secret|api\s*key|access\s*key|chave|senha|e-mail/i.test(`${label} ${placeholder} ${name}`);
+          const selectedLabel = element.tagName.toLowerCase() === "select"
+            ? normalizeText(element.selectedOptions?.[0]?.textContent || "")
+            : "";
           return {
             label,
             placeholder,
             name,
             type,
-            value: canExposeValue ? normalizeText(element.value || "").slice(0, 160) : "",
+            domId: element.id || '',
+            validationMessage: canExposeValue ? normalizeText(element.validationMessage || Array.from(element.parentElement?.querySelectorAll('small, [role="alert"], [aria-live]') || []).filter(isVisible).map(node => node.textContent).join(' ')).slice(0, 300) : '',
+            value: selectedLabel || (canExposeValue ? normalizeText(element.value || "").slice(0, 160) : ""),
           };
         }),
       (item) => `${item.label}|${item.placeholder}|${item.name}|${item.type}`,
@@ -775,6 +818,7 @@ function summarizeRoutes(routes, agenticExploration = null) {
     stateCount: agenticExploration?.metrics?.uniqueStates || 1,
     completedActions: agenticExploration?.metrics?.completedActions || 0,
     coverageAreas: agenticExploration?.metrics?.coverageAreas || [],
+    qaCoverage: agenticExploration?.qaCoverage?.summary || null,
   };
 }
 
@@ -788,6 +832,7 @@ function buildEmptySummary() {
     formsCount: 0,
     dialogsCount: 0,
     canvasesCount: 0,
+    qaCoverage: null,
     stateCount: 0,
     completedActions: 0,
     coverageAreas: [],

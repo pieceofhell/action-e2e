@@ -1,5 +1,7 @@
 const DEFAULT_OLLAMA_ENDPOINT = "http://127.0.0.1:11434";
 const DEFAULT_CHAT_TIMEOUT_MS = 90000;
+const DEFAULT_CONTEXT_LENGTH = 16384;
+const MAX_CONTEXT_LENGTH = 262144;
 const MAX_IMAGE_BYTES = 16 * 1024 * 1024;
 
 const PROVIDERS = [
@@ -15,6 +17,13 @@ const PROVIDERS = [
     endpoint: DEFAULT_OLLAMA_ENDPOINT,
     discovery: "ollama",
     description: "Models downloaded and served locally through Ollama.",
+  },
+  {
+    id: "llama-cpp",
+    label: "Local llama.cpp",
+    endpoint: "http://127.0.0.1:8081/v1",
+    discovery: "openai",
+    description: "Optimized local GGUF inference served directly by llama.cpp.",
   },
   {
     id: "lm-studio",
@@ -169,11 +178,20 @@ async function probeOpenAiCompatibleModels(endpoint) {
 }
 
 function normalizeAiConfig(rawConfig = {}) {
-  const provider = String(rawConfig.provider || "ollama");
+  const provider = String(rawConfig.provider || "llama-cpp");
   const definition = PROVIDERS.find((candidate) => candidate.id === provider) || PROVIDERS[0];
   const endpoint = String(rawConfig.endpoint || definition.endpoint || "").trim();
   const model = String(rawConfig.model || "").trim();
   const apiKey = String(rawConfig.apiKey || "").trim();
+  const requestedContextLength = Number(
+    rawConfig.contextLength
+      || process.env.E2P_LLM_CONTEXT_TOKENS
+      || inferContextLengthFromModelName(model)
+      || DEFAULT_CONTEXT_LENGTH
+  );
+  const contextLength = Number.isFinite(requestedContextLength)
+    ? Math.min(MAX_CONTEXT_LENGTH, Math.max(4096, Math.trunc(requestedContextLength)))
+    : DEFAULT_CONTEXT_LENGTH;
 
   if (definition.id === "heuristic") {
     return {
@@ -183,6 +201,7 @@ function normalizeAiConfig(rawConfig = {}) {
       apiKey: "",
       enabled: false,
       label: definition.label,
+      contextLength,
     };
   }
 
@@ -194,10 +213,27 @@ function normalizeAiConfig(rawConfig = {}) {
     apiKey,
     enabled: Boolean(endpoint && model && hasRequiredCredentials),
     label: model ? `${definition.label} / ${model}` : `${definition.label} (no model selected)`,
+    contextLength,
   };
 }
 
-async function requestStructuredJson({ aiConfig, systemPrompt, userPrompt, images = [], timeoutMs = DEFAULT_CHAT_TIMEOUT_MS }) {
+function inferContextLengthFromModelName(model) {
+  const match = String(model || "").toLowerCase().match(/(?:^|[-_.:])(\d{2,3})k(?:$|[-_.:])/);
+  if (!match) return null;
+  const tokens = Number(match[1]) * 1024;
+  return Number.isFinite(tokens) ? tokens : null;
+}
+
+async function requestStructuredJson({
+  aiConfig,
+  systemPrompt,
+  userPrompt,
+  images = [],
+  timeoutMs = DEFAULT_CHAT_TIMEOUT_MS,
+  responseSchema = null,
+  schemaName = "e2p_response",
+  maxTokens = null,
+}) {
   const normalized = normalizeAiConfig(aiConfig);
   assertConfigured(normalized);
   const messages = [{ role: "user", content: userPrompt, images }];
@@ -209,6 +245,9 @@ async function requestStructuredJson({ aiConfig, systemPrompt, userPrompt, image
       systemPrompt,
       messages,
       expectJson: true,
+      responseSchema,
+      schemaName,
+      maxTokens,
       timeoutMs,
     });
     try {
@@ -242,15 +281,15 @@ function assertConfigured(normalized) {
   }
 }
 
-async function requestProviderChat({ normalized, systemPrompt, messages, expectJson, timeoutMs }) {
+async function requestProviderChat({ normalized, systemPrompt, messages, expectJson, responseSchema = null, schemaName = "e2p_response", maxTokens, timeoutMs }) {
   const normalizedMessages = sanitizeChatMessages(messages);
   if (!normalizedMessages.length) throw new Error("No messages were sent to the model.");
 
   if (normalized.provider === "ollama") {
-    return requestOllamaChat({ normalized, systemPrompt, messages: normalizedMessages, expectJson, timeoutMs });
+    return requestOllamaChat({ normalized, systemPrompt, messages: normalizedMessages, expectJson, responseSchema, maxTokens, timeoutMs });
   }
 
-  return requestOpenAiCompatibleChat({ normalized, systemPrompt, messages: normalizedMessages, timeoutMs });
+  return requestOpenAiCompatibleChat({ normalized, systemPrompt, messages: normalizedMessages, expectJson, responseSchema, schemaName, maxTokens, timeoutMs });
 }
 
 function sanitizeChatMessages(messages) {
@@ -286,7 +325,7 @@ function normalizeRole(role) {
   return role === "assistant" || role === "system" ? role : "user";
 }
 
-async function requestOllamaChat({ normalized, systemPrompt, messages, expectJson, timeoutMs }) {
+async function requestOllamaChat({ normalized, systemPrompt, messages, expectJson, responseSchema, maxTokens, timeoutMs }) {
   let response;
   try {
     response = await fetchWithTimeout(`${trimTrailingSlash(normalized.endpoint)}/api/chat`, {
@@ -295,13 +334,13 @@ async function requestOllamaChat({ normalized, systemPrompt, messages, expectJso
       body: JSON.stringify({
         model: normalized.model,
         stream: false,
-        format: expectJson ? "json" : undefined,
+        format: expectJson ? (responseSchema || "json") : undefined,
         think: expectJson ? false : undefined,
         options: {
           temperature: expectJson ? 0 : 0.35,
           seed: expectJson ? 42 : undefined,
-          num_predict: expectJson ? 3200 : 2400,
-          num_ctx: 16384,
+          num_predict: Number.isFinite(maxTokens) ? maxTokens : (expectJson ? 3200 : 2400),
+          num_ctx: normalized.contextLength,
         },
         messages: [
           { role: "system", content: systemPrompt },
@@ -322,7 +361,7 @@ async function requestOllamaChat({ normalized, systemPrompt, messages, expectJso
   return payload.message?.content || "";
 }
 
-async function requestOpenAiCompatibleChat({ normalized, systemPrompt, messages, timeoutMs }) {
+async function requestOpenAiCompatibleChat({ normalized, systemPrompt, messages, expectJson, responseSchema, schemaName, maxTokens, timeoutMs }) {
   const headers = { "Content-Type": "application/json" };
   if (normalized.apiKey) headers.Authorization = `Bearer ${normalized.apiKey}`;
 
@@ -333,8 +372,23 @@ async function requestOpenAiCompatibleChat({ normalized, systemPrompt, messages,
       headers,
       body: JSON.stringify({
         model: normalized.model,
-        temperature: 0.35,
-        response_format: undefined,
+        temperature: expectJson ? 0 : 0.35,
+        max_tokens: Number.isFinite(maxTokens) ? maxTokens : (expectJson ? 1800 : 2400),
+        response_format: expectJson && normalized.provider === "llama-cpp"
+          ? responseSchema
+            ? {
+                type: "json_schema",
+                json_schema: {
+                  name: String(schemaName || "e2p_response").replace(/[^a-z0-9_-]/gi, "_").slice(0, 64),
+                  strict: true,
+                  schema: responseSchema,
+                },
+              }
+            : { type: "json_object" }
+          : undefined,
+        chat_template_kwargs: normalized.provider === "llama-cpp"
+          ? { enable_thinking: false }
+          : undefined,
         messages: [
           { role: "system", content: systemPrompt },
           ...messages.map(toOpenAiMessage),

@@ -29,11 +29,21 @@ function buildInsights({ inspection, approvedFlows, report, runtime, auth, polic
     limitations.push("Authenticated evidence intentionally excludes traces, videos, request payloads, cookies, and headers to prevent credential disclosure.");
   }
 
+  const qaCoverage = inspection.liveExploration?.agenticExploration?.qaCoverage;
+  if (qaCoverage?.summary) {
+    const percentage = Math.round((qaCoverage.summary.ratio || 0) * 100);
+    insights.push(`Risk-guided exploration covered ${qaCoverage.summary.covered}/${qaCoverage.summary.total} QA goal(s), with a weighted coverage score of ${percentage}%.`);
+    if (qaCoverage.summary.highPriorityUncovered > 0) {
+      limitations.push(`${qaCoverage.summary.highPriorityUncovered} high-priority QA goal(s) remained uncovered: ${qaCoverage.summary.uncoveredGoalIds.join(", ")}.`);
+      nextSteps.push("Review uncovered high-priority exploration goals before interpreting the generated test result as representative of product health.");
+    }
+  }
+
   if (failed > 0) {
     insights.push("Failures should be analyzed together with the confidence level of the approved flows, because some issues may reflect project ambiguity rather than strictly functional defects.");
     nextSteps.push("Review the failed flows and decide whether the issue lies in pipeline inference, execution setup, or the actual application behavior.");
   } else {
-    insights.push("In this run, the model-authored tests traversed the approved paths without a fatal failure, which suggests initial pipeline viability for the current scope.");
+    insights.push("In this run, the model-authored tests traversed the approved paths without a fatal failure. This result characterizes those paths only; it is not a product-wide health verdict.");
     nextSteps.push("Gradually increase the depth of the model-authored acceptance criteria toward more semantic and domain-specific checks.");
   }
 

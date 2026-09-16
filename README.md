@@ -1,5 +1,14 @@
 # Action E2E Prototype
 
+## Latest implementation and paper
+
+- [Feature documentation](features.md): discovery-first exploration, QA goals, run history, human hypothesis reviews, and grouped visual evidence.
+- [Three-project evaluation](NEW_FEATURES_3_PROJECT_EVALUATION_2026-09-08.md) and [Form Validator refinement](DISCOVERY_REFINEMENT_2026-09-13.md).
+- [Updated SBC-format article (PDF)](latex/main.pdf), [LaTeX source](latex/main.tex), and [revision/evidence notes](latex/REVISAO_ARTIGO.md).
+- Verification on 2026-09-16: 96 automated project tests passed, zero failures. This is distinct from generated application-test results discussed in the paper.
+
+Model weights, inference runtimes, credentials, dependencies, and private run artifacts are not distributed in this repository. The model launcher expects the documented sibling `models/` and `runtimes/` directories in the local workspace. Historical reports and the paper's revision notes retain paths from that workspace; their raw run directories and original paper backups are not part of this publication. See the reports for measured results and limitations; passing generated tests is not a product-wide quality guarantee.
+
 Local prototype for experimenting with an action-oriented AI-assisted E2E test generation and execution pipeline.
 
 ## Goal
@@ -25,6 +34,7 @@ This application was built to validate, in a first practical slice, the methodol
 - `src/server.js`: local Express server and API.
 - `src/services/project-inspector.js`: evidence-only repository inspection.
 - `src/services/agentic-explorer.js`: model-selected browser actions, adaptive exploration, state transitions, and viewport evidence.
+- `src/services/qa-coverage.js`: project-grounded QA goals, risk-weighted coverage, action ranking, and bounded temporal/persistence probes.
 - `src/services/bug-discovery.js`: blind defect hypotheses, evidence validation, and conservative model review.
 - `src/services/hypothesis-reproducer.js`: clean-session replay of retained UI observations without promoting an inferred expectation to a confirmed defect.
 - `src/services/llm-provider.js`: integration with local or remote model providers.
@@ -58,6 +68,7 @@ Operation records are temporary, bounded, held only in server memory, and contai
 - [`candidates.md`](candidates.md): candidate toy applications, selection rationale, comparable E2P runs, evidence, and cross-project findings.
 - [`features/auth.md`](features/auth.md): authenticated read-only architecture, security controls, pipeline behavior, and validation evidence.
 - [`features/bug-discovery.md`](features/bug-discovery.md): defect-discovery architecture, historical POC, implemented pipeline, and evaluation evidence.
+- [`features.md`](features.md): risk-guided exploration, boundary/state probes, model-latency isolation, and coverage-aware reporting.
 - [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md): complete unknown-project run and interpretation.
 - [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md): five-repository public benchmark, aggregate evidence, corrections, and remaining limits.
 - [`PROJECT_HANDOFF.md`](PROJECT_HANDOFF.md): compact cross-machine context covering research continuity, implementation state, evidence, known weaknesses, and next steps.
@@ -73,10 +84,10 @@ Operation records are temporary, bounded, held only in server memory, and contai
 | Git | Any current Git release capable of cloning the repositories below. |
 | Node.js | Node.js 24 is recommended. The current validation used Node.js `24.15.0`; Playwright currently supports the latest 22.x, 24.x, and 26.x releases. |
 | Browser runtime | Chromium installed through the project's Playwright dependency. Firefox may be used to open the E2P interface, but generated execution currently targets Chromium. |
-| AI runtime | Ollama is the reproducible local provider used by the public benchmark. Other supported providers are described later. |
+| AI runtime | `llama.cpp` with the Vulkan backend is the optimized local provider. Historical Ollama runs remain documented as prior experimental conditions. |
 | Storage | Allow space for `node_modules`, Playwright Chromium, target-project dependencies, run videos/traces, and local model files. The benchmark model pair occupies approximately 14 GB before runtime overhead. |
 
-Official downloads: [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org/en/download/), [Ollama for Windows](https://docs.ollama.com/windows), and [Playwright installation guidance](https://playwright.dev/docs/intro).
+Official downloads: [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org/en/download/), [llama.cpp releases](https://github.com/ggml-org/llama.cpp/releases), and [Playwright installation guidance](https://playwright.dev/docs/intro).
 
 ### Clone and install E2P
 
@@ -90,29 +101,25 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **74 passed, 0 failed**.
+The expected project self-test result for this revision is **89 passed, 0 failed**.
 
-### Install and start the local models
+### Start the optimized local model
 
-Install Ollama with its Windows installer, then open the Ollama application. It normally stays available in the background at `http://127.0.0.1:11434`. If using the standalone CLI instead, start it with `ollama serve` in a separate terminal.
+The validated local profile uses the official Windows Vulkan build of `llama.cpp` and Unsloth's `Qwen3.8-27B-UD-IQ1_M.gguf`. On the benchmark host (Ryzen 7 7800X3D, Radeon RX 9070 XT 16 GB, 32 GB RAM), all model layers remain on the discrete GPU and the standardized generation benchmark reaches 51.92 tokens/s. The server reserves 65,536 context tokens and uses a Q8 KV cache; a 51,560-token retrieval test returned the exact hidden key.
 
-Pull the exact pair used for the five-public-repository benchmark:
+The launcher expects these workspace-relative assets:
 
-```powershell
-ollama pull qwen2.5vl:7b
-ollama pull gemma3:12b
-ollama list
-```
+- `runtimes/llama.cpp-b10819-vulkan/llama-server.exe`
+- `models/qwen3.8-27b-unsloth/Qwen3.8-27B-UD-IQ1_M.gguf`
+- `models/qwen3.8-27b-unsloth/mmproj-BF16.gguf`
 
-`qwen2.5vl:7b` is the author/explorer and receives the locally captured screenshot when visual review is available. `gemma3:12b` is the independent conservative reviewer. The Ollama library currently lists the selected Qwen model at approximately 6.0 GB and Gemma at approximately 8.1 GB. Machines with less available memory may use `qwen2.5vl:3b` and `gemma3:4b`, but those substitutions are not the same experimental condition and their results must be reported separately.
-
-Optional comparison models used in earlier experiments can be installed with:
+Start it in a separate PowerShell terminal:
 
 ```powershell
-ollama pull qwen3:8b
-ollama pull llama3.1:8b
-ollama pull qwen2.5-coder:7b
+.\scripts\start-llama-qwen38-iq1m.ps1
 ```
+
+The server listens only on `http://127.0.0.1:8081/v1` and advertises the model as `qwen3.8-vl-27b-iq1m-64k`. The `vl` marker lets E2P enable screenshot input; the visual projector is loaded directly by `llama.cpp`. `Local llama.cpp` is now the default provider. The very low IQ1_M weight quantization is fast but showed unstable judgment in an isolated 10-case review, so it must remain behind E2P's deterministic evidence gates and should not be treated as an independent source of truth.
 
 ### Start E2P
 
@@ -124,8 +131,8 @@ Open [http://127.0.0.1:4318](http://127.0.0.1:4318). `index.html` should not be 
 
 ### Complete one run through the UI
 
-1. Keep Ollama running and confirm that the model names appear under `Selectable model`.
-2. Select `Local Ollama`, choose `qwen2.5vl:7b`, and set `Reviewer model (optional)` to `gemma3:12b`.
+1. Keep the `llama.cpp` launcher running and confirm that `qwen3.8-vl-27b-iq1m-64k` appears under `Selectable model`.
+2. Select `Local llama.cpp` and choose `qwen3.8-vl-27b-iq1m-64k`. Leave the optional reviewer blank unless a separately benchmarked server/model is available.
 3. Use `Choose folder in Windows` or paste an absolute target-project directory, then select `Load project`.
 4. Review the detected framework, working directory, installation command, startup command, and base URL. Correct a value only when the target documentation requires it.
 5. Keep `Guest` access for the public benchmark and select `Explore live interface`.
@@ -175,7 +182,8 @@ Authenticated execution is intentionally more restrictive than guest execution:
 
 The normal E2P workflow is AI-first. A configured model is required for semantic inspection, live action selection, flow and criteria planning, test generation, and result interpretation.
 
-- `Local Ollama`: the reproducible benchmark provider. The latest public trial used `qwen2.5vl:7b` for exploration and authorship plus `gemma3:12b` for independent review. Earlier comparisons used `llama3.1:8b`, `qwen3:8b`, and `qwen2.5-coder:7b`.
+- `Local llama.cpp`: the optimized default provider, served at `http://127.0.0.1:8081/v1` with direct Vulkan offload and OpenAI-compatible APIs.
+- `Local Ollama`: retained only for reproducing historical benchmark conditions. The public trial used `qwen2.5vl:7b` for exploration and authorship plus `gemma3:12b` for independent review.
 - `Local LM Studio`: for a model loaded locally and exposed through LM Studio's OpenAI-compatible server.
 - `OpenRouter`, `Groq`, `Together AI`, and `Hugging Face Inference Providers`: preset hosted endpoints; the user supplies a model identifier and the required API key.
 - `Custom OpenAI-compatible endpoint`: for another local or remote server that supports `chat/completions`.
@@ -183,7 +191,7 @@ The normal E2P workflow is AI-first. A configured model is required for semantic
 Important notes:
 
 - the prototype does not load model weights directly; it talks to a local or remote runtime;
-- Local Ollama is the default provider; explicitly select `qwen2.5vl:7b` to reproduce the current public benchmark rather than relying on the UI's convenience default;
+- Local llama.cpp is the default provider; historical Ollama results are a different experimental condition and should not be mixed with the optimized GGUF results;
 - if the desired model does not appear in the dropdown, it can be typed manually;
 - repository and DOM collectors provide evidence but do not make semantic QA decisions;
 - if a required model stage fails, the pipeline stops and reports the exact stage, reason, and partial evidence;
@@ -192,9 +200,9 @@ Important notes:
 ## How The Model Participates In The Pipeline
 
 - `Project inspection`: the local parser collects README, structure, manifests, routes, components, and UI hints; the model refines the summary, persona, and main capabilities.
-- `Live exploration`: Playwright exposes action identifiers and current UI evidence; the model chooses the target action while E2P derives its canonical `click`, `fill`, `select`, or `press` operation from the safe catalog. A valid identifier remains authoritative even when the model invents or repeats a conflicting verb. One genuinely invalid decision may be corrected by the same model before fail-fast interruption. The active action and time budgets adapt to discovered controls and states, with 20 actions and 180 seconds retained only as hard safety ceilings.
+- `Live exploration`: Playwright exposes action identifiers and current UI evidence; the model chooses the target action while E2P derives its canonical `click`, `fill`, `select`, or `press` operation from the safe catalog. E2P also creates bounded `wait` and `reload` probes when repository evidence supports timer or persistence risks. A project-grounded QA plan ranks actions and influences the adaptive budget. A valid identifier remains authoritative even when the model invents or repeats a conflicting verb. One genuinely invalid or prematurely finished decision may be corrected by the same model before fail-fast interruption. The application clock is paused while a guest model thinks so model latency does not silently advance timers. The 20-action and 180-second values remain hard safety ceilings.
 - `Potential-defect discovery`: a local vision model reviews one focal screenshot plus structured before/after states. A separate conservative reviewer attempts to falsify each candidate. Normal empty states, claims unsupported by cited facts, and candidates contradicted by visible feedback are rejected and retained only in the false-positive record.
-- `Flows and criteria`: the model proposes QA journeys from live states only. Cross-project vocabulary is rejected, and a failed broad plan may be decomposed into model-authored flows for individual executed transitions.
+- `Flows and criteria`: the model proposes QA journeys from live states only. Covered high-priority QA goals steer the plan toward boundaries and state transitions; uncovered goals remain explicit gaps rather than invented flows. Cross-project vocabulary is rejected, and a failed broad plan may be decomposed into model-authored flows for individual executed transitions.
 - `Test rendering`: once the user approves the flows, E2P compiles constrained Playwright from the journey the selected model actually executed. Every interaction must satisfy the observed-locator contract; no unrelated free-form model code or heuristic smoke test silently replaces the model journey.
 - `Results and insights`: execution data remains objective and local; the model only synthesizes interpretation, limitations, and next steps.
 - `Model console`: the user can ask free-form questions to the same selected provider using a compact context built from the current project and pipeline state.
@@ -341,7 +349,7 @@ For monorepos, the selected web manifest can be nested. For example, a detected 
 | Symptom | Resolution |
 | --- | --- |
 | PowerShell says `npm.ps1` cannot be loaded | Use `npm.cmd` and `npx.cmd`, as shown in this README. |
-| E2P reports that the Ollama provider is unavailable | Open the Ollama Windows application or run `ollama serve`, then confirm `ollama list` works before refreshing E2P. |
+| E2P reports that the llama.cpp provider is unavailable | Run `.\scripts\start-llama-qwen38-iq1m.ps1`, wait for `listening on http://127.0.0.1:8081`, then refresh E2P. |
 | A selected model does not appear | Pull it with `ollama pull <model>` and reload the E2P page, or enter the exact runtime model name manually. |
 | Port 4318 is already occupied | Stop the previous E2P terminal with `Ctrl+C`. If its terminal is unavailable, identify the process that owns port 4318 before ending that specific process. |
 | Target URL does not respond | Preinstall target dependencies, verify the detected working directory and start command, and check whether the target needs a companion process such as The React Quiz JSON server. |
@@ -357,6 +365,7 @@ This first version prioritizes robustness and demonstrability:
 - focus on web applications;
 - Playwright as the default E2E tool;
 - bounded stateful exploration and evidence-grounded journey generation;
+- risk-weighted QA goals, explicit coverage gaps, and bounded temporal/persistence probes;
 - human review before test generation;
 - authenticated read-only flows with environment-backed secret references;
 - trusted adapters and constrained action plans for protected routes;

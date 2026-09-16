@@ -11,18 +11,20 @@ const { createRunDirectory, ensureDirectory, writeJson } = require("../src/servi
 
 const prototypeRoot = path.resolve(__dirname, "..");
 const targetPath = path.resolve(process.argv[2] || "");
-const model = process.argv[3] || "qwen2.5vl:7b";
+const provider = process.env.E2P_AI_PROVIDER || "llama-cpp";
+const endpoint = process.env.E2P_AI_ENDPOINT || "http://127.0.0.1:8081/v1";
+const model = process.argv[3] || "qwen3.8-vl-27b-iq1m-64k";
 const criticModel = process.argv[4] || "";
 const aiConfig = {
-  provider: "ollama",
-  endpoint: "http://127.0.0.1:11434",
+  provider,
+  endpoint,
   model,
   criticModel,
 };
 
 async function main() {
   if (!process.argv[2]) {
-    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [author-ollama-model] [reviewer-ollama-model]");
+    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [author-model] [reviewer-model]. Configure E2P_AI_PROVIDER and E2P_AI_ENDPOINT when needed.");
   }
   const stat = await fs.stat(targetPath);
   if (!stat.isDirectory()) throw new Error("The target path must be a local directory.");
@@ -53,6 +55,8 @@ async function main() {
       screenshotProvider: "local-model-only",
     },
     model,
+    provider,
+    endpoint,
     criticModel: criticModel || model,
     runId: run.runId,
     runDirectory: run.runDirectory,

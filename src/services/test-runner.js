@@ -194,6 +194,9 @@ function collectSuiteTests(suite, collector, context) {
 function classifyTestFailure(status, error) {
   if (["passed", "skipped"].includes(status)) return null;
   const message = String(error || "");
+  if (/expect\(locator\)|expect.*failed|toBeVisible|toHaveText|toContainText|toHaveValue|toHaveURL|assertion/i.test(message)) {
+    return "behavior-assertion";
+  }
   if (/strict mode violation|locator\(.+\)|getBy(?:Role|Text|Label|Placeholder|TestId)|waiting for .*locator|element\(s\) not found/i.test(message)) {
     return "automation-locator";
   }
@@ -202,9 +205,6 @@ function classifyTestFailure(status, error) {
   }
   if (/development runtime error|error overlay|application failed to start|page crashed/i.test(message)) {
     return "target-runtime";
-  }
-  if (/expect\(|expect\.|toBeVisible|toHaveText|toContainText|toHaveURL|assertion/i.test(message)) {
-    return "behavior-assertion";
   }
   if (/timeout/i.test(message)) return "execution-timeout";
   return "unclassified";

@@ -37,16 +37,24 @@ async function reproduceHypotheses({
 async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observeCurrentPage, evidenceDirectory, artifactBaseUrl }) {
   const context = await browser.newContext({ baseURL: baseUrl, viewport: { width: 1180, height: 760 } });
   const page = await context.newPage();
+  const replayDiagnostics = [];
+  page.on("pageerror", (error) => replayDiagnostics.push(String(error?.message || error)));
+  page.on("console", (message) => {
+    if (message.type() === "error") replayDiagnostics.push(message.text());
+  });
   const targetState = selectTargetState(exploration?.states || [], hypothesis.evidenceStateIds || []);
-  const targetStepIndex = (exploration?.steps || []).findLastIndex((step) => (
-    step.status === "completed" && step.afterFingerprint === targetState?.fingerprint
-  ));
+  const runtimeDiagnostic = hypothesis.expected?.source === "runtime-diagnostic";
+  const targetStepIndex = runtimeDiagnostic
+    ? (exploration?.steps || []).findLastIndex((step) => step.status === "completed")
+    : (exploration?.steps || []).findLastIndex((step) => (
+      step.status === "completed" && step.afterFingerprint === targetState?.fingerprint
+    ));
   const journey = targetStepIndex >= 0
     ? exploration.steps.slice(0, targetStepIndex + 1).filter((step) => step.status === "completed")
     : [];
   let currentPage = page;
   try {
-    if (!targetState || !journey.length) throw new Error("No completed journey reaches the cited evidence state.");
+    if (!targetState) throw new Error("No cited evidence state is available for replay.");
     await currentPage.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 45000 });
     await currentPage.waitForTimeout(500);
     for (const step of journey) {
@@ -64,6 +72,27 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
       evidenceDirectory,
       artifactBaseUrl,
     });
+    if (hypothesis.expected?.source === "runtime-diagnostic") {
+      const expectedMessages = [
+        ...(hypothesis.evidence?.consoleErrors || []),
+        ...(hypothesis.evidence?.pageErrors || []),
+      ].map((item) => item?.message || item).filter(Boolean);
+      const diagnosticMatched = expectedMessages.some((expected) => replayDiagnostics.some((actual) => (
+        diagnosticSimilarity(expected, actual) >= 0.55
+      )));
+      return {
+        status: diagnosticMatched ? "runtime-diagnostic-reproduced" : "runtime-diagnostic-not-reproduced",
+        independentSession: true,
+        replayedActions: journey.length,
+        stateSimilarity: similarity,
+        citedStateId: targetState.id,
+        replayDiagnostics: replayDiagnostics.slice(0, 12),
+        screenshot,
+        interpretation: diagnosticMatched
+          ? "The same runtime diagnostic signature was captured in an independent browser session."
+          : "The cited runtime diagnostic did not recur in the independent browser session.",
+      };
+    }
     return {
       status: similarity >= 0.72 ? "observation-reproduced" : "observation-diverged",
       independentSession: true,
@@ -88,6 +117,34 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
   } finally {
     await context.close().catch(() => {});
   }
+}
+
+function gateReproducedHypotheses(hypotheses = []) {
+  const retained = [];
+  const rejected = [];
+  for (const hypothesis of hypotheses) {
+    const status = hypothesis.reproduction?.status;
+    const accepted = status === "observation-reproduced" || status === "runtime-diagnostic-reproduced";
+    if (accepted) {
+      retained.push(hypothesis);
+      continue;
+    }
+    rejected.push({
+      id: hypothesis.id,
+      title: hypothesis.title,
+      reason: status === "observation-diverged"
+        ? "Independent replay reached a materially different state; the hypothesis was not retained."
+        : status === "runtime-diagnostic-not-reproduced"
+          ? "The runtime diagnostic did not recur in an independent session; the hypothesis was not retained."
+          : "Independent replay was blocked; the hypothesis was not retained.",
+      verdict: "reject",
+      screeningStage: "independent-reproduction",
+      authorConfidence: hypothesis.confidence,
+      authorSeverity: hypothesis.severity,
+      reproduction: hypothesis.reproduction,
+    });
+  }
+  return { retained, rejected };
 }
 
 function selectTargetState(states, evidenceStateIds) {
@@ -157,6 +214,13 @@ function tokenOverlap(left, right) {
   return [...a].filter((item) => b.has(item)).length / Math.max(a.size, b.size);
 }
 
+function diagnosticSimilarity(left, right) {
+  return tokenOverlap(
+    String(left || "").replace(/https?:\/\/\S+|\b\d+(?::\d+)?\b/g, " "),
+    String(right || "").replace(/https?:\/\/\S+|\b\d+(?::\d+)?\b/g, " "),
+  );
+}
+
 async function saveScreenshot({ page, hypothesisId, evidenceDirectory, artifactBaseUrl }) {
   if (!evidenceDirectory) return null;
   const directory = path.join(evidenceDirectory, "reproduction");
@@ -179,6 +243,7 @@ function sanitizeText(value, limit = 500) {
 
 module.exports = {
   findReplayAction,
+  gateReproducedHypotheses,
   reproduceHypotheses,
   stateSimilarity,
 };

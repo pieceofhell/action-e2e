@@ -836,7 +836,13 @@ function buildObservedJourneySpecContent(flow, inspection) {
   const lines = ["await openHome(page);", "let currentPage = page;"];
   for (const step of journeySteps) {
     const action = step.action || {};
-    if (action.kind === "click" && action.name) {
+    if (action.kind === "wait") {
+      const durationMs = Math.max(250, Math.min(12000, Number(action.durationMs) || 3000));
+      lines.push(`await currentPage.waitForTimeout(${durationMs});`);
+    } else if (action.kind === "reload") {
+      lines.push('await currentPage.reload({ waitUntil: "domcontentloaded" });');
+      lines.push("await pauseForUi(currentPage, 300);");
+    } else if (action.kind === "click" && action.name) {
       if (action.targetBlank) {
         lines.push("const popupPromise = currentPage.waitForEvent('popup');");
         lines.push(`await ${compiledClickLocator(action, states, "currentPage")}.click();`);
@@ -866,14 +872,24 @@ function buildObservedJourneySpecContent(flow, inspection) {
   const expectsCreatedText = terminalStep?.action?.kind === "press"
     && /\b(appear|add(?:ed)?|creat(?:e|ed)|display(?:ed)?|list(?:ed)?|submitted?)\b/i.test(terminalStep.expectedOutcome || "")
     && priorFill?.action?.value;
+  const filledValue = priorFill?.action?.value || "";
+  const filledValueIsRenderedText = filledValue
+    && normalizeAssertionText(targetState.visibleTextExcerpt).includes(normalizeAssertionText(filledValue));
+  const matchingInputDetail = filledValue
+    ? (targetState.inputDetails || []).find((input) => (
+      normalizeAssertionText(input?.value) === normalizeAssertionText(filledValue)
+    ))
+    : null;
   const assertedButton = (targetState.buttons || []).find((label) => label && !isUnsafeActionLabel(label) && /[a-z]/i.test(label));
   const closesOverlay = terminalStep?.action?.kind === "click"
     && /\b(?:close|dismiss|modal-close|close-overlay)\b/i.test(terminalStep.action.name || "");
   const assertedHeading = (targetState.headings || []).find((heading) => (
     heading && !/\b(?:sale|off|discount|deal|limited time)\b/i.test(heading)
   ));
-  if (expectsCreatedText) {
+  if (expectsCreatedText && filledValueIsRenderedText) {
     lines.push(`await expect(currentPage.getByText(${jsString(priorFill.action.value)}, { exact: true }).first()).toBeVisible();`);
+  } else if (matchingInputDetail) {
+    lines.push(`await expect(${compiledInputLocator(priorFill.action, "currentPage")}).toHaveValue(${jsString(matchingInputDetail.value)});`);
   } else if (closesOverlay) {
     lines.push('await expect(currentPage.locator("dialog:visible, [role=\\"dialog\\"]:visible, [aria-modal=\\"true\\"]:visible, .modal:visible, [class*=\\"drawer\\"]:visible")).toHaveCount(0);');
   } else if (assertedHeading) {
@@ -887,6 +903,10 @@ function buildObservedJourneySpecContent(flow, inspection) {
   const source = wrapSpecSource(flow.title, lines.join("\n"));
   validateGeneratedSpecSource(source);
   return source;
+}
+
+function normalizeAssertionText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 function compiledClickLocator(action, states, pageVariable = "page") {
