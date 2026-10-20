@@ -60,8 +60,17 @@ async function runGeneratedTests({
 
     onProgress({ phase: "result-parsing", message: "Parsing test outcomes and indexing screenshots, videos, and traces...", progress: 76 });
     const reportPath = path.join(resultsDirectory, "playwright-results.json");
-    const report = await readJson(reportPath).catch(() => null);
-    const parsedReport = parsePlaywrightReport(report, { runDirectory });
+    let report = null;
+    let reportError = null;
+    try { report = await readJson(reportPath); }
+    catch (error) { reportError = error?.code === 'ENOENT' ? 'Playwright report is missing.' : 'Playwright report could not be parsed.'; }
+    const generatedTests = await readJson(path.join(runDirectory, 'generated-tests.json')).catch(() => []);
+    const parsedReport = parsePlaywrightReport(report, {
+      runDirectory,
+      expectedTests: generatedTests,
+      exitCode: playwrightExecution.exitCode,
+      reportError,
+    });
 
     await writeText(path.join(resultsDirectory, "stdout.log"), playwrightExecution.stdout);
     await writeText(path.join(resultsDirectory, "stderr.log"), playwrightExecution.stderr);
@@ -134,32 +143,60 @@ async function runPlaywrightCli({ prototypeRoot, runDirectory, baseUrl, onProgre
   });
 }
 
-function parsePlaywrightReport(report, { runDirectory } = {}) {
-  if (!report) {
-    return {
-      summary: {
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0,
-        durationMs: 0,
-      },
-      tests: [],
-    };
-  }
-
+function parsePlaywrightReport(report, { runDirectory, expectedTests, exitCode = null, reportError } = {}) {
   const tests = [];
-
-  for (const suite of report.suites || []) {
-    collectSuiteTests(suite, tests, { runDirectory });
+  const issues = [];
+  if (reportError) issues.push(reportError);
+  if (!report || !Array.isArray(report.suites)) {
+    issues.push(report ? 'Playwright report has no valid suites array.' : 'Playwright report is unavailable.');
+  } else {
+    for (const suite of report.suites) collectSuiteTests(suite, tests, { runDirectory });
   }
-
+  const expected = Array.isArray(expectedTests) ? expectedTests.length : null;
+  const expectedTitles = Array.isArray(expectedTests)
+    ? expectedTests.map((item) => String(item?.title || '')).filter(Boolean) : [];
+  const observedTitleCounts = new Map();
+  for (const item of tests) observedTitleCounts.set(item.title, (observedTitleCounts.get(item.title) || 0) + 1);
+  const missingTitles = [];
+  for (const title of expectedTitles) {
+    const remaining = observedTitleCounts.get(title) || 0;
+    if (remaining) observedTitleCounts.set(title, remaining - 1);
+    else missingTitles.push(title);
+  }
+  if (expected !== null && tests.length !== expected) {
+    issues.push(`Playwright reported ${tests.length} of ${expected} expected test(s).`);
+  }
+  if (missingTitles.length) issues.push(`Expected test(s) missing from report: ${missingTitles.join(', ')}.`);
+  const globalErrors = Array.isArray(report?.errors) ? report.errors.map((error) =>
+    String(error?.message || error?.value || error)).filter(Boolean) : [];
+  if (globalErrors.length) issues.push(`Playwright reported ${globalErrors.length} global error(s).`);
+  if (!tests.length) issues.push('No test result was recorded.');
+  const unknown = tests.filter((item) => !['passed', 'failed', 'timedOut', 'interrupted', 'skipped'].includes(item.status)).length;
+  if (unknown) issues.push(`${unknown} test(s) have no definitive result.`);
+  const failed = tests.filter((item) => ['failed', 'timedOut', 'interrupted'].includes(item.status));
+  if (exitCode !== null && exitCode !== 0 && !failed.length && !globalErrors.length) {
+    issues.push(`Playwright exited with code ${exitCode} without a reported test failure.`);
+  }
+  if (exitCode === 0 && failed.length) issues.push('Playwright exit code contradicts reported test failures.');
+  const executionState = issues.length ? 'incomplete' : 'completed';
+  const skipped = tests.filter((item) => item.status === 'skipped').length;
+  const result = issues.length ? 'infrastructure-error'
+    : failed.length ? (failed.every((item) => item.failureClass === 'behavior-assertion') ? 'assertion-failed' : 'tests-failed')
+      : skipped ? 'no-verification' : 'passed';
   const summary = {
     total: tests.length,
     passed: tests.filter((test) => test.status === "passed").length,
-    failed: tests.filter((test) => !["passed", "skipped"].includes(test.status)).length,
-    skipped: tests.filter((test) => test.status === "skipped").length,
-    durationMs: report.stats?.duration || 0,
+    failed: failed.length,
+    skipped,
+    verified: tests.length - skipped - unknown,
+    expected,
+    missing: expected === null ? null : Math.max(0, expected - tests.length),
+    executionState,
+    result,
+    issues,
+    globalErrors,
+    exitCode,
+    durationMs: report?.stats?.duration || 0,
     failureClassification: summarizeFailureClasses(tests),
   };
 

@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const http = require('node:http');
 const { chromium } = require("playwright");
 const {
   buildBugHunterPrompt,
@@ -68,7 +69,37 @@ test("rejects input lifecycle preferences inferred only from adjacent states", (
   assert.equal(result.retained.length, 0);
 });
 const { capturePageObservation } = require("../src/services/live-explorer");
-const { findReplayAction, gateReproducedHypotheses, stateSimilarity } = require("../src/services/hypothesis-reproducer");
+const { findReplayAction, gateReproducedHypotheses, reproduceHypotheses, stateSimilarity } = require("../src/services/hypothesis-reproducer");
+
+test('runtime replay handles reload and wait before an exception and stops before a later stale action', async (t) => {
+  const server = http.createServer((_request, response) => {
+    response.setHeader('Content-Type', 'text/html');
+    response.end('<button id="clear" data-e2p-action-id="clear">Clear Cards</button><button id="next" data-e2p-action-id="next">Next</button><script>document.querySelector("#next").onclick=()=>{let card;card.className="active"}</script>');
+  });
+  server.listen(0, '127.0.0.1');
+  await new Promise((resolve) => server.once('listening', resolve));
+  const browser = await chromium.launch({ headless: true });
+  t.after(async () => { await browser.close(); await new Promise((resolve) => server.close(resolve)); });
+  const baseUrl = `http://127.0.0.1:${server.address().port}/`;
+  const [result] = await reproduceHypotheses({ browser, baseUrl,
+    exploration: { states: [{ id: 'state-2', path: '/', headings: [], buttons: ['Clear Cards', 'Next'], visibleTextExcerpt: 'Clear Cards Next' }],
+      steps: [
+        { step: 1, status: 'completed', action: { kind: 'click', name: 'Clear Cards', domId: 'clear' } },
+        { step: 2, status: 'completed', action: { kind: 'reload', name: 'Reload' } },
+        { step: 3, status: 'completed', action: { kind: 'wait', name: 'Wait', durationMs: 250 } },
+        { step: 4, status: 'completed', action: { kind: 'click', name: 'Next', domId: 'next' } },
+        { step: 5, status: 'completed', action: { kind: 'click', name: 'Unavailable later control', domId: 'missing' } },
+      ] },
+    hypotheses: [{ id: 'runtime-error', evidenceStateIds: ['state-2'],
+      expected: { source: 'runtime-diagnostic' },
+      evidence: { pageErrors: [{ message: "Cannot set properties of undefined (setting 'className')" }] } }],
+    observeCurrentPage: async (page) => ({ actions: await page.locator('button').evaluateAll((buttons) => buttons.map((button) => ({
+      kind: 'click', name: button.textContent, domId: button.id, locatorId: button.id,
+    }))) }),
+  });
+  assert.equal(result.reproduction.status, 'runtime-diagnostic-reproduced');
+  assert.equal(result.reproduction.replayedActions, 4);
+});
 
 test("matches a replay control by observed tag occurrence instead of display text alone", () => {
   const candidate = findReplayAction([
@@ -246,7 +277,7 @@ test("makes screenshot availability explicit in the defect-hunter prompt", () =>
   assert.match(buildBugHunterPrompt({ visionEnabled: false }), /No screenshot was supplied/i);
 });
 
-test("normalizes only browser console and page errors, never network traffic", () => {
+test("normalizes browser diagnostics and native dialogs, never network traffic", () => {
   const diagnostics = normalizeDiagnostics({
     consoleErrors: ["console"],
     pageErrors: ["page"],
@@ -254,7 +285,7 @@ test("normalizes only browser console and page errors, never network traffic", (
     errorResponses: ["must not be collected"],
   });
 
-  assert.deepEqual(Object.keys(diagnostics.items), ["consoleErrors", "pageErrors"]);
+  assert.deepEqual(Object.keys(diagnostics.items), ["consoleErrors", "pageErrors", "nativeDialogs"]);
   assert.equal(diagnostics.validIds.length, 2);
 });
 
@@ -384,6 +415,95 @@ test("keeps defect-review journeys compact instead of repeating full page catalo
   assert.ok(serialized.length < 700);
 });
 
+test('rejects a modal-outside-click claim when no outside click was recorded', () => {
+  const result = screenHypotheses([{
+    id: 'invented-outside', title: 'Modal does not close after click outside',
+    reproductionSteps: ['Click Sign Up', 'Click outside the modal'],
+    evidenceStateIds: ['state-1', 'state-2'],
+    expected: { result: 'The modal closes', source: 'cross-state-consistency' },
+    observed: { result: 'The modal remains open', facts: [
+      { statement: 'The modal is visible', evidenceRefs: ['state-1'] },
+      { statement: 'The modal remains visible', evidenceRefs: ['state-2'] },
+    ] },
+  }], { states: [{ id: 'state-1' }, { id: 'state-2' }],
+    steps: [{ step: 1, status: 'completed', beforeStateId: 'state-1', afterStateId: 'state-2', action: { kind: 'click', name: 'Sign Up' } }] });
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /outside.*never executed/i);
+});
+
+test('requires the cited trigger to be the exact completed action', () => {
+  const diagnostics = normalizeDiagnostics({});
+  const raw = {
+    title: 'Clear Cards fails', reproductionSteps: ['Click Clear Cards'],
+    observedResult: 'An error occurs after Clear Cards',
+    facts: [{ statement: 'An error is visible after Clear Cards', evidenceRefs: ['state-2'] }],
+    expectedResult: 'No error', expectationJustification: 'Runtime behavior',
+    triggerStep: 2, triggerActionName: 'Clear Cards',
+  };
+  const context = { states: [{ id: 'state-2' }], steps: [{ step: 2, status: 'completed',
+    beforeStateId: 'state-2', afterStateId: 'state-2', action: { kind: 'click', name: 'Next' } }],
+    diagnosticEvidence: diagnostics };
+  assert.deepEqual(normalizeHypotheses([raw], context), []);
+});
+
+test('does not duplicate an objective runtime diagnostic with a model diagnosis', () => {
+  const result = screenHypotheses([{
+    id: 'speculative-stack', title: 'loadSong null reference',
+    evidenceStateIds: ['state-1'],
+    expected: { source: 'runtime-diagnostic', result: 'No error' },
+    observed: { result: 'Null reference', facts: [{ statement: 'Page error', evidenceRefs: ['page-error-1', 'state-1'] }] },
+  }], { states: [{ id: 'state-1' }], coveredDiagnosticIds: new Set(['page-error-1']) });
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /already has an objective hypothesis/i);
+});
+
+test('rejects a causal model claim that reuses an untimed page error', () => {
+  const result = screenHypotheses([{
+    id: 'wrong-cause', title: 'Runtime exception during card creation',
+    evidenceStateIds: ['state-1', 'state-2'],
+    expected: { source: 'cross-state-consistency', result: 'A card is added' },
+    observed: { result: 'Runtime exception during card creation', facts: [
+      { statement: 'Page error occurred', evidenceRefs: ['page-error-1'] },
+      { statement: 'Card list unchanged', evidenceRefs: ['state-1', 'state-2'] },
+    ] },
+  }], { states: [{ id: 'state-1' }, { id: 'state-2' }], coveredDiagnosticIds: new Set(['page-error-1']) });
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /cannot attribute its cause/i);
+});
+
+test('keeps an observed browser exception when replay is blocked, without claiming reproduction', () => {
+  const gated = gateReproducedHypotheses([{
+    id: 'direct-error', title: 'Unhandled page error', confidence: 'high',
+    expected: { source: 'runtime-diagnostic' },
+    reproduction: { status: 'reproduction-blocked', interpretation: 'A later control was unavailable.' },
+  }]);
+  assert.equal(gated.rejected.length, 0);
+  assert.equal(gated.retained[0].confirmationStatus, 'observed-runtime-diagnostic-replay-blocked');
+  assert.equal(gated.retained[0].confidence, 'medium');
+  assert.match(gated.retained[0].reproduction.interpretation, /cause and reproducibility are not established/i);
+});
+
+test('rejects a candidate that explicitly says the expected message appeared', () => {
+  const result = screenHypotheses([{
+    id: 'normal-validation', title: 'Email validation message displayed',
+    evidenceStateIds: ['state-1', 'state-2'],
+    expected: { source: 'project-documentation', result: "The form should display 'Email is not valid'." },
+    observed: { result: "The form displays 'Email is not valid' under the email field.", facts: [
+      { statement: "Email is not valid is shown", evidenceRefs: ['state-1', 'state-2'] },
+    ] },
+  }], { states: [{ id: 'state-1' }, { id: 'state-2' }] });
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /same expected visible outcome/i);
+});
+
+test('requires critic gate explanations to agree with their booleans', () => {
+  assert.throws(() => validateCriticReview({
+    actionExecuted: true, expectationGrounded: true, evidenceSufficient: true,
+    expectationSatisfied: false, observedOutcome: 'Unknown',
+    reason: 'The evidence is insufficient to establish the visible outcome.', confidence: 'low',
+  }), /marked evidence sufficient/i);
+});
+
 test("derives the critic verdict only when all four evidence gates pass", () => {
   assert.throws(() => validateCriticReview({
     reason: "The submitted item did not appear, confirming the anomaly.",
@@ -450,4 +570,27 @@ test("adds card context to generic icon actions without polluting global navigat
   } finally {
     await browser.close();
   }
+});
+test('does not retain a critic review whose facts explicitly disown its anomaly verdict', () => {
+  assert.throws(() => validateCriticReview({
+    actionExecuted: true, expectationGrounded: true, evidenceSufficient: true,
+    expectationSatisfied: false, confidence: 'high',
+    observedOutcome: 'The meal name is present. The evidence does not support the claim that it is missing.',
+    reason: 'The visible result contradicts the hypothesis.',
+  }), /Human review is required/);
+});
+
+test('a recorded native alert refutes a no-feedback defect claim for the same action', () => {
+  const result = screenHypotheses([{
+    id: 'expense-alert', title: 'No validation feedback', triggerStep: 1,
+    triggerActionName: 'Add transaction', reproductionSteps: ['Click Add transaction'],
+    evidenceStateIds: ['state-1', 'state-2'],
+    expected: { source: 'project-documentation', result: 'Validation feedback appears' },
+    observed: { result: 'No alert or error feedback appeared', facts: [{ statement: 'No feedback', evidenceRefs: ['state-2'] }] },
+  }], { states: [{ id: 'state-1' }, { id: 'state-2' }],
+    steps: [{ step: 1, status: 'completed', beforeStateId: 'state-1', afterStateId: 'state-2',
+      action: { kind: 'click', name: 'Add transaction' } }],
+    nativeDialogs: [{ type: 'alert', message: 'Please add a text and amount', actionStep: 1 }] });
+  assert.equal(result.retained.length, 0);
+  assert.match(result.rejected[0].reason, /native dialog/);
 });

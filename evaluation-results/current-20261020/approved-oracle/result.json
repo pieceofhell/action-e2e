@@ -1,0 +1,77 @@
+{
+  "protocol": "approved-oracle-browser-regression",
+  "contract": [
+    {
+      "id": "approved-value-criterion-1",
+      "title": "Normalized amount",
+      "given": "The form is open",
+      "when": "The user enters Amount",
+      "then": "The field value should be '99'.",
+      "expectationSource": {
+        "kind": "project-requirement",
+        "reference": "Fixture rule: normalize the entered value to 99"
+      },
+      "actionStep": 1,
+      "observedEntity": "amount",
+      "expectedValue": "99",
+      "comparison": "exact-input-value",
+      "evidenceStateIds": [
+        "after"
+      ],
+      "status": "asserted",
+      "assertionId": "approved-value-criterion-1-assertion-1",
+      "assertion": {
+        "kind": "input-value",
+        "value": "99",
+        "observedEntity": "amount",
+        "comparison": "exact-input-value"
+      },
+      "reason": null,
+      "stepIndex": 0
+    }
+  ],
+  "replays": [
+    {
+      "member": "correct",
+      "independentlyObserved": "99",
+      "summary": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "passed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 0,
+        "durationMs": 5861.133,
+        "failureClassification": {}
+      }
+    },
+    {
+      "member": "mutant",
+      "independentlyObserved": "42",
+      "summary": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "assertion-failed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 1,
+        "durationMs": 10860.723999999998,
+        "failureClassification": {
+          "behavior-assertion": 1
+        }
+      }
+    }
+  ]
+}

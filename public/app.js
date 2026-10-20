@@ -82,6 +82,7 @@ const elements = {
   baseUrlInput: document.getElementById("baseUrlInput"),
   workingDirectoryInput: document.getElementById("workingDirectoryInput"),
   runInstallCheckbox: document.getElementById("runInstallCheckbox"),
+  disposableLocalProfile: document.getElementById("disposableLocalProfile"),
   selectionStatus: document.getElementById("selectionStatus"),
   inspectionStatus: document.getElementById("inspectionStatus"),
   criteriaStatus: document.getElementById("criteriaStatus"),
@@ -1017,7 +1018,7 @@ function renderLiveExplorationCard(liveExploration) {
       <p>Unique visible inputs: ${(summary.uniqueInputs || []).length}</p>
       ${liveExploration.agenticExploration?.purpose ? `<p>Purpose: interface discovery through ordinary user journeys. Defect assessment runs afterward.</p><p>Stopped because: ${escapeHtml(liveExploration.agenticExploration.terminationReason || 'unknown')}</p>` : ''}
       ${liveExploration.agenticExploration?.constraints?.length ? `<p>Controls excluded by the current action policy: ${escapeHtml(liveExploration.agenticExploration.constraints.join(', '))}. Their full journeys were not exercised.</p>` : ''}
-      ${qaCoverage ? `<p>Risk-guided QA coverage: ${qaCoverage.covered || 0}/${qaCoverage.total || 0} goals (${Math.round((qaCoverage.ratio || 0) * 100)}%)${qaCoverage.highPriorityUncovered ? `; ${qaCoverage.highPriorityUncovered} high-priority gap(s)` : ""}</p>` : ""}
+      ${qaCoverage ? `<p>Risk-guided exploratory actions: ${qaCoverage.covered || 0}/${qaCoverage.total || 0} goals (${Number.isFinite(qaCoverage.ratio) ? `${Math.round(qaCoverage.ratio * 100)}%` : 'not measurable'}). This is not verified functional coverage.${qaCoverage.highPriorityUncovered ? ` ${qaCoverage.highPriorityUncovered} high-priority gap(s).` : ""}</p>` : ""}
       <p>Runtime health: ${escapeHtml(liveExploration.health || "unknown")}</p>
       ${renderList(routeItems, "No route-level observations were captured.")}
       ${renderList(liveExploration.runtimeErrors || [], "No development runtime overlay was detected.")}
@@ -1226,6 +1227,7 @@ function bindFlowEvents() {
       const flow = state.plan.flows.find((candidate) => candidate.id === event.target.dataset.flowApprove);
       if (flow) {
         flow.approved = event.target.checked;
+        invalidateGeneratedArtifacts();
       }
       updateTimeline();
     });
@@ -1236,9 +1238,22 @@ function bindFlowEvents() {
       const flow = state.plan.flows.find((candidate) => candidate.id === event.target.dataset.flowCriteria);
       if (flow) {
         flow.criteriaText = event.target.value;
+        invalidateGeneratedArtifacts();
       }
     });
   });
+}
+
+function invalidateGeneratedArtifacts() {
+  if (!state.generated) return;
+  state.generated = null;
+  state.execution = null;
+  state.insights = null;
+  elements.runTestsButton.disabled = true;
+  setStatus('generationStatus', 'Criteria changed; regenerate tests', 'is-warning');
+  renderArtifacts();
+  renderResults();
+  updateTimeline();
 }
 
 function renderArtifacts() {
@@ -1271,6 +1286,8 @@ function renderArtifacts() {
         <p><code>${escapeHtml(testFile.fileName)}</code></p>
         <p>Authoring mode: ${escapeHtml(testFile.generationMode || "unknown")}</p>
         ${testFile.generationNote ? `<p>${escapeHtml(testFile.generationNote)}</p>` : ""}
+        ${testFile.criterionContract?.length ? `<p>Acceptance checks: ${testFile.criterionContract.filter(item => item.status === 'asserted').length}/${testFile.criterionContract.length} criteria have an assertion. The remainder are unverified, not passed.</p>
+          <ul>${testFile.criterionContract.map(item => `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.status)} · ${escapeHtml(item.expectationSource?.kind || 'unknown source')}${item.assertion ? ` · ${escapeHtml(item.assertion.kind)} (${escapeHtml(item.assertionId)})` : ` · ${escapeHtml(item.reason || 'unsupported')}`}</li>`).join('')}</ul>` : `<p>Smoke/legacy test: no criterion-to-assertion contract was produced.</p>`}
       </article>
     `).join("")}
   `;
@@ -1291,6 +1308,10 @@ function renderResults() {
   elements.resultsPanel.innerHTML = `
     <article class="result-card">
       <strong>Execution summary</strong>
+      <p>Test result: <strong>${escapeHtml(summary.result || 'unavailable')}</strong> · operational state: ${escapeHtml(summary.executionState || 'unknown')}. A completed operation can contain failed or unverified tests.</p>
+      ${summary.issues?.length ? `<p>${escapeHtml(summary.issues.join(' '))}</p>` : ''}
+      ${state.insights.criterionVerification?.total ? `<p>Acceptance checks: ${state.insights.criterionVerification.passed}/${state.insights.criterionVerification.total} criteria have an assertion in a passing test; ${state.insights.criterionVerification.unverified.length} remain unverified. This does not replace semantic review.</p>` : ''}
+      ${state.insights.qaCoverage?.summary ? `<p>QA goals backed by a passing assertion: ${state.insights.qaCoverage.summary.verified}/${state.insights.qaCoverage.summary.total} (${Number.isFinite(state.insights.qaCoverage.summary.verifiedRatio) ? `${Math.round(state.insights.qaCoverage.summary.verifiedRatio * 100)}%` : 'not measurable'}). Traceability is in the run log; inferred expectations still require semantic review.</p>` : ''}
       <div class="summary-grid">
         <div class="metric">
           <span>Total</span>
@@ -1577,6 +1598,7 @@ function populateRuntimeFields(runtime) {
   elements.baseUrlInput.value = runtime.baseUrl || "";
   elements.workingDirectoryInput.value = runtime.workingDirectory || ".";
   elements.runInstallCheckbox.checked = false;
+  elements.disposableLocalProfile.checked = false;
   renderRuntimeModeState();
 }
 
@@ -1591,6 +1613,8 @@ function renderRuntimeModeState() {
   elements.baseUrlInput.disabled = isStatic || isManual;
   elements.workingDirectoryInput.disabled = isStatic || isExternal || isManual;
   elements.runInstallCheckbox.disabled = isStatic || isExternal || isManual;
+  elements.disposableLocalProfile.disabled = isExternal || isManual;
+  if (isExternal || isManual) elements.disposableLocalProfile.checked = false;
 
   if (isStatic) {
     elements.baseUrlInput.value = "auto";
@@ -1608,6 +1632,7 @@ function collectRuntimeConfig() {
     baseUrl: elements.baseUrlInput.value.trim(),
     workingDirectory: elements.workingDirectoryInput.value.trim() || ".",
     runInstallBeforeExecution: elements.runInstallCheckbox.checked,
+    disposableLocalProfile: elements.disposableLocalProfile.checked,
   };
 }
 

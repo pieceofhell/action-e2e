@@ -1,0 +1,2108 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T01:39:05.066Z",
+  "manifestPath": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\evaluation\\corpus.json",
+  "targetRoot": "C:\\Users\\henri\\Documents\\Codex\\E2P\\candidates\\vanillawebprojects",
+  "corpus": {
+    "schemaVersion": 1,
+    "id": "vanilla-functional-corpus",
+    "title": "Corpus didático de comportamentos web",
+    "targetRoot": "../../candidates/vanillawebprojects",
+    "batchId": "53c45f0f-d6b8-4bc7-be4f-4fdaafdfc972",
+    "selection": "Inclusão das 21 aplicações independentes da cópia local de Vanilla Web Projects; seleção de conveniência de um único repositório educacional, sem amostragem probabilística.",
+    "classification": "Família principal atribuída por revisão do propósito e dos arquivos locais; famílias são mutuamente exclusivas para agregação, mas capacidades se sobrepõem. Não são classes universais de porte nem rótulos de dificuldade do modelo.",
+    "evidencePolicy": "As métricas estáticas descrevem a cópia medida agora. O hash atual não autentica retroativamente o alvo executado no lote histórico. Resultados são derivados somente dos logs identificados; não representam uma nova coleta.",
+    "groups": [
+      {
+        "id": "data",
+        "label": "Dados e formulários",
+        "challenge": "Relacionar entrada, regra de domínio, agregação e estado persistido."
+      },
+      {
+        "id": "search",
+        "label": "Busca e seleção",
+        "challenge": "Relacionar consulta, conjunto de resultados e detalhe; controlar serviços externos quando presentes."
+      },
+      {
+        "id": "media",
+        "label": "Mídia e voz",
+        "challenge": "Distinguir alteração de controles de reprodução, síntese ou reconhecimento efetivos."
+      },
+      {
+        "id": "temporal",
+        "label": "Jogos e temporização",
+        "challenge": "Observar sequências, teclado, estados finais e passagem do tempo."
+      },
+      {
+        "id": "interaction",
+        "label": "Interação e ordenação",
+        "challenge": "Verificar ciclo de painéis e alteração da ordem, além da existência dos controles."
+      }
+    ],
+    "applications": [
+      {
+        "id": "dom-array-methods",
+        "group": "data",
+        "purpose": "Lista de pessoas e valores com transformação, filtro, ordenação e soma.",
+        "behavior": "Dobrar valores e conferir a soma do conjunto exibido; filtrar apenas valores superiores a um milhão.",
+        "historicalLimit": "Teste verde coexistiu com hipótese que confundiu lista vazia esperada com defeito."
+      },
+      {
+        "id": "expense-tracker",
+        "group": "data",
+        "purpose": "Registro de receitas e despesas, cálculo de saldo e histórico local.",
+        "behavior": "Criar lançamento válido, conferir saldo e reencontrar o mesmo lançamento após recarga.",
+        "historicalLimit": "Sem entrada numérica válida, preencher descrição e recarregar não provou cálculo nem persistência."
+      },
+      {
+        "id": "form-validator",
+        "group": "data",
+        "purpose": "Validação de campos de cadastro no navegador, sem cadastro em servidor.",
+        "behavior": "Relacionar mensagens de validação às regras de cada campo e remover o erro após correção válida.",
+        "historicalLimit": "A exploração parcial de Username não concluiu o formulário."
+      },
+      {
+        "id": "memory-cards",
+        "group": "data",
+        "purpose": "Cartões de pergunta e resposta com criação, navegação e armazenamento local.",
+        "behavior": "Adicionar cartão, alternar pergunta/resposta, recarregar e verificar a navegação em coleção vazia.",
+        "historicalLimit": "Exceção após esvaziar cartões foi observada, mas sua reprodução independente ficou bloqueada."
+      },
+      {
+        "id": "movie-seat-booking",
+        "group": "data",
+        "purpose": "Seleção de filme e assentos com preço e estado persistido no navegador.",
+        "behavior": "Selecionar assentos livres, excluir ocupados, conferir quantidade vezes preço e restaurar a seleção.",
+        "historicalLimit": "O teste intitulado persistência não recarrega a página e termina verificando body visível; não comprova persistência, preço ou restrição de assentos ocupados."
+      },
+      {
+        "id": "exchange-rate",
+        "group": "search",
+        "purpose": "Conversão entre moedas com consulta a taxa externa.",
+        "behavior": "Conferir valor convertido e inversão das moedas com taxa de referência controlada.",
+        "historicalLimit": "Nenhum fluxo elegível para aprovação automática; não houve teste executado."
+      },
+      {
+        "id": "infinite_scroll_blog",
+        "group": "search",
+        "purpose": "Lista de publicações remotas com carregamento progressivo e filtro.",
+        "behavior": "Chegar ao fim da lista e comprovar acréscimo de publicações; conferir o filtro sobre os resultados.",
+        "historicalLimit": "Interação com filtro não demonstra carregamento por rolagem."
+      },
+      {
+        "id": "lyrics-search",
+        "group": "search",
+        "purpose": "Busca de músicas e letras, com paginação e serviços remotos.",
+        "behavior": "Buscar, selecionar resultado e conferir letra; tratar resposta não JSON de dependência externa.",
+        "historicalLimit": "Exceção de JSON envolveu resposta 403 do proxy; teste aprovado não distinguiu essa falha de integração."
+      },
+      {
+        "id": "meal-finder",
+        "group": "search",
+        "purpose": "Busca de receitas e navegação ao detalhe, com opção aleatória e API externa.",
+        "behavior": "Buscar termo, abrir receita e conferir título e ingredientes correspondentes ao item selecionado.",
+        "historicalLimit": "Vinte ações exploradas resultaram em teste de Enter; hipótese sobre título ausente contradizia as capturas."
+      },
+      {
+        "id": "product-filtering",
+        "group": "search",
+        "purpose": "Catálogo local de produtos com busca, categorias e contador de carrinho.",
+        "behavior": "Combinar busca e categoria e conferir os produtos resultantes; validar alteração do contador.",
+        "historicalLimit": "Teste da busca por Sony não cobre todas as combinações ou o comportamento do carrinho."
+      },
+      {
+        "id": "custom-video-player",
+        "group": "media",
+        "purpose": "Player de vídeo com reprodução, parada e controle de progresso.",
+        "behavior": "Conferir paused/currentTime e atualização do progresso ao interagir com os controles.",
+        "historicalLimit": "Controle exercitado não comprova conteúdo audiovisual percebido."
+      },
+      {
+        "id": "music-player",
+        "group": "media",
+        "purpose": "Player de áudio com faixas anterior/próxima e progresso.",
+        "behavior": "Conferir mudança de identidade da faixa e estado do elemento de áudio ao navegar e reproduzir.",
+        "historicalLimit": "Teste aprovado coexistiu com exceção ao atualizar elementos de tempo ausentes."
+      },
+      {
+        "id": "speak-number-guess",
+        "group": "media",
+        "purpose": "Adivinhação de número por reconhecimento de fala.",
+        "behavior": "Fornecer fala reconhecida e conferir indicação maior/menor e estado de acerto.",
+        "historicalLimit": "Sem ação de voz útil, exploração inconclusiva e nenhum teste executado."
+      },
+      {
+        "id": "speech-text-reader",
+        "group": "media",
+        "purpose": "Leitura por síntese de voz de cartões e texto informado.",
+        "behavior": "Conferir texto e voz enviados à síntese; avaliar saída audível em protocolo próprio.",
+        "historicalLimit": "Texto e opções visíveis não demonstram emissão ou qualidade do áudio."
+      },
+      {
+        "id": "breakout-game",
+        "group": "temporal",
+        "purpose": "Jogo em canvas com raquete, bola, blocos e pontuação.",
+        "behavior": "Controlar raquete, atingir blocos e relacionar colisão a remoção, pontuação e término.",
+        "historicalLimit": "Abrir regras não valida a partida."
+      },
+      {
+        "id": "hangman",
+        "group": "temporal",
+        "purpose": "Jogo de forca com palpites por teclado e estados de vitória/derrota.",
+        "behavior": "Informar letras e conferir progresso, erros, repetição e término da partida.",
+        "historicalLimit": "Observação temporal não exercitou palpites, vitória ou derrota."
+      },
+      {
+        "id": "new-year-countdown",
+        "group": "temporal",
+        "purpose": "Contagem regressiva até a mudança de ano.",
+        "behavior": "Fixar relógio e conferir unidades e transição na fronteira do ano.",
+        "historicalLimit": "Espera limitada não comprova a fronteira da virada do ano."
+      },
+      {
+        "id": "relaxer-app",
+        "group": "temporal",
+        "purpose": "Animação de ciclo respiratório com fases temporizadas.",
+        "behavior": "Conferir sequência e duração de inspirar, manter e expirar sob relógio controlado.",
+        "historicalLimit": "Uma fronteira temporal não comprova todo o ciclo."
+      },
+      {
+        "id": "typing-game",
+        "group": "temporal",
+        "purpose": "Jogo de digitação com palavras, dificuldade, pontuação e cronômetro.",
+        "behavior": "Completar palavra, conferir pontuação e incremento de tempo conforme dificuldade e estado final.",
+        "historicalLimit": "Nenhum fluxo elegível no lote principal; exploração não se converteu em teste."
+      },
+      {
+        "id": "modal-menu-slider",
+        "group": "interaction",
+        "purpose": "Menu lateral e diálogo de inscrição com abertura e fechamento.",
+        "behavior": "Conferir visibilidade após abrir, fechar e clicar fora do diálogo.",
+        "historicalLimit": "O ciclo dos painéis não demonstra envio ou processamento de inscrição."
+      },
+      {
+        "id": "sortable-list",
+        "group": "interaction",
+        "purpose": "Ordenação de lista por arrastar e soltar e conferência da sequência.",
+        "behavior": "Mover item, conferir nova ordem e relacionar a verificação à sequência efetiva.",
+        "historicalLimit": "Acionar Check Order no estado inicial não testa a reordenação."
+      }
+    ]
+  },
+  "batch": {
+    "id": "53c45f0f-d6b8-4bc7-be4f-4fdaafdfc972",
+    "createdAt": "2026-10-05T13:07:39.131Z",
+    "model": "qwen3.8-vl-27b-iq1m-64k"
+  },
+  "groups": [
+    {
+      "id": "data",
+      "label": "Dados e formulários",
+      "challenge": "Relacionar entrada, regra de domínio, agregação e estado persistido.",
+      "applications": 5,
+      "logs": 5,
+      "missingLogs": 0,
+      "reachedExecution": 5,
+      "testsExecuted": 9,
+      "testsPassed": 9,
+      "hypotheses": 3,
+      "completedActions": 38,
+      "observedStates": 30,
+      "measuredApplications": 5,
+      "sourceLineRange": [
+        165,
+        372
+      ]
+    },
+    {
+      "id": "search",
+      "label": "Busca e seleção",
+      "challenge": "Relacionar consulta, conjunto de resultados e detalhe; controlar serviços externos quando presentes.",
+      "applications": 5,
+      "logs": 5,
+      "missingLogs": 0,
+      "reachedExecution": 4,
+      "testsExecuted": 5,
+      "testsPassed": 5,
+      "hypotheses": 2,
+      "completedActions": 33,
+      "observedStates": 32,
+      "measuredApplications": 5,
+      "sourceLineRange": [
+        190,
+        291
+      ]
+    },
+    {
+      "id": "media",
+      "label": "Mídia e voz",
+      "challenge": "Distinguir alteração de controles de reprodução, síntese ou reconhecimento efetivos.",
+      "applications": 4,
+      "logs": 4,
+      "missingLogs": 0,
+      "reachedExecution": 3,
+      "testsExecuted": 6,
+      "testsPassed": 6,
+      "hypotheses": 1,
+      "completedActions": 12,
+      "observedStates": 11,
+      "measuredApplications": 4,
+      "sourceLineRange": [
+        118,
+        300
+      ]
+    },
+    {
+      "id": "temporal",
+      "label": "Jogos e temporização",
+      "challenge": "Observar sequências, teclado, estados finais e passagem do tempo.",
+      "applications": 5,
+      "logs": 5,
+      "missingLogs": 0,
+      "reachedExecution": 4,
+      "testsExecuted": 4,
+      "testsPassed": 4,
+      "hypotheses": 0,
+      "completedActions": 12,
+      "observedStates": 14,
+      "measuredApplications": 5,
+      "sourceLineRange": [
+        138,
+        289
+      ]
+    },
+    {
+      "id": "interaction",
+      "label": "Interação e ordenação",
+      "challenge": "Verificar ciclo de painéis e alteração da ordem, além da existência dos controles.",
+      "applications": 2,
+      "logs": 2,
+      "missingLogs": 0,
+      "reachedExecution": 2,
+      "testsExecuted": 4,
+      "testsPassed": 4,
+      "hypotheses": 0,
+      "completedActions": 10,
+      "observedStates": 5,
+      "measuredApplications": 2,
+      "sourceLineRange": [
+        194,
+        329
+      ]
+    }
+  ],
+  "applications": [
+    {
+      "id": "dom-array-methods",
+      "group": "data",
+      "purpose": "Lista de pessoas e valores com transformação, filtro, ordenação e soma.",
+      "behavior": "Dobrar valores e conferir a soma do conjunto exibido; filtrar apenas valores superiores a um milhão.",
+      "historicalLimit": "Teste verde coexistiu com hipótese que confundiu lista vazia esperada com defeito.",
+      "runId": "dom-array-methods-2026-10-05T13-10-52-081Z-f6662e",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.839Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 165,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [
+            "script.js"
+          ],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://randomuser.me/api",
+          "https://stackoverflow.com/questions/149055/how-to-format-numbers-as-currency-string"
+        ],
+        "skipped": [],
+        "sourceSha256": "a85afd3f6418d381f10d099e527c03d4e1c1521ee962f844b38064c51759e1f7",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "850b28b114daa286b2d357cf6e4dc75cb2f14c0798bfc47a994ba1cc2b2627b9",
+            "bytes": 907
+          },
+          {
+            "path": "readme.md",
+            "sha256": "3f15931f1f3614dc671a2e2893eaf5f5239825846e11e32bfed30cfc990c3c11",
+            "bytes": 381
+          },
+          {
+            "path": "script.js",
+            "sha256": "8874c4ba74ae3c115bf8083decce6190c533175107680bd27f317ab69800c343",
+            "bytes": 2573
+          },
+          {
+            "path": "style.css",
+            "sha256": "f8f9653652234806ee5ec3c6443ae67905ab4d5846f8187c4f413208d1b75393",
+            "bytes": 1163
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 3,
+        "testsPassed": 3,
+        "completedActions": 5,
+        "observedStates": 4,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "dom-array-methods-2026-10-05T13-10-52-081Z-f6662e/tests/add-user.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 30,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"DOM Array Methods\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "dom-array-methods-2026-10-05T13-10-52-081Z-f6662e/tests/calculate-total-wealth.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 32,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"DOM Array Methods\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "dom-array-methods-2026-10-05T13-10-52-081Z-f6662e/tests/filter-millionaires.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"DOM Array Methods\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "expense-tracker",
+      "group": "data",
+      "purpose": "Registro de receitas e despesas, cálculo de saldo e histórico local.",
+      "behavior": "Criar lançamento válido, conferir saldo e reencontrar o mesmo lançamento após recarga.",
+      "historicalLimit": "Sem entrada numérica válida, preencher descrição e recarregar não provou cálculo nem persistência.",
+      "runId": "expense-tracker-2026-10-05T13-15-13-806Z-465d05",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.867Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 269,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [
+            "script.js"
+          ],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Lato&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "becb5ada3b208ebc391337812f910485bacfeaf4e3441b78cc32bd59b3b1e897",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "a3e2382c8ed5ecd054a1976f7477df423c7a56cd691179c805e194cd58f37d72",
+            "bytes": 1566
+          },
+          {
+            "path": "readme.md",
+            "sha256": "db1c9322d4150ee70cc87d901431cb847fd8ecaa32e328affe438ff80a36dffd",
+            "bytes": 336
+          },
+          {
+            "path": "script.js",
+            "sha256": "eb2faebdaab42bb5e81217235045fa0dcafeb35679bcbbf98ce0c86674084b2d",
+            "bytes": 3037
+          },
+          {
+            "path": "style.css",
+            "sha256": "2868df5bdfbf012ccea97d277673da27c06708528604644ab7fcd82183b933f9",
+            "bytes": 2442
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 2,
+        "testsPassed": 2,
+        "completedActions": 4,
+        "observedStates": 2,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "expense-tracker-2026-10-05T13-15-13-806Z-465d05/tests/state-1.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 32,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Expense Tracker\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "expense-tracker-2026-10-05T13-15-13-806Z-465d05/tests/state-2.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"#text\")).toHaveValue(\"Lunch\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form-validator",
+      "group": "data",
+      "purpose": "Validação de campos de cadastro no navegador, sem cadastro em servidor.",
+      "behavior": "Relacionar mensagens de validação às regras de cada campo e remover o erro após correção válida.",
+      "historicalLimit": "A exploração parcial de Username não concluiu o formulário.",
+      "runId": "form-validator-2026-10-05T13-17-28-900Z-8513b9",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.885Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 198,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "a2171e2a8abc698b78a1fe5d29d468a033b56f5150585c9c776309998ded6b9a",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "fe216f8a81cfba492f920a6840e1b63e73bf99e86fd04e5ff4f12de290e10cc1",
+            "bytes": 1488
+          },
+          {
+            "path": "readme.md",
+            "sha256": "ebcb8848c36c6aece22a54032d1f08504a724176332ed60cff0001d763cc8b40",
+            "bytes": 403
+          },
+          {
+            "path": "script.js",
+            "sha256": "d210c121fa1919c246e9c692c7c9be4bda2647ad50ebf16b0a83f08fa5d323cb",
+            "bytes": 2360
+          },
+          {
+            "path": "style.css",
+            "sha256": "ef2855a9c472df0b65b6be9fab2125f15e31cd6b2d745f7fabfa73e4813c14f5",
+            "bytes": 1575
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 2,
+        "testsPassed": 2,
+        "completedActions": 2,
+        "observedStates": 3,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "form-validator-2026-10-05T13-17-28-900Z-8513b9/tests/form-validator-press-enter.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 28,
+              "text": "await expect(currentPage.locator(\"#username\")).toHaveValue(\"sampleuser\");"
+            }
+          ]
+        },
+        {
+          "file": "form-validator-2026-10-05T13-17-28-900Z-8513b9/tests/form-validator-username-fill.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"#username\")).toHaveValue(\"sampleuser\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "memory-cards",
+      "group": "data",
+      "purpose": "Cartões de pergunta e resposta com criação, navegação e armazenamento local.",
+      "behavior": "Adicionar cartão, alternar pergunta/resposta, recarregar e verificar a navegação em coleção vazia.",
+      "historicalLimit": "Exceção após esvaziar cartões foi observada, mas sua reprodução independente ficou bloqueada.",
+      "runId": "memory-cards-2026-10-05T13-33-29-286Z-38eb9c",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.902Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 372,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [
+            "script.js"
+          ],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css",
+          "https://fonts.googleapis.com/css?family=Lato:300,500,700&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "bdeab0502429506d11af3fae7541795f11e1951ce165c88ba16f470198c46e8a",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "6b5078a0fc1d233277bc8cee499d373340c0d8728496545c9e3eea14c62d002c",
+            "bytes": 2607
+          },
+          {
+            "path": "readme.md",
+            "sha256": "a2fabe24cb0316c84305a94583b36d22827ea04bd942f56a4bfdc3e2d0aac1ef",
+            "bytes": 364
+          },
+          {
+            "path": "script.js",
+            "sha256": "31713ccaf8031cde624fd247624d9ca8d8cbf6cbd2085c962274170719cd18ad",
+            "bytes": 3843
+          },
+          {
+            "path": "style.css",
+            "sha256": "d4b63da82d02c68e7e0655d89d4e0305208d25860dc19ac928b296052c31c2c0",
+            "bytes": 3174
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 9,
+        "observedStates": 3,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "memory-cards-2026-10-05T13-33-29-286Z-38eb9c/tests/memory-cards-clear-cards.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 32,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Memory Cards Add New Card\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "movie-seat-booking",
+      "group": "data",
+      "purpose": "Seleção de filme e assentos com preço e estado persistido no navegador.",
+      "behavior": "Selecionar assentos livres, excluir ocupados, conferir quantidade vezes preço e restaurar a seleção.",
+      "historicalLimit": "O teste intitulado persistência não recarrega a página e termina verificando body visível; não comprova persistência, preço ou restrição de assentos ocupados.",
+      "runId": "movie-seat-booking-2026-10-05T13-39-51-945Z-f806bb",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.910Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 256,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [
+            "script.js"
+          ],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Lato&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "12c6dd09a94a92b36a4c623c5ab2a49b8e13dfb2b23e2f5eef2151697f1558b3",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "0d4c8192e13032fe81cfe877dc9958b4455d0513d96ac4e63911295b93794b4a",
+            "bytes": 3243
+          },
+          {
+            "path": "README.md",
+            "sha256": "c742d50e8a4bbf81a2c4d6380db43f9c8f29ae65a76122f76835cbe78b880b38",
+            "bytes": 541
+          },
+          {
+            "path": "script.js",
+            "sha256": "40ecbd47bcbf72f4af803208870d3e345b92b52bdff8ab047a3025bbe8bed62e",
+            "bytes": 2113
+          },
+          {
+            "path": "style.css",
+            "sha256": "27326776e24df052e6e507003dae3692de1a5382d73e6ebf02ee30d1fa9554f3",
+            "bytes": 1865
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 18,
+        "observedStates": 18,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "movie-seat-booking-2026-10-05T13-39-51-945Z-f806bb/tests/movie-seat-booking-persistence-reload.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 30,
+              "text": "await expect(currentPage.locator('body')).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exchange-rate",
+      "group": "search",
+      "purpose": "Conversão entre moedas com consulta a taxa externa.",
+      "behavior": "Conferir valor convertido e inversão das moedas com taxa de referência controlada.",
+      "historicalLimit": "Nenhum fluxo elegível para aprovação automática; não houve teste executado.",
+      "runId": "exchange-rate-2026-10-05T13-13-47-835Z-4dfab3",
+      "stopStage": "planning",
+      "stopReason": "No flow met batch auto-approval and no stable, changed browser transition with a cited observed outcome was available.",
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.916Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 248,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [
+            "script.js"
+          ],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://open.exchangerate-api.com/v6/latest"
+        ],
+        "skipped": [],
+        "sourceSha256": "a5453f6a401bdb3c32aca62d78e491dc23aa908fbbcc3401f1b4399d7e29ac85",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "869f5a4cae11bd4b14120b2a1c8296c556b677ee7d26d7677a5a789a6615ff40",
+            "bytes": 5712
+          },
+          {
+            "path": "README.md",
+            "sha256": "ce5ead7b3d759635f601415a4d0c904d49b6a6703af9836e388ddc9a59ef5b9a",
+            "bytes": 354
+          },
+          {
+            "path": "script.js",
+            "sha256": "e4d8667c0b9d9d673a20d58647dc3d990bffda242b44e365a129939e61c0ccbf",
+            "bytes": 1265
+          },
+          {
+            "path": "style.css",
+            "sha256": "66d13981c1d489b5b6ba60a70b0f595280d31a1d844fffe058687a89e02ecf20",
+            "bytes": 2118
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": false,
+        "executionCountsAvailable": false,
+        "testsExecuted": null,
+        "testsPassed": null,
+        "completedActions": 2,
+        "observedStates": 3,
+        "hypotheses": 0,
+        "status": "failed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": []
+    },
+    {
+      "id": "infinite_scroll_blog",
+      "group": "search",
+      "purpose": "Lista de publicações remotas com carregamento progressivo e filtro.",
+      "behavior": "Chegar ao fim da lista e comprovar acréscimo de publicações; conferir o filtro sobre os resultados.",
+      "historicalLimit": "Interação com filtro não demonstra carregamento por rolagem.",
+      "runId": "infinite-scroll-blog-2026-10-05T13-20-18-467Z-2ca8f0",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.919Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 190,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [
+            "script.js"
+          ],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Roboto&display=swap",
+          "https://jsonplaceholder.typicode.com/posts?_limit=${limit"
+        ],
+        "skipped": [],
+        "sourceSha256": "8e10b9e2bdbcc03f25b90aa92e7dd13b22a490b48238a582c1605578a502281a",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "0924ff064421fa1067435bb3839527bc841d936fe32cb37ce9681ecf44cf6ced",
+            "bytes": 755
+          },
+          {
+            "path": "readme.md",
+            "sha256": "896c30e6a252d80ac7a4d2c3c8a3fa4dc0fa59442bd12fd8b15823e234b7220d",
+            "bytes": 387
+          },
+          {
+            "path": "script.js",
+            "sha256": "4da1353e6b85f40e094cd73512363cf5a4e01beb32e0220e93c34290146e4af5",
+            "bytes": 1963
+          },
+          {
+            "path": "style.css",
+            "sha256": "c0fef6d06ad2d082a50794bebc5f23b85b0e9ae33e29dc98c26aad4774060a59",
+            "bytes": 1806
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 2,
+        "testsPassed": 2,
+        "completedActions": 3,
+        "observedStates": 3,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "infinite-scroll-blog-2026-10-05T13-20-18-467Z-2ca8f0/tests/filter-posts-commit-enter.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 28,
+              "text": "await expect(currentPage.locator(\"#filter\")).toHaveValue(\"sunt\");"
+            }
+          ]
+        },
+        {
+          "file": "infinite-scroll-blog-2026-10-05T13-20-18-467Z-2ca8f0/tests/filter-posts-input-interaction.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"#filter\")).toHaveValue(\"sunt\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lyrics-search",
+      "group": "search",
+      "purpose": "Busca de músicas e letras, com paginação e serviços remotos.",
+      "behavior": "Buscar, selecionar resultado e conferir letra; tratar resposta não JSON de dependência externa.",
+      "historicalLimit": "Exceção de JSON envolveu resposta 403 do proxy; teste aprovado não distinguiu essa falha de integração.",
+      "runId": "lyrics-search-2026-10-05T13-22-40-154Z-6b1792",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.940Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 215,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [
+            "script.js"
+          ],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://api.lyrics.ovh",
+          "https://cors-anywhere.herokuapp.com/${url",
+          "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+        ],
+        "skipped": [],
+        "sourceSha256": "e7ef2cc125135a7ec39f67f203fc86242a371c59a7f484396a0b295a1aa4bcbb",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "513a1dfc873882c6224e58f4fb979d44fe2e3601c71879692c13ca3b855ff80e",
+            "bytes": 793
+          },
+          {
+            "path": "readme.md",
+            "sha256": "22fdfe67fb29fc84f7e31bddedaac372839c71ed0aaaa469e4dd680b9d2b4b91",
+            "bytes": 277
+          },
+          {
+            "path": "script.js",
+            "sha256": "d8a9f22142af21d235de356ee70ff289760fecae4f36873f7308ee98578aa813",
+            "bytes": 2495
+          },
+          {
+            "path": "style.css",
+            "sha256": "f2d5bbe8ffb6296e0a488e45e34b9c4b0a4f251358da2a40d7f4bc5497e81d98",
+            "bytes": 1913
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 4,
+        "observedStates": 4,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "lyrics-search-2026-10-05T13-22-40-154Z-6b1792/tests/enter-artist-or-song-name-state-2.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"#search\")).toHaveValue(\"sampleuser\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meal-finder",
+      "group": "search",
+      "purpose": "Busca de receitas e navegação ao detalhe, com opção aleatória e API externa.",
+      "behavior": "Buscar termo, abrir receita e conferir título e ingredientes correspondentes ao item selecionado.",
+      "historicalLimit": "Vinte ações exploradas resultaram em teste de Enter; hipótese sobre título ausente contradizia as capturas.",
+      "runId": "meal-finder-2026-10-05T13-25-28-135Z-3ba3b7",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.957Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 291,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [
+            "script.js"
+          ],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css",
+          "https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealID",
+          "https://www.themealdb.com/api/json/v1/1/random.php",
+          "https://www.themealdb.com/api/json/v1/1/search.php?s=${term"
+        ],
+        "skipped": [],
+        "sourceSha256": "2c2e3d2576dcc221c9033923de3eb6eeac53d16695e238e92ea4c8ea6c248c74",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "119e2ad62fafb141f63462d55509ec044a9e0550c5807fe7fa87de06d08bc567",
+            "bytes": 1160
+          },
+          {
+            "path": "readme.md",
+            "sha256": "cefd42d81f8cb9084e476c7720aadfa86afd6f1c4701205647acf529eddf2cb2",
+            "bytes": 383
+          },
+          {
+            "path": "script.js",
+            "sha256": "672a10a64d8dd88f24b19e60f60eb4cb8c224ac433d2142ccc86d71174ee2875",
+            "bytes": 3379
+          },
+          {
+            "path": "style.css",
+            "sha256": "0af9695d49a7e066a6edfaba8499974d468a5a396aee1f2d593588177a873988",
+            "bytes": 2600
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 20,
+        "observedStates": 20,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "meal-finder-2026-10-05T13-25-28-135Z-3ba3b7/tests/press-enter-in-search-for-meals-or-keywords-state-1.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 28,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Meal Finder\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product-filtering",
+      "group": "search",
+      "purpose": "Catálogo local de produtos com busca, categorias e contador de carrinho.",
+      "behavior": "Combinar busca e categoria e conferir os produtos resultantes; validar alteração do contador.",
+      "historicalLimit": "Teste da busca por Sony não cobre todas as combinações ou o comportamento do carrinho.",
+      "runId": "product-filtering-2026-10-05T13-49-14-621Z-4fada4",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.960Z",
+        "sourceFiles": 2,
+        "nonblankSourceLines": 258,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "http://www.w3.org/2000/svg",
+          "https://cdn.tailwindcss.com"
+        ],
+        "skipped": [],
+        "sourceSha256": "31e5590fbb19839ec19995738660c68600c0a1591a3e025a025be15a1f1037cf",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "e5fce1d024dc665d339720fb7b80ff64670a7e60d1a83fed822e4ca128eee7e7",
+            "bytes": 3511
+          },
+          {
+            "path": "script.js",
+            "sha256": "6049441937910ee3d63c137ffb12ed7de1ac3401f9cc601dc71754b9c2c85bfa",
+            "bytes": 4750
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 4,
+        "observedStates": 2,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "product-filtering-2026-10-05T13-49-14-621Z-4fada4/tests/search-filter-sony.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"#search\")).toHaveValue(\"Sony\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "custom-video-player",
+      "group": "media",
+      "purpose": "Player de vídeo com reprodução, parada e controle de progresso.",
+      "behavior": "Conferir paused/currentTime e atualização do progresso ao interagir com os controles.",
+      "historicalLimit": "Controle exercitado não comprova conteúdo audiovisual percebido.",
+      "runId": "custom-video-player-2026-10-05T13-09-21-936Z-c2f455",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.973Z",
+        "sourceFiles": 4,
+        "nonblankSourceLines": 262,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/",
+          "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Video_and_audio_APIs",
+          "https://fonts.googleapis.com/css?family=Questrial&display=swap",
+          "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        ],
+        "skipped": [],
+        "sourceSha256": "ff0510654633a591b9965b88d96061e2039ae1c3f467b0632d420b03c090eda9",
+        "files": [
+          {
+            "path": "css/progress.css",
+            "sha256": "42eff4ccafbb81fd060a098cf8fb797ce4311de6d3cd5c56975fae1cf6c59e5a",
+            "bytes": 2982
+          },
+          {
+            "path": "css/style.css",
+            "sha256": "4171603424e2b9ab097b5b8299476bf61384e26a9c019463f0779006168d5411",
+            "bytes": 1172
+          },
+          {
+            "path": "index.html",
+            "sha256": "62945f91f1824c50d4ef188f4680836ccf2e528b1d77fb05a6254b34d343c559",
+            "bytes": 1437
+          },
+          {
+            "path": "README.md",
+            "sha256": "e38af69aa5c7ca22553007288cfb39ca3fe511202177defcb29b22df3a3e4c70",
+            "bytes": 305
+          },
+          {
+            "path": "script.js",
+            "sha256": "38bb58a90a609139c7c20360d32fe8f18bb376471d6ebcab5003bfbeb9f4023d",
+            "bytes": 1673
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 2,
+        "testsPassed": 2,
+        "completedActions": 2,
+        "observedStates": 3,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "custom-video-player-2026-10-05T13-09-21-936Z-c2f455/tests/video-player-play-activation.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Custom Video Player\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "custom-video-player-2026-10-05T13-09-21-936Z-c2f455/tests/video-player-screen-interaction.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 28,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Custom Video Player\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "music-player",
+      "group": "media",
+      "purpose": "Player de áudio com faixas anterior/próxima e progresso.",
+      "behavior": "Conferir mudança de identidade da faixa e estado do elemento de áudio ao navegar e reproduzir.",
+      "historicalLimit": "Teste aprovado coexistiu com exceção ao atualizar elementos de tempo ausentes.",
+      "runId": "music-player-2026-10-05T13-46-40-857Z-3b2883",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.992Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 300,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css",
+          "https://fonts.googleapis.com/css?family=Lato&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "d953916c510b7dc6eff7dea79bb2c580039da50ed3b2f32967fe761130d0d571",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "6a79d2b08b20bc27d554283a893400b3c416a0a7f943fed87d85f489d7e8c1cc",
+            "bytes": 1383
+          },
+          {
+            "path": "readme.md",
+            "sha256": "16278ba8f18b787c3c8c00027fea9e55f510aa41acbf12753c03924c5563ef8a",
+            "bytes": 285
+          },
+          {
+            "path": "script.js",
+            "sha256": "db93d97e685591db8e71bf7bc4daed43caa6edf57e89e6e3d79ef00f3b01c6ba",
+            "bytes": 4173
+          },
+          {
+            "path": "style.css",
+            "sha256": "264c8aca2a94b866019b49b0cc41a3a15f8e745331f4091bbd1be681a1ad6b00",
+            "bytes": 2476
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 3,
+        "observedStates": 2,
+        "hypotheses": 1,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "music-player-2026-10-05T13-46-40-857Z-3b2883/tests/play-button-activation.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Music Player\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "speak-number-guess",
+      "group": "media",
+      "purpose": "Adivinhação de número por reconhecimento de fala.",
+      "behavior": "Fornecer fala reconhecida e conferir indicação maior/menor e estado de acerto.",
+      "historicalLimit": "Sem ação de voz útil, exploração inconclusiva e nenhum teste executado.",
+      "runId": "speak-number-guess-2026-10-05T13-54-27-388Z-500428",
+      "stopStage": "exploration",
+      "stopReason": "The selected model did not complete a useful live interface exploration.",
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:04.995Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 118,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [
+            "script.js"
+          ],
+          "dragAndDrop": []
+        },
+        "networkUrls": [],
+        "skipped": [],
+        "sourceSha256": "20d05e031ed45aceaf76df2f53c3b0b93faccb4d8a3c8e8f03b7d46177b64ef2",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "7c43823cf828626ad09db248c8bc96cf2c655bf6c90cf8f8345df1e5618add21",
+            "bytes": 567
+          },
+          {
+            "path": "readme.md",
+            "sha256": "13e8d8b4c4bfbf55bff87ca806807841ccae0c4c9fb7d67c41ea62859b60ec89",
+            "bytes": 347
+          },
+          {
+            "path": "script.js",
+            "sha256": "f0e541a2fd8e558e92952f8a63a8941bbd0b5e514b152c32f532e506bf6791e3",
+            "bytes": 1771
+          },
+          {
+            "path": "style.css",
+            "sha256": "3e7217d0035d828a170d22435623119d3d69bcb7cb0dacdffff1c7846ed8901a",
+            "bytes": 721
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": false,
+        "executionCountsAvailable": false,
+        "testsExecuted": null,
+        "testsPassed": null,
+        "completedActions": 0,
+        "observedStates": 1,
+        "hypotheses": 0,
+        "status": "failed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": []
+    },
+    {
+      "id": "speech-text-reader",
+      "group": "media",
+      "purpose": "Leitura por síntese de voz de cartões e texto informado.",
+      "behavior": "Conferir texto e voz enviados à síntese; avaliar saída audível em protocolo próprio.",
+      "historicalLimit": "Texto e opções visíveis não demonstram emissão ou qualidade do áudio.",
+      "runId": "speech-text-reader-2026-10-05T13-54-38-026Z-f42b95",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.000Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 271,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [
+            "script.js"
+          ],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Lato"
+        ],
+        "skipped": [],
+        "sourceSha256": "7588b3e972bb26c95cef26bb1505733ae67cb1e81ce36d7061ffbb55e34740c5",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "21e621966a1ccaec56d087a18e77814c1f8bb5b5d5c093fd66c4b23c4c7efca4",
+            "bytes": 883
+          },
+          {
+            "path": "README.md",
+            "sha256": "283923a17083a6030c3db155ba41d310d121a382aa1492cdaf5bd9849e67731c",
+            "bytes": 366
+          },
+          {
+            "path": "script.js",
+            "sha256": "5aa58a2e00df7118335605b666c4cdd6035e66352a04fd5dc9fa253693d1af18",
+            "bytes": 2932
+          },
+          {
+            "path": "style.css",
+            "sha256": "9865bae4e53d82b33ce52c8feda6d0f1131c416a3b1b8556d1d2a8e99fed6444",
+            "bytes": 2277
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 3,
+        "testsPassed": 3,
+        "completedActions": 7,
+        "observedStates": 5,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "speech-text-reader-2026-10-05T13-54-38-026Z-f42b95/tests/flow-1.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 28,
+              "text": "await expect(currentPage.locator(\"#text\")).toHaveValue(\"Hello, how are you today?\");"
+            }
+          ]
+        },
+        {
+          "file": "speech-text-reader-2026-10-05T13-54-38-026Z-f42b95/tests/flow-2.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 32,
+              "text": "await expect(currentPage.locator(\"#text\")).toHaveValue(\"Hello, how are you today?\");"
+            }
+          ]
+        },
+        {
+          "file": "speech-text-reader-2026-10-05T13-54-38-026Z-f42b95/tests/flow-3.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 36,
+              "text": "await expect(currentPage.locator('body')).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "breakout-game",
+      "group": "temporal",
+      "purpose": "Jogo em canvas com raquete, bola, blocos e pontuação.",
+      "behavior": "Controlar raquete, atingir blocos e relacionar colisão a remoção, pontuação e término.",
+      "historicalLimit": "Abrir regras não valida a partida.",
+      "runId": "breakout-game-2026-10-05T13-07-39-134Z-94c2d9",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.003Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 289,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [],
+        "skipped": [],
+        "sourceSha256": "acbd181c577b1aa561801141dad071b72fad000b0faa315f47b6aff591181f62",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "2453ecde32ec9ca9985717929f8498842b4b191ef7769785a6516ceae15d35c1",
+            "bytes": 871
+          },
+          {
+            "path": "README.md",
+            "sha256": "11a6087a864e22b99c83374b39b61c270bbcade494025f1b643fa276b41dd15c",
+            "bytes": 406
+          },
+          {
+            "path": "script.js",
+            "sha256": "d2a3ce1a36ef3390d2a7b53ad8b68a2bed530ada87f56118a7478ff901b10129",
+            "bytes": 5429
+          },
+          {
+            "path": "style.css",
+            "sha256": "7b49d9f6c3931af06a558a10140535bc7242d4eeba2c60568627455381f38e0e",
+            "bytes": 1007
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 3,
+        "observedStates": 2,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "breakout-game-2026-10-05T13-07-39-134Z-94c2d9/tests/observed-transition-1.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.getByRole('heading', { name: \"How To Play:\", exact: true })).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hangman",
+      "group": "temporal",
+      "purpose": "Jogo de forca com palpites por teclado e estados de vitória/derrota.",
+      "behavior": "Informar letras e conferir progresso, erros, repetição e término da partida.",
+      "historicalLimit": "Observação temporal não exercitou palpites, vitória ou derrota.",
+      "runId": "hangman-2026-10-05T13-19-06-470Z-097f15",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.007Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 263,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [],
+        "skipped": [],
+        "sourceSha256": "548e5bd6c61e3e3c676dc3198dfebb26cdf456488a2b7171388acce9adc3d607",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "bde0e7b5b44d5bd3a9b3ec45b5ab0d10d5d04238f9d73bd3e99fa066afe792e9",
+            "bytes": 1925
+          },
+          {
+            "path": "README.md",
+            "sha256": "2d2cdd0b3756e6695f747b24439f6dfdbf3b777aafdf05fab7d84dfa7689bcc1",
+            "bytes": 373
+          },
+          {
+            "path": "script.js",
+            "sha256": "8e09a2056aeda45aa69fa256ae9221937b651f78b9c4c785f522855f0303a890",
+            "bytes": 3109
+          },
+          {
+            "path": "style.css",
+            "sha256": "aefb4986307ebe42e485ff13c89ab76766968b5999af049d02909764306bb837",
+            "bytes": 2132
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 1,
+        "observedStates": 1,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "hangman-2026-10-05T13-19-06-470Z-097f15/tests/observe-timer-boundary.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 25,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Hangman\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "new-year-countdown",
+      "group": "temporal",
+      "purpose": "Contagem regressiva até a mudança de ano.",
+      "behavior": "Fixar relógio e conferir unidades e transição na fronteira do ano.",
+      "historicalLimit": "Espera limitada não comprova a fronteira da virada do ano.",
+      "runId": "new-year-countdown-2026-10-05T13-48-16-078Z-ca24ea",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.017Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 147,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Lato&display=swap",
+          "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1349&q=80"
+        ],
+        "skipped": [],
+        "sourceSha256": "15e1aa35faf18808209386ab8d7e62b435bbc4a2abf7107941b5546b26fd4f27",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "01adef7f86fa678fd7bec2e4a39dc751bdde9a8c2588e522e9f72deac328dde6",
+            "bytes": 1048
+          },
+          {
+            "path": "README.md",
+            "sha256": "851e7f2e3b7355ccb00276d882dda63217d30b39f4cde190d3f11f76ab1b5770",
+            "bytes": 355
+          },
+          {
+            "path": "script.js",
+            "sha256": "a5de43f78e06e6aa7e2f6f38f134552b8c0b4355e09c8e344737ed01052da7eb",
+            "bytes": 1249
+          },
+          {
+            "path": "style.css",
+            "sha256": "b0ea6fd6b9b96bc88efc940f405f3b689b42fd77e25cba0598321bd977d83bfe",
+            "bytes": 1495
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 1,
+        "observedStates": 2,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "new-year-countdown-2026-10-05T13-48-16-078Z-ca24ea/tests/temporal-boundary-observation.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 25,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"New Year Countdown\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "relaxer-app",
+      "group": "temporal",
+      "purpose": "Animação de ciclo respiratório com fases temporizadas.",
+      "behavior": "Conferir sequência e duração de inspirar, manter e expirar sob relógio controlado.",
+      "historicalLimit": "Uma fronteira temporal não comprova todo o ciclo.",
+      "runId": "relaxer-app-2026-10-05T13-51-40-369Z-9c8b8b",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.028Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 138,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Montserrat&display=swap"
+        ],
+        "skipped": [],
+        "sourceSha256": "9ee647c6a6e37eabc009cb5374496e4159cc9b57eb5ce88c8be84b1e45120c29",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "0a80b1f613a23c48c474bc4770e173b0c9190fefef9e8511a72406e2df2b9825",
+            "bytes": 652
+          },
+          {
+            "path": "README.md",
+            "sha256": "ad255712863cddebd347b38ec8ad72d7e86f6ffe483fedde06ad2025f7108e38",
+            "bytes": 335
+          },
+          {
+            "path": "script.js",
+            "sha256": "eceb5f7f3c6d179620a5ae3befdb37ffd5d28b2c48240d03fc5227df6a2d5163",
+            "bytes": 593
+          },
+          {
+            "path": "style.css",
+            "sha256": "836ee0ed7e81b9c94f46f744a7b7e7ace715ce5d01b31b469635c15a94d1445f",
+            "bytes": 1820
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 1,
+        "observedStates": 2,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "relaxer-app-2026-10-05T13-51-40-369Z-9c8b8b/tests/observe-breathing-timer-boundary.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 25,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"Relaxer\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "typing-game",
+      "group": "temporal",
+      "purpose": "Jogo de digitação com palavras, dificuldade, pontuação e cronômetro.",
+      "behavior": "Completar palavra, conferir pontuação e incremento de tempo conforme dificuldade e estado final.",
+      "historicalLimit": "Nenhum fluxo elegível no lote principal; exploração não se converteu em teste.",
+      "runId": "typing-game-2026-10-05T13-58-34-412Z-b987d9",
+      "stopStage": "planning",
+      "stopReason": "No flow met batch auto-approval and no stable, changed browser transition with a cited observed outcome was available.",
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.039Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 264,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [
+            "script.js"
+          ],
+          "fetch": [],
+          "timers": [
+            "script.js"
+          ],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+        ],
+        "skipped": [],
+        "sourceSha256": "4f45f96357a7f8858e74934ec0798a24a41f71a09b8ccd8212c2130f5b287def",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "3bb12c0b5d849ae15c9ce6b0bcdaf4f5206b70bc3cc81d4fb31b98bde7d5899b",
+            "bytes": 1652
+          },
+          {
+            "path": "readme.md",
+            "sha256": "298f7f0bb4b3201f086053f104d487f67c11825e67409761bf9323200c4a0d71",
+            "bytes": 369
+          },
+          {
+            "path": "script.js",
+            "sha256": "33a3db962e69e77cbe96c0b8b62435b93abe9457cace104ae107197a8b0d12c1",
+            "bytes": 2854
+          },
+          {
+            "path": "style.css",
+            "sha256": "0d92ee630678dc2c5487216931ddd9912133eeefc31bf93e9d6b219f91f4c6f9",
+            "bytes": 1880
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": false,
+        "executionCountsAvailable": false,
+        "testsExecuted": null,
+        "testsPassed": null,
+        "completedActions": 6,
+        "observedStates": 7,
+        "hypotheses": 0,
+        "status": "failed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": []
+    },
+    {
+      "id": "modal-menu-slider",
+      "group": "interaction",
+      "purpose": "Menu lateral e diálogo de inscrição com abertura e fechamento.",
+      "behavior": "Conferir visibilidade após abrir, fechar e clicar fora do diálogo.",
+      "historicalLimit": "O ciclo dos painéis não demonstra envio ou processamento de inscrição.",
+      "runId": "modal-menu-slider-2026-10-05T13-36-47-875Z-daa4e2",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.043Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 329,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": []
+        },
+        "networkUrls": [
+          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css",
+          "https://fonts.googleapis.com/css?family=Lato&display=swap",
+          "https://randomuser.me/api/portraits/men/76.jpg"
+        ],
+        "skipped": [],
+        "sourceSha256": "b43cf153640261075fd314d6129cbdfb36c84ec5aefcd7ad985a463ba8746861",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "c12d03f735c07566f085551ad61f308e809720a2a755e87fd4b780b8352886ff",
+            "bytes": 4747
+          },
+          {
+            "path": "README.md",
+            "sha256": "afe9945e9857a624db09a1b35594a02957a6c017ebbece76ad6cece5b11cc683",
+            "bytes": 290
+          },
+          {
+            "path": "script.js",
+            "sha256": "ecfe349acdabe7488fdc9a0b2fcf47a9610beabbf24f78d2806fb620884ddd00",
+            "bytes": 1375
+          },
+          {
+            "path": "style.css",
+            "sha256": "967151313ecce92754501e459881f2c9a4739b3fc129bde92084339f2a10d86d",
+            "bytes": 2978
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 3,
+        "testsPassed": 3,
+        "completedActions": 8,
+        "observedStates": 4,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "modal-menu-slider-2026-10-05T13-36-47-875Z-daa4e2/tests/modal-menu-slider-navigation-toggle.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"My Landing Page\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "modal-menu-slider-2026-10-05T13-36-47-875Z-daa4e2/tests/modal-menu-slider-overlay-lifecycle.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 36,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"My Landing Page\" }).first()).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "file": "modal-menu-slider-2026-10-05T13-36-47-875Z-daa4e2/tests/modal-menu-slider-signup-dialog.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 38,
+              "text": "await expect(currentPage.locator(\"#name\")).toHaveValue(\"sampleuser\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sortable-list",
+      "group": "interaction",
+      "purpose": "Ordenação de lista por arrastar e soltar e conferência da sequência.",
+      "behavior": "Mover item, conferir nova ordem e relacionar a verificação à sequência efetiva.",
+      "historicalLimit": "Acionar Check Order no estado inicial não testa a reordenação.",
+      "runId": "sortable-list-2026-10-05T13-53-03-047Z-6457f5",
+      "stopStage": "execution",
+      "stopReason": null,
+      "profile": {
+        "measuredAt": "2026-10-08T01:39:05.066Z",
+        "sourceFiles": 3,
+        "nonblankSourceLines": 194,
+        "htmlDocuments": [
+          "index.html"
+        ],
+        "javascriptFiles": 1,
+        "declaredPackageManifests": [],
+        "detectedSignals": {
+          "browserStorage": [],
+          "fetch": [],
+          "timers": [],
+          "speech": [],
+          "dragAndDrop": [
+            "script.js"
+          ]
+        },
+        "networkUrls": [
+          "https://fonts.googleapis.com/css?family=Lato&display=swap",
+          "https://kit.fontawesome.com/3da1a747b2.js"
+        ],
+        "skipped": [],
+        "sourceSha256": "d89695449d459d21e2640f1d77ac35c0120936283f4bb5d9d62a839e4327265b",
+        "files": [
+          {
+            "path": "index.html",
+            "sha256": "d3d16cb163b6ae9dd1825d155aea831c5c7d7ff7e570a59ee9133f379827505f",
+            "bytes": 777
+          },
+          {
+            "path": "README.md",
+            "sha256": "e506993cb1f676307ad6217bc56860eaa1251d4c304951310a4c93c6112e4074",
+            "bytes": 365
+          },
+          {
+            "path": "script.js",
+            "sha256": "78e73dd571e6892cf77cdf1605392c2d1c0c7299d640dde80c0f006827619d4e",
+            "bytes": 3064
+          },
+          {
+            "path": "style.css",
+            "sha256": "89254187066ce69e28bc1d729f7c67b1573262f2a2de7b43597a35d52ee6b64d",
+            "bytes": 1616
+          }
+        ]
+      },
+      "run": {
+        "reachedExecution": true,
+        "executionCountsAvailable": true,
+        "testsExecuted": 1,
+        "testsPassed": 1,
+        "completedActions": 2,
+        "observedStates": 1,
+        "hypotheses": 0,
+        "status": "completed",
+        "model": "qwen3.8-vl-27b-iq1m-64k"
+      },
+      "testEvidence": [
+        {
+          "file": "sortable-list-2026-10-05T13-53-03-047Z-6457f5/tests/flow-1.spec.cjs",
+          "assertions": [
+            {
+              "line": 14,
+              "text": "await expect(page.locator(\"vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay\")).toHaveCount(0);"
+            },
+            {
+              "line": 26,
+              "text": "await expect(currentPage.locator(\"h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible\").filter({ hasText: \"10 Richest People\" }).first()).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

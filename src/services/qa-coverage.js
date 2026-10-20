@@ -133,7 +133,7 @@ function buildQaCoveragePlan({ inspection = {}, initialObservation = {} } = {}) 
   };
 }
 
-function evaluateQaCoverage(plan, { steps = [], states = [] } = {}) {
+function evaluateQaCoverage(plan, { steps = [], states = [], verifications = [] } = {}) {
   const completed = steps.filter((step) => step.status === "completed");
   const completedKinds = new Set(completed.map((step) => step.action?.kind).filter(Boolean));
   const stateById = new Map(states.map((state) => [state.id, state]));
@@ -147,23 +147,35 @@ function evaluateQaCoverage(plan, { steps = [], states = [] } = {}) {
     if (goal.requiresBoundaryProbe) {
       covered = completed.some((step) => step.action?.kind === "fill" && step.action?.boundaryProbe);
     }
-    if (goal.requiresNumericChange) {
-      covered = completed.some((step) => hasNumericStateChange(step, stateById));
-    }
+    const numericChangeObserved = goal.requiresNumericChange
+      ? completed.some((step) => hasNumericStateChange(step, stateById)) : false;
+    if (goal.requiresNumericChange) covered = false;
     if (goal.category === "navigation") {
       covered = completed.some((step) => step.action?.role === "link" && didPathChange(step, stateById));
     }
     if (goal.id === "overlay-lifecycle") {
       covered = completed.some((step) => matchedSteps.includes(step) && step.changed);
     }
+    // A reload or a changed number is an exploration signal, not an oracle for
+    // persisted identity or a domain calculation. Those require a criterion-linked
+    // assertion produced later in the pipeline.
+    if (goal.category === 'persistence' || goal.category === 'calculation') covered = false;
 
     const partial = !covered && (
       matchedSteps.length > 0
       || kindCoverage.some((entry) => entry.covered)
+      || numericChangeObserved
     );
+    const goalVerifications = verifications.filter((item) => item.goalId === goal.id
+      && item.status === 'passed' && item.assertionId && item.criterionId);
     return {
       ...goal,
       status: covered ? "covered" : partial ? "partial" : "uncovered",
+      interpretation: 'exploration-action-only',
+      verificationStatus: goalVerifications.length ? 'verified' : 'unverified',
+      verifications: goalVerifications.map((item) => ({
+        criterionId: item.criterionId, assertionId: item.assertionId, testTitle: item.testTitle || '',
+      })),
       evidence: matchedSteps.slice(0, 4).map((step) => ({
         step: step.step,
         action: step.action?.name || step.action?.kind || "",
@@ -176,6 +188,8 @@ function evaluateQaCoverage(plan, { steps = [], states = [] } = {}) {
   const covered = evaluatedGoals.filter((goal) => goal.status === "covered");
   const partial = evaluatedGoals.filter((goal) => goal.status === "partial");
   const uncovered = evaluatedGoals.filter((goal) => goal.status === "uncovered");
+  const verified = evaluatedGoals.filter((goal) => goal.verificationStatus === 'verified');
+  const blocked = evaluatedGoals.filter((goal) => goal.blockedReason);
   const totalWeight = evaluatedGoals.reduce((sum, goal) => sum + (PRIORITY_WEIGHT[goal.priority] || 1), 0);
   const coveredWeight = evaluatedGoals.reduce((sum, goal) => {
     const weight = PRIORITY_WEIGHT[goal.priority] || 1;
@@ -191,7 +205,13 @@ function evaluateQaCoverage(plan, { steps = [], states = [] } = {}) {
       partial: partial.length,
       uncovered: uncovered.length,
       highPriorityUncovered: uncovered.filter((goal) => goal.priority === "high").length,
-      ratio: totalWeight ? Number((coveredWeight / totalWeight).toFixed(3)) : 1,
+      ratio: totalWeight ? Number((coveredWeight / totalWeight).toFixed(3)) : null,
+      measure: totalWeight ? 'exploratory-action-coverage' : 'not-measurable',
+      verified: verified.length,
+      verifiedRatio: totalWeight ? Number((verified.reduce((sum, goal) => sum + (PRIORITY_WEIGHT[goal.priority] || 1), 0) / totalWeight).toFixed(3)) : null,
+      verifiedGoalIds: verified.map((goal) => goal.id),
+      blocked: blocked.length,
+      blockedGoalIds: blocked.map((goal) => goal.id),
       coveredGoalIds: covered.map((goal) => goal.id),
       uncoveredGoalIds: uncovered.map((goal) => goal.id),
       riskAreas: [...new Set(uncovered.map((goal) => goal.category))],

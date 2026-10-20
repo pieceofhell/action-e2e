@@ -13,12 +13,24 @@
     "evaluate:candidates:ai-first": "node scripts/evaluate-candidates-ai-first.cjs",
     "evaluate:blind-local": "node scripts/run-blind-local-evaluation.cjs",
     "evaluate:replay": "node scripts/replay-model-run.cjs",
-    "evaluate:execute": "node scripts/execute-evaluation-run.cjs"
+    "evaluate:execute": "node scripts/execute-evaluation-run.cjs",
+    "evaluate:aggregate": "node scripts/aggregate-evaluation.cjs",
+    "evaluate:corpus": "node scripts/characterize-corpus.cjs",
+    "evaluate:initial": "node scripts/validate-current-exploration.cjs",
+    "verify:approved-oracle": "node scripts/verify-approved-oracle.cjs",
+    "start:unattended": "node scripts/run-unattended.cjs",
+    "evaluate:protocol": "node scripts/evaluate-exploration-protocol.cjs",
+    "setup:targets": "node scripts/setup-evaluation-targets.cjs"
   },
   "dependencies": {
-    "@playwright/test": "^1.54.0",
-    "cheerio": "^1.1.0",
-    "express": "^4.21.2",
-    "playwright": "^1.54.0"
+    "@playwright/test": "^1.63.0",
+    "cheerio": "^1.2.0",
+    "express": "^4.22.3",
+    "playwright": "^1.63.0"
+  },
+  "overrides": {
+    "proxy-addr": "2.0.8",
+    "qs": "6.16.0",
+    "undici": "7.30.0"
   }
 }

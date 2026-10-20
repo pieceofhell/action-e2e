@@ -5,6 +5,7 @@ const { normalizeRuntimeConfig } = require("./runtime-orchestrator");
 const { normalizeAuthConfig, toPublicAuthMetadata } = require("./auth-config");
 const { validateAuthenticatedActionPlan } = require("./read-only-policy");
 const { isExplicitBaseline, requireAiForStage, requireCompletedAiExploration } = require("./pipeline-policy");
+const { buildAcceptanceContract, normalizeApprovedFlow } = require("./acceptance-contract");
 
 async function generateTestBundle({
   prototypeRoot,
@@ -16,6 +17,7 @@ async function generateTestBundle({
   authConfig,
   onProgress = () => {},
 }) {
+  approvedFlows = approvedFlows.map(normalizeApprovedFlow);
   onProgress({ phase: "artifact-workspace", message: "Creating an isolated workspace for generated artifacts...", progress: 8 });
   const runsRoot = path.join(prototypeRoot, "prototype-runs");
   const run = await resolveRunWorkspace({ runsRoot, projectPath, inspection });
@@ -55,6 +57,7 @@ async function generateTestBundle({
     let generationMode = baselineMode ? "explicit-baseline" : "model-journey-compiled";
     let generationNote = "";
     let locatorValidation = null;
+    let criterionContract = [];
 
     if (baselineMode) {
       content = buildHeuristicSpecContent(flow);
@@ -66,7 +69,7 @@ async function generateTestBundle({
         progress: 20 + Math.round((index / approvedFlows.length) * 60),
       });
       locatorValidation = validateObservedJourneyLocators(flow, inspection);
-      content = buildObservedJourneySpecContent(flow, inspection);
+      content = buildObservedJourneySpecContent(flow, inspection, contract => { criterionContract = contract; });
       if (!content) {
         throw new Error(`AI-first test generation stopped for "${flow.title}": no successfully executed model journey could be compiled for this flow.`);
       }
@@ -88,6 +91,7 @@ async function generateTestBundle({
       generationMode,
       generationNote,
       locatorValidation,
+      criterionContract,
     });
   }
 
@@ -774,6 +778,22 @@ ${indent(body, 2)}
 function buildGuestHelperBlock() {
   return `const { test, expect } = require("@playwright/test");
 
+test.beforeEach(async ({ page }) => {
+  const context = page.context();
+  context.__e2pNativeDialogs = [];
+  const attach = (targetPage) => targetPage.on("dialog", async (dialog) => {
+    context.__e2pNativeDialogs.push({ type: dialog.type(), message: dialog.message(), at: new Date().toISOString(), decision: "dismiss" });
+    await dialog.dismiss().catch(() => {});
+  });
+  context.on("page", attach);
+  attach(page);
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  const dialogs = page.context().__e2pNativeDialogs || [];
+  if (dialogs.length) await testInfo.attach("native-dialogs", { body: Buffer.from(JSON.stringify(dialogs, null, 2)), contentType: "application/json" });
+});
+
 async function openHome(page) {
   await page.context().route("**/*", async (route) => {
     if (!["GET", "HEAD", "OPTIONS"].includes(route.request().method().toUpperCase())) {
@@ -814,7 +834,7 @@ ${indent(body, 2)}
 `;
 }
 
-function buildObservedJourneySpecContent(flow, inspection) {
+function buildObservedJourneySpecContent(flow, inspection, onContract = () => {}) {
   const exploration = inspection?.liveExploration?.agenticExploration;
   const requestedStateIds = flow.evidenceStateIds || flow.blueprint?.evidenceStateIds || [];
   if (!exploration || !requestedStateIds.length) return "";
@@ -825,7 +845,10 @@ function buildObservedJourneySpecContent(flow, inspection) {
 
   const targetState = states[targetIndex];
   const allSteps = exploration.steps || [];
-  const targetStepIndex = allSteps.findLastIndex((step) => step.status === "completed" && step.afterFingerprint === targetState.fingerprint);
+  const targetStepIndex = Number.isInteger(flow.observedStepNumber)
+    ? allSteps.findIndex((step) => step.status === 'completed' && step.step === flow.observedStepNumber
+      && step.afterFingerprint === targetState.fingerprint)
+    : allSteps.findLastIndex((step) => step.status === "completed" && step.afterFingerprint === targetState.fingerprint);
   if (targetStepIndex < 0) return "";
   const journeySteps = allSteps
     .slice(0, targetStepIndex + 1)
@@ -833,8 +856,10 @@ function buildObservedJourneySpecContent(flow, inspection) {
     .slice(0, 20);
   if (!journeySteps.length) return "";
 
+  const criterionContract = buildAcceptanceContract(flow, journeySteps, states);
+  onContract(criterionContract);
   const lines = ["await openHome(page);", "let currentPage = page;"];
-  for (const step of journeySteps) {
+  for (const [stepIndex, step] of journeySteps.entries()) {
     const action = step.action || {};
     if (action.kind === "wait") {
       const durationMs = Math.max(250, Math.min(12000, Number(action.durationMs) || 3000));
@@ -865,8 +890,23 @@ function buildObservedJourneySpecContent(flow, inspection) {
       lines.push(`await ${locator}.press("Enter");`);
       lines.push("await pauseForUi(currentPage, 300);");
     }
+    for (const criterion of criterionContract.filter(item => item.status === 'asserted' && item.stepIndex === stepIndex)) {
+      lines.push(`// ${criterion.assertionId}: ${criterion.title.replace(/[\r\n]/g, ' ')}`);
+      const assertion = criterion.assertion;
+      if (['visible-text', 'entity-created'].includes(assertion.kind)) {
+        lines.push(`await expect(currentPage.getByText(${jsString(assertion.value)}, { exact: true }).first()).toBeVisible();`);
+      } else if (assertion.kind === 'entity-persisted') {
+        lines.push(`await expect(currentPage.locator("li, [role='listitem'], tr, article").filter({ hasText: ${jsString(assertion.value.description)} }).filter({ hasText: ${jsString(assertion.value.amount)} }).first()).toBeVisible();`);
+      } else if (assertion.kind === 'input-value') {
+        lines.push(`await expect(${compiledInputLocator(action, 'currentPage', action.kind === 'select' ? 'combobox' : 'textbox')}).toHaveValue(${jsString(assertion.value)});`);
+      } else if (assertion.kind === 'panel-closed') {
+        lines.push('await expect(currentPage.locator("dialog:visible, [role=\\"dialog\\"]:visible, [aria-modal=\\"true\\"]:visible, .modal:visible, [class*=\\"drawer\\"]:visible")).toHaveCount(0);');
+      }
+    }
   }
 
+  if (!criterionContract.some(item => item.status === 'asserted')) {
+  lines.push('// Smoke only: no acceptance criterion has a supported behavior assertion.');
   const terminalStep = journeySteps.at(-1);
   const priorFill = [...journeySteps].reverse().find((step) => step.action?.kind === "fill" && step.action?.value);
   const expectsCreatedText = terminalStep?.action?.kind === "press"
@@ -886,18 +926,34 @@ function buildObservedJourneySpecContent(flow, inspection) {
   const assertedHeading = (targetState.headings || []).find((heading) => (
     heading && !/\b(?:sale|off|discount|deal|limited time)\b/i.test(heading)
   ));
-  if (expectsCreatedText && filledValueIsRenderedText) {
+  if (flow.approvalBasis === 'observed-transition-only' && flow.observationCheck) {
+    const check = flow.observationCheck;
+    if (check.kind === 'input-value' && ['fill', 'select'].includes(terminalStep?.action?.kind)) {
+      lines.push(`await expect(${compiledInputLocator(terminalStep.action, 'currentPage', terminalStep.action.kind === 'select' ? 'combobox' : 'textbox')}).toHaveValue(${jsString(check.value)});`);
+    } else if (check.kind === 'heading') {
+      lines.push(`await expect(currentPage.getByRole('heading', { name: ${jsString(check.value)}, exact: true })).toBeVisible();`);
+    } else if (check.kind === 'button') {
+      lines.push(`await expect(currentPage.getByRole('button', { name: ${jsString(check.value)}, exact: true })).toBeVisible();`);
+    } else if (check.kind === 'path') {
+      lines.push(`await expect(currentPage).toHaveURL(new RegExp(${jsString(`${escapeRegExp(check.value)}$`)}));`);
+    } else if (check.kind === 'dialog') {
+      lines.push('await expect(currentPage.locator("dialog:visible, [role=\\"dialog\\"]:visible, [aria-modal=\\"true\\"]:visible, .modal:visible").first()).toBeVisible();');
+    } else {
+      throw new Error(`Unsupported observed-transition check for "${flow.title}".`);
+    }
+  } else if (expectsCreatedText && filledValueIsRenderedText) {
     lines.push(`await expect(currentPage.getByText(${jsString(priorFill.action.value)}, { exact: true }).first()).toBeVisible();`);
   } else if (matchingInputDetail) {
     lines.push(`await expect(${compiledInputLocator(priorFill.action, "currentPage")}).toHaveValue(${jsString(matchingInputDetail.value)});`);
   } else if (closesOverlay) {
     lines.push('await expect(currentPage.locator("dialog:visible, [role=\\"dialog\\"]:visible, [aria-modal=\\"true\\"]:visible, .modal:visible, [class*=\\"drawer\\"]:visible")).toHaveCount(0);');
   } else if (assertedHeading) {
-    lines.push(`await expect(currentPage.getByRole("heading", { name: ${jsString(assertedHeading)}, exact: true })).toBeVisible();`);
+    lines.push(`await expect(currentPage.locator("h1:visible, h2:visible, h3:visible, h4:visible, h5:visible, h6:visible").filter({ hasText: ${jsString(assertedHeading)} }).first()).toBeVisible();`);
   } else if (assertedButton) {
     lines.push(`await expect(currentPage.getByRole("button", { name: ${jsString(assertedButton)}, exact: true }).first()).toBeVisible();`);
   } else {
     lines.push("await expect(currentPage.locator('body')).toBeVisible();");
+  }
   }
 
   const source = wrapSpecSource(flow.title, lines.join("\n"));
@@ -967,9 +1023,12 @@ function validateObservedJourneyLocators(flow, inspection) {
   const exploration = inspection?.liveExploration?.agenticExploration;
   const stateIds = flow.evidenceStateIds || flow.blueprint?.evidenceStateIds || [];
   const targetState = (exploration?.states || []).filter((state) => stateIds.includes(state.id)).at(-1);
-  const targetStepIndex = (exploration?.steps || []).findLastIndex((step) => (
-    step.status === "completed" && step.afterFingerprint === targetState?.fingerprint
-  ));
+  const targetStepIndex = Number.isInteger(flow.observedStepNumber)
+    ? (exploration?.steps || []).findIndex((step) => step.status === 'completed'
+      && step.step === flow.observedStepNumber && step.afterFingerprint === targetState?.fingerprint)
+    : (exploration?.steps || []).findLastIndex((step) => (
+      step.status === "completed" && step.afterFingerprint === targetState?.fingerprint
+    ));
   if (!targetState || targetStepIndex < 0) {
     throw new Error(`No executed journey reaches the evidence state for "${flow.title}".`);
   }

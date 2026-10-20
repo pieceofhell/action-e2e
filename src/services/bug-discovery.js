@@ -18,7 +18,7 @@ const ALLOWED_EXPECTATION_SOURCES = new Set([
 const BUG_HYPOTHESIS_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "objectiveDescription", "affectedFlow", "preconditions", "reproductionSteps", "observedResult", "facts", "expectedResult", "expectationJustification", "expectationSource", "severity", "confidence", "evidenceStateIds"],
+  required: ["title", "objectiveDescription", "affectedFlow", "preconditions", "reproductionSteps", "observedResult", "facts", "expectedResult", "expectationJustification", "expectationSource", "severity", "confidence", "evidenceStateIds", "triggerStep", "triggerActionName"],
   properties: {
     title: { type: "string" },
     objectiveDescription: { type: "string" },
@@ -45,6 +45,8 @@ const BUG_HYPOTHESIS_SCHEMA = {
     severity: { type: "string", enum: [...ALLOWED_SEVERITIES] },
     confidence: { type: "string", enum: [...ALLOWED_CONFIDENCE] },
     evidenceStateIds: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 8 },
+    triggerStep: { type: "integer", minimum: 0 },
+    triggerActionName: { type: "string" },
   },
 };
 const BUG_DISCOVERY_SCHEMA = {
@@ -147,11 +149,16 @@ async function discoverPotentialBugs({
 
   const batchFailureCount = errors.length;
   const diagnosticHypotheses = buildDiagnosticHypotheses(diagnosticEvidence, states);
+  const coveredDiagnosticIds = new Set(diagnosticHypotheses.flatMap((item) => (
+    item.observed.facts.flatMap((fact) => fact.evidenceRefs).filter((ref) => !ref.startsWith('state-'))
+  )));
   const deduplicatedHypotheses = deduplicateHypotheses(hypotheses).slice(0, 12);
   const deterministicScreen = screenHypotheses(deduplicatedHypotheses, {
     states,
     steps: exploration?.steps || [],
     inspection,
+    coveredDiagnosticIds,
+    nativeDialogs: diagnosticEvidence.items.nativeDialogs,
   });
   const candidateHypotheses = deterministicScreen.retained;
   const criticReview = await critiqueHypotheses({
@@ -251,6 +258,9 @@ async function critiqueHypotheses({
             FEEDBACK_POLICY,
             "You are the conservative reviewer for a blind web-QA defect-discovery pipeline.",
             "Try to falsify the candidate hypothesis using only the supplied state, executed actions, screenshot when present, and cited facts.",
+            "The claimed triggerStep and triggerActionName must identify the exact recorded action that caused the alleged outcome. Nearby actions do not count as execution of a different action.",
+            "A visibleTextExcerpt is a shortened excerpt, not evidence that the application visually truncated its content.",
+            "Do not attribute an exception to a named function unless the diagnostic or supplied source evidence identifies that function.",
             "Judge the state transition itself. Ignore an incidental missing resource unless the candidate proves that it directly caused the claimed UI outcome.",
             "Reject it if the observed behavior already satisfies the expected behavior, if it merely describes a normal empty or boundary state, if the claimed action was not executed, if visible feedback contradicts the claim, or if evidence only shows that a control exists.",
             "Retain it only when a concrete anomaly survives those checks. Uncertainty means reject, because a human can inspect rejected candidates later.",
@@ -266,6 +276,7 @@ async function critiqueHypotheses({
             projectContext: buildProjectPromptContext(inspection),
             hypothesis,
             states: relatedStates.map(toPromptState),
+            claimedTrigger: hypothesis.triggerStep ? relatedSteps.find((step) => step.step === hypothesis.triggerStep) || null : null,
             executedActions: relatedSteps.map((step) => ({
               step: step.step,
               action: toPromptAction(step.action),
@@ -372,10 +383,19 @@ function validateCriticReview(review) {
   if (typeof review?.expectationGrounded !== "boolean") throw new Error("The critic must state whether the expected behavior is grounded.");
   if (typeof review?.evidenceSufficient !== "boolean") throw new Error("The critic must state whether the supplied evidence is sufficient.");
   if (typeof review?.expectationSatisfied !== "boolean") throw new Error("The critic must state whether the expected outcome was satisfied.");
+  if (review.evidenceSufficient && /\b(?:evidence|proof|information)\s+(?:is|was)\s+insufficient\b/i.test(reason)) {
+    throw new Error('The critic marked evidence sufficient but explained that it was insufficient. Re-evaluate the factual gates.');
+  }
+  if (!review.expectationSatisfied && /\b(?:expectation|expected (?:outcome|behavior))\s+(?:is|was)\s+(?:already\s+)?(?:satisfied|met|fulfilled)\b/i.test(reason)) {
+    throw new Error('The critic marked the expectation unsatisfied but said the expected behavior was met. Re-evaluate the factual gates.');
+  }
   const supportsAnomaly = review.actionExecuted
     && review.expectationGrounded
     && review.evidenceSufficient
     && !review.expectationSatisfied;
+  if (supportsAnomaly && /\b(?:evidence|observations?|facts?)\s+(?:(?:does|do|did)\s+not|cannot|can not|fails? to)\s+support\s+(?:the\s+)?(?:hypothesis|claim|allegation|anomaly)\b|\bcontradicts?\s+(?:the\s+)?(?:hypothesis|claim|allegation)\b/i.test(`${reason} ${review.observedOutcome || ''}`)) {
+    throw new Error('The critic factual gates support an anomaly, but its stated observations reject the claim. Human review is required.');
+  }
   const evidenceAssessment = supportsAnomaly
     ? "supports-anomaly"
     : !review.evidenceSufficient || !review.actionExecuted || !review.expectationGrounded
@@ -406,14 +426,17 @@ function buildBugHunterPrompt({ visionEnabled = false } = {}) {
     "Keep observed facts separate from inferred expectations. Every fact must cite supplied state or diagnostic IDs.",
     "Every UI hypothesis must include at least one fact citing a state ID. A console or page diagnostic alone cannot establish a visible UI failure.",
     "InputDetails describe values still inside fields; visibleTextExcerpt describes rendered page text. Do not claim that a value became a created item merely because it remains in an input.",
+    "visibleTextExcerpt is intentionally shortened by the collector; its cutoff cannot establish a UI truncation defect.",
     "Do not use an unrelated missing resource or generic 404 as evidence for a UI state transition unless its URL and timing directly identify the failed operation.",
     "A hypothesis must describe an actual anomaly. Its observed result and at least one cited fact must explicitly state the failure, contradiction, missing feedback, unchanged state, or other unexpected behavior; the mere presence of a control is not a defect.",
     "Expected behavior must name its source: project-documentation, cross-state-consistency, interface-convention, runtime-diagnostic, or model-inference.",
     "If evidence is insufficient, omit the hypothesis rather than inventing a requirement.",
     "All reproduction steps must be derived from the supplied observed journey and visible controls.",
+    "For an interaction claim, copy its exact observedJourney.step into triggerStep and its exact action.name into triggerActionName. Use triggerStep 0 and an empty triggerActionName only for an anomaly visible before any interaction.",
+    "Do not attribute a runtime exception to a named function unless a supplied diagnostic or source excerpt identifies that function.",
     "Return at most two hypotheses per state batch.",
     "Return raw JSON only with this shape:",
-    "{\"hypotheses\":[{\"title\":\"...\",\"objectiveDescription\":\"...\",\"affectedFlow\":\"...\",\"preconditions\":[\"...\"],\"reproductionSteps\":[\"...\"],\"observedResult\":\"...\",\"facts\":[{\"statement\":\"...\",\"evidenceRefs\":[\"state-1\"]}],\"expectedResult\":\"...\",\"expectationJustification\":\"...\",\"expectationSource\":\"cross-state-consistency\",\"severity\":\"medium\",\"confidence\":\"medium\",\"evidenceStateIds\":[\"state-1\"]}]}",
+    "{\"hypotheses\":[{\"title\":\"...\",\"objectiveDescription\":\"...\",\"affectedFlow\":\"...\",\"preconditions\":[\"...\"],\"reproductionSteps\":[\"...\"],\"observedResult\":\"...\",\"facts\":[{\"statement\":\"...\",\"evidenceRefs\":[\"state-1\"]}],\"expectedResult\":\"...\",\"expectationJustification\":\"...\",\"expectationSource\":\"cross-state-consistency\",\"severity\":\"medium\",\"confidence\":\"medium\",\"evidenceStateIds\":[\"state-1\"],\"triggerStep\":1,\"triggerActionName\":\"Exact observed action name\"}]}",
   ].join(" ");
 }
 
@@ -434,6 +457,13 @@ function normalizeHypotheses(value, context) {
     const expectedResult = sanitizeText(raw?.expectedResult, 1000);
     const expectationJustification = sanitizeText(raw?.expectationJustification, 1000);
     const reproductionSteps = uniqueStrings(raw?.reproductionSteps).slice(0, 12);
+    const triggerStep = Number.isInteger(raw?.triggerStep) ? raw.triggerStep : null;
+    const triggerActionName = sanitizeText(raw?.triggerActionName, 240);
+    if (triggerStep !== null && triggerStep > 0 && !context.steps.some((step) => (
+      step.status === 'completed' && step.step === triggerStep && step.action?.name === triggerActionName
+        && evidenceStateIds.some((stateId) => stateId === step.beforeStateId || stateId === step.afterStateId)
+    ))) return [];
+    if (triggerStep === 0 && triggerActionName) return [];
 
     const relatedSteps = context.steps.filter((step) => (
       evidenceStateIds.some((stateId) => stateId === step.beforeStateId || stateId === step.afterStateId)
@@ -467,6 +497,8 @@ function normalizeHypotheses(value, context) {
       affectedFlow: sanitizeText(raw?.affectedFlow, 400),
       preconditions: uniqueStrings(raw?.preconditions).slice(0, 10),
       reproductionSteps,
+      triggerStep,
+      triggerActionName,
       observed: {
         result: observedResult,
         facts,
@@ -513,6 +545,7 @@ function collectEvidence(states, steps, facts, diagnosticEvidence) {
     })),
     consoleErrors: diagnosticEvidence.items.consoleErrors.filter((item) => diagnosticRefs.has(item.id)),
     pageErrors: diagnosticEvidence.items.pageErrors.filter((item) => diagnosticRefs.has(item.id)),
+    nativeDialogs: diagnosticEvidence.items.nativeDialogs.filter((item) => diagnosticRefs.has(item.id)),
   };
 }
 
@@ -594,7 +627,7 @@ function expandTransitionStates(focalStates, allStates, steps) {
 }
 
 function normalizeDiagnostics(diagnostics) {
-  const categories = ["consoleErrors", "pageErrors"];
+  const categories = ["consoleErrors", "pageErrors", "nativeDialogs"];
   const items = {};
   const prompt = {};
   const validIds = [];
@@ -689,13 +722,53 @@ function deduplicateHypotheses(hypotheses) {
   return output;
 }
 
-function screenHypotheses(hypotheses, { states = [], steps = [], inspection = null } = {}) {
+function identicalExpectedAndObserved(hypothesis) {
+  const expected = sanitizeText(hypothesis.expected?.result, 10000).toLowerCase();
+  const observed = sanitizeText(hypothesis.observed?.result, 10000).toLowerCase();
+  if (!expected || !observed) return false;
+  if (expected === observed) return true;
+  // The recorded control name can qualify the same entity in only one sentence.
+  // Remove that exact label, preserving polarity, numbers and all other wording.
+  const label = sanitizeText(hypothesis.triggerActionName, 1000).toLowerCase();
+  if (label.length < 3) return false;
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`\\b${escaped}\\b`, 'gi');
+  return expected.replace(pattern, '').replace(/\s+/g, ' ').trim()
+    === observed.replace(pattern, '').replace(/\s+/g, ' ').trim();
+}
+
+function screenHypotheses(hypotheses, { states = [], steps = [], inspection = null, coveredDiagnosticIds = new Set(), nativeDialogs = [] } = {}) {
   const retained = [];
   const rejected = [];
   const strongSources = new Set(["project-documentation", "cross-state-consistency", "runtime-diagnostic"]);
   for (const hypothesis of hypotheses || []) {
     let reason = "";
-    if (!strongSources.has(hypothesis.expected?.source)) {
+    if ((hypothesis.expected?.source === 'runtime-diagnostic'
+      || /\b(?:runtime|page|console)\s+(?:exception|error)|\b(?:typeerror|referenceerror|syntaxerror)\b/i.test(
+        `${hypothesis.title} ${hypothesis.observed?.result}`))
+      && (hypothesis.observed?.facts || []).some((fact) => (
+      (fact.evidenceRefs || []).some((ref) => coveredDiagnosticIds.has(ref))
+    ))) {
+      reason = 'This runtime diagnostic already has an objective hypothesis; the model cannot attribute its cause to an action without time-linked evidence.';
+    } else if (hypothesis.expected?.source === 'runtime-diagnostic'
+      && !(hypothesis.observed?.facts || []).some(fact => (fact.evidenceRefs || []).some(ref =>
+        /^(?:console-error|page-error)-\d+$/.test(ref) &&
+        (hypothesis.evidence?.consoleErrors || []).concat(hypothesis.evidence?.pageErrors || []).some(item => item.id === ref)))) {
+      reason = 'A runtime diagnosis requires a cited, recorded console or page error; a native dialog is not a runtime exception.';
+    } else if (hypothesis.triggerStep !== null && hypothesis.triggerStep !== undefined
+      && !claimedTriggerMatchesRecordedAction(hypothesis, steps)) {
+      reason = 'The claimed trigger does not match the exact completed action and cited browser transition.';
+    } else if (/\b(?:no|without|missing)\s+(?:visible\s+)?(?:error|alert|validation|feedback)\b/i.test(
+      `${hypothesis.title} ${hypothesis.observed?.result}`)
+      && nativeDialogs.some(dialog => dialog.message && dialog.actionStep === hypothesis.triggerStep)) {
+      reason = 'The browser recorded a native dialog with feedback for the cited action; absence of feedback is contradicted.';
+    } else if (claimInventsOutsideInteraction(hypothesis, steps)) {
+      reason = 'The claimed click outside the modal or overlay was never executed.';
+    } else if (identicalExpectedAndObserved(hypothesis)) {
+      reason = 'The expected and observed outcomes are identical; the hypothesis states no distinct violated expectation.';
+    } else if (quotedObservedOutcomeSatisfiesExpectation(hypothesis)) {
+      reason = 'The hypothesis explicitly reports the same expected visible outcome as the observed result.';
+    } else if (!strongSources.has(hypothesis.expected?.source)) {
       reason = "The expected behavior is based only on an interface convention or model inference, not on project evidence.";
     } else if (hypothesis.expected?.source === "project-documentation" && !documentationSupportsExpectation(hypothesis, inspection)) {
       reason = "The cited project documentation does not explicitly support the specific expected behavior.";
@@ -732,6 +805,40 @@ function screenHypotheses(hypotheses, { states = [], steps = [], inspection = nu
     }
   }
   return { retained, rejected };
+}
+
+function quotedObservedOutcomeSatisfiesExpectation(hypothesis) {
+  const expectation = String(hypothesis.expected?.result || '');
+  if (!/\b(?:should|must|expected to)\s+(?:display|show|render|include|contain|appear)\b/i.test(expectation)) return false;
+  const observed = String(hypothesis.observed?.result || '');
+  const quoted = [...expectation.matchAll(/["'‘’“”]([^"'‘’“”]{5,100})["'‘’“”]/g)]
+    .map((match) => match[1].trim().toLowerCase());
+  return quoted.some((phrase) => observed.toLowerCase().includes(phrase));
+}
+
+function claimedTriggerMatchesRecordedAction(hypothesis, steps) {
+  if (hypothesis.triggerStep === 0) {
+    return !/\b(?:click|press|fill|type|select|drag|hover|submit|reload)\b/i.test(
+      (hypothesis.reproductionSteps || []).join(' ')
+    );
+  }
+  const step = (steps || []).find((item) => item.status === 'completed' && item.step === hypothesis.triggerStep);
+  if (!step || step.action?.name !== hypothesis.triggerActionName) return false;
+  const ids = new Set(hypothesis.evidenceStateIds || []);
+  if (!ids.has(step.beforeStateId) && !ids.has(step.afterStateId)) return false;
+  const reproduction = (hypothesis.reproductionSteps || []).join(' ').toLowerCase();
+  const name = String(step.action.name || '').toLowerCase();
+  const distinctive = meaningfulTokens(name).filter((token) => !['click', 'press', 'enter', 'fill', 'type', 'select', 'button', 'input'].includes(token));
+  return distinctive.length === 0 || distinctive.some((token) => reproduction.includes(token));
+}
+
+function claimInventsOutsideInteraction(hypothesis, steps) {
+  const claim = `${hypothesis.title} ${(hypothesis.reproductionSteps || []).join(' ')}`;
+  if (!/\b(?:click|tap)(?:ed|ing)?\s+(?:on\s+)?(?:the\s+)?(?:outside|backdrop|overlay background)\b/i.test(claim)) return false;
+  const relatedIds = new Set(hypothesis.evidenceStateIds || []);
+  return !(steps || []).some((step) => step.status === 'completed'
+    && (relatedIds.has(step.beforeStateId) || relatedIds.has(step.afterStateId))
+    && /\b(?:outside|backdrop|overlay background)\b/i.test(`${step.action?.name || ''} ${step.action?.context || ''}`));
 }
 
 function persistenceClaimLacksReloadEvidence(hypothesis, steps) {

@@ -440,6 +440,7 @@ async function enhanceInsightsWithAi({ inspection, approvedFlows, report, baseIn
 
     return {
       insights: {
+        ...baseInsights,
         overview: sanitizeText(aiPayload.overview) || baseInsights.overview,
         insights: uniqueStrings([
           ...sanitizeStringArray(aiPayload.insights),
@@ -549,6 +550,7 @@ function mergeAiFlows(baseFlows, aiFlowsRaw, liveExploration = null, inspection 
       sourceSignals: sanitizeStringArray(aiFlow.sourceSignals).length ? sanitizeStringArray(aiFlow.sourceSignals) : (baseFlow?.sourceSignals || []),
       assumptions,
       evidenceStateIds,
+      observedStepNumber: Number.isInteger(enteringStep?.step) ? enteringStep.step : null,
       criteria,
       blueprint: evidenceStateIds.length
         ? {
@@ -701,26 +703,26 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
           metrics: liveExploration.agenticExploration.metrics,
           qaCoverage: liveExploration.agenticExploration.qaCoverage
             ? {
-                summary: liveExploration.agenticExploration.qaCoverage.summary,
-                goals: liveExploration.agenticExploration.qaCoverage.goals.map((goal) => ({
+                summary: compactPlanningText(liveExploration.agenticExploration.qaCoverage.summary, 500),
+                goals: (liveExploration.agenticExploration.qaCoverage.goals || []).slice(0, 16).map((goal) => ({
                   id: goal.id,
-                  title: goal.title,
+                  title: compactPlanningText(goal.title, 120),
                   category: goal.category,
                   priority: goal.priority,
                   status: goal.status,
-                  evidence: goal.evidence,
+                  evidence: compactPlanningText(goal.evidence, 180),
                 })),
               }
             : null,
           states: (liveExploration.agenticExploration.states || []).slice(0, 20).map((state) => ({
             id: state.id,
-            path: state.path,
-            headings: sanitizeStringArray(state.headings),
-            buttons: sanitizeStringArray(state.buttons),
-            inputs: sanitizeStringArray(state.inputs),
-            inputDetails: (state.inputDetails || []).slice(0, 10),
+            path: compactPlanningText(state.path, 160),
+            headings: compactPlanningStrings(state.headings, 6),
+            buttons: compactPlanningStrings(state.buttons, 10),
+            inputs: compactPlanningStrings(state.inputs, 8),
+            inputDetails: compactPlanningInputs(state.inputDetails),
             dialogsCount: state.dialogsCount || 0,
-            visibleTextExcerpt: sanitizeText(String(state.visibleTextExcerpt || "").slice(0, 140)),
+            visibleTextExcerpt: compactPlanningText(state.visibleTextExcerpt, 240),
             enteredByAction: findEnteringAction(liveExploration.agenticExploration.steps, state.fingerprint),
           })),
           completedActions: (liveExploration.agenticExploration.steps || [])
@@ -728,11 +730,11 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
             .slice(0, 20)
             .map((step) => ({
               step: step.step,
-              action: step.action,
-              rationale: sanitizeText(step.rationale),
+              action: compactPlanningAction(step.action),
+              rationale: compactPlanningText(step.rationale, 180),
               changed: Boolean(step.changed),
-              observedAfter: step.observedAfter,
-              resultingStateId: findStateIdByFingerprint(liveExploration.agenticExploration.states, step.afterFingerprint),
+              observedAfter: compactPlanningObservation(step.observedAfter),
+              resultingStateId: step.afterStateId || findStateIdByFingerprint(liveExploration.agenticExploration.states, step.afterFingerprint),
             })),
         }
       : null,
@@ -757,6 +759,54 @@ function summarizeLiveExplorationForPrompt(liveExploration) {
       visibleTextExcerpt: sanitizeText(String(route.visibleTextExcerpt || "").slice(0, 180)),
     })),
     warnings: sanitizeStringArray(liveExploration.warnings),
+  };
+}
+
+function compactPlanningText(value, limit) {
+  const source = typeof value === "string" ? value : value == null ? "" : JSON.stringify(value);
+  return sanitizeText(source).slice(0, limit);
+}
+
+function compactPlanningStrings(values, limit) {
+  return (Array.isArray(values) ? values : [])
+    .slice(0, limit)
+    .map((value) => compactPlanningText(value, 100))
+    .filter(Boolean);
+}
+
+function compactPlanningInputs(inputs) {
+  return (Array.isArray(inputs) ? inputs : []).slice(0, 8).map((input) => ({
+    label: compactPlanningText(input?.label, 80),
+    placeholder: compactPlanningText(input?.placeholder, 80),
+    name: compactPlanningText(input?.name, 80),
+    type: compactPlanningText(input?.type, 40),
+    value: compactPlanningText(input?.value, 100),
+  }));
+}
+
+function compactPlanningAction(action) {
+  return {
+    kind: compactPlanningText(action?.kind, 30),
+    name: compactPlanningText(action?.name, 120),
+    context: compactPlanningText(action?.context, 100),
+    value: compactPlanningText(action?.value, 100),
+    label: compactPlanningText(action?.label, 80),
+    placeholder: compactPlanningText(action?.placeholder, 80),
+  };
+}
+
+function compactPlanningObservation(observation) {
+  if (!observation) return null;
+  return {
+    path: compactPlanningText(observation.path, 160),
+    title: compactPlanningText(observation.title, 120),
+    headings: compactPlanningStrings(observation.headings, 6),
+    buttons: compactPlanningStrings(observation.buttons, 10),
+    inputs: compactPlanningStrings(observation.inputs, 8),
+    inputDetails: compactPlanningInputs(observation.inputDetails),
+    dialogsCount: observation.dialogsCount || 0,
+    overlayTexts: compactPlanningStrings(observation.overlayTexts, 4),
+    visibleTextExcerpt: compactPlanningText(observation.visibleTextExcerpt, 300),
   };
 }
 

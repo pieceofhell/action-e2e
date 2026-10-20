@@ -1,13 +1,6 @@
 # Action E2E Prototype
 
-## Latest implementation and paper
-
-- [Feature documentation](features.md): discovery-first exploration, QA goals, run history, human hypothesis reviews, and grouped visual evidence.
-- [Three-project evaluation](NEW_FEATURES_3_PROJECT_EVALUATION_2026-09-08.md) and [Form Validator refinement](DISCOVERY_REFINEMENT_2026-09-13.md).
-- [Updated SBC-format article (PDF)](latex/main.pdf), [LaTeX source](latex/main.tex), and [revision/evidence notes](latex/REVISAO_ARTIGO.md).
-- Verification on 2026-09-16: 96 automated project tests passed, zero failures. This is distinct from generated application-test results discussed in the paper.
-
-Model weights, inference runtimes, credentials, dependencies, and private run artifacts are not distributed in this repository. The model launcher expects the documented sibling `models/` and `runtimes/` directories in the local workspace. Historical reports and the paper's revision notes retain paths from that workspace; their raw run directories and original paper backups are not part of this publication. See the reports for measured results and limitations; passing generated tests is not a product-wide quality guarantee.
+Current research revision: **20 October 2026**. See the [documentation index](docs/README.md), [critical review and validation plan](docs/research/critical-review-20261020.md), [RTX 3060 remote setup](docs/guides/remote-rtx3060.md), and [paper versions](paper/README.md). `paper/current/` is the maintained article; `paper/versions/2026-10-18/` preserves the previous PDF and sources.
 
 Local prototype for experimenting with an action-oriented AI-assisted E2E test generation and execution pipeline.
 
@@ -20,7 +13,9 @@ This application was built to validate, in a first practical slice, the methodol
 - propose primary user flows and acceptance criteria;
 - manually approve the proposed flows;
 - generate automated E2E tests with Playwright;
+- queue multiple projects for sequential, unattended evaluation;
 - execute the tests and consolidate results and insights;
+- save a complete JSON run log for both individual and batch executions;
 - discover evidence-grounded potential UI defects during guest exploration;
 - separate observed facts from inferred expectations and preserve rejected false-positive candidates;
 - follow long-running work through live phases, progress, elapsed time, and recent milestones;
@@ -50,6 +45,8 @@ This application was built to validate, in a first practical slice, the methodol
 - `src/services/pipeline-policy.js`: AI-first stage requirements and explicit experimental-control policy.
 - `src/services/insight-builder.js`: objective execution measurements supplied to model-based consolidation.
 - `src/services/operation-tracker.js`: bounded in-memory progress and milestone tracking for long-running operations.
+- `src/services/batch-runner.js`: durable batch metadata, sequential job queue, and full pipeline orchestration.
+- `src/services/run-log.js`: consolidated per-run stage data, events, outcomes, and redaction.
 - `public/`: local graphical interface.
 - `prototype-runs/`: artifacts generated per run without destructively changing the inspected project.
 
@@ -61,18 +58,32 @@ All explanatory badges, pipeline descriptions, and model-participation cards are
 
 Operation records are temporary, bounded, held only in server memory, and contain curated status messages rather than target-process output or credential material.
 
+### Batch evaluations
+
+In **Batch queue**, enter one local project folder per line (or add folders with the buttons), choose the model above, and queue the projects. Each project uses its own inferred runtime and receives its own entry in Run history. Batch flow approval prefers grounded flows with medium or high confidence. If none qualify, a guest run may generate one clearly labeled **observed-transition-only** smoke test when an executed, stable action produced a cited and directly checkable state; speculative low-confidence criteria are not approved. Otherwise the job stops and records why. Human bug feedback can be skipped for collection; this leaves findings as **unconfirmed AI hypotheses**, not verified bugs. Turn off auto-skip to pause a job with hypotheses until all are reviewed in Run history, then select **Continue after review**. Other jobs keep moving through the queue.
+
+Each run exposes `run-log.json` with all stage outputs and test-level results, including incomplete and failed runs. Batch status survives page reloads. A server restart marks unfinished jobs interrupted; requeue those projects after restoring model settings. Batch metadata does not persist API keys.
+
 ## Detailed Specifications
 
-- [`specs.md`](specs.md): end-to-end system behavior, architecture, technology rationale, API contracts, safety boundaries, artifacts, and extension guidance.
-- [`specs.bdd.md`](specs.bdd.md): user and engineering flows in Given/When/Then form, including model-selection guidance and evaluation scenarios.
-- [`candidates.md`](candidates.md): candidate toy applications, selection rationale, comparable E2P runs, evidence, and cross-project findings.
-- [`features/auth.md`](features/auth.md): authenticated read-only architecture, security controls, pipeline behavior, and validation evidence.
-- [`features/bug-discovery.md`](features/bug-discovery.md): defect-discovery architecture, historical POC, implemented pipeline, and evaluation evidence.
-- [`features.md`](features.md): risk-guided exploration, boundary/state probes, model-latency isolation, and coverage-aware reporting.
-- [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md): complete unknown-project run and interpretation.
-- [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md): five-repository public benchmark, aggregate evidence, corrections, and remaining limits.
-- [`PROJECT_HANDOFF.md`](PROJECT_HANDOFF.md): compact cross-machine context covering research continuity, implementation state, evidence, known weaknesses, and next steps.
-- [`updates.md`](updates.md): implementation summary, affected files, and tests for the authenticated-flow update.
+### Corpus characterization and meaningful result tables
+
+Run `npm run evaluate:corpus` to derive the research inventory and results by behavioral family from `evaluation/corpus.json` and the declared batch logs. The default output is `../output/evaluation-corpus/corpus-report.md` plus a JSON report containing per-file hashes, static measurements, run IDs and the actual assertions found in generated tests. An alternative output directory can be provided with `--output=<path>`.
+
+The inventory describes all 21 local educational applications: purpose, reference behavior, data/form interactions, search, media/voice, games/time, and interaction/ordering. Source measurements exclude dependencies, build output, minified files and media. Nonblank physical lines include comments and are **not** a complexity score. A single HTML document does not mean a single interface state. Missing projects or logs remain visible and cause an incomplete-evidence exit status; the command never launches the model or changes historical runs.
+
+The corpus supports claims about compact browser applications, not validated medium-sized production systems. Historical collection dates identify provenance; they are not experimental treatments. Reports distinguish pipeline completion, passing tests and evidence of the intended behavior. A title such as “persistence” does not count as persistence verification unless the generated actions and assertions actually check it. Static hashes measured today must not be presented as historical target hashes.
+
+- [`specs.md`](docs/architecture/specs.md): end-to-end system behavior, architecture, technology rationale, API contracts, safety boundaries, artifacts, and extension guidance.
+- [`specs.bdd.md`](docs/architecture/specs.bdd.md): user and engineering flows in Given/When/Then form, including model-selection guidance and evaluation scenarios.
+- [`candidates.md`](docs/research/candidates.md): candidate toy applications, selection rationale, comparable E2P runs, evidence, and cross-project findings.
+- [`features/auth.md`](docs/architecture/features/auth.md): authenticated read-only architecture, security controls, pipeline behavior, and validation evidence.
+- [`features/bug-discovery.md`](docs/architecture/features/bug-discovery.md): defect-discovery architecture, historical POC, implemented pipeline, and evaluation evidence.
+- [`features.md`](docs/research/features.md): risk-guided exploration, boundary/state probes, model-latency isolation, and coverage-aware reporting.
+- [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](docs/reports/archive/EXTERNAL_BLIND_EVALUATION_REPORT.md): complete unknown-project run and interpretation.
+- [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](docs/reports/archive/PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md): five-repository public benchmark, aggregate evidence, corrections, and remaining limits.
+- [`PROJECT_HANDOFF.md`](docs/guides/PROJECT_HANDOFF.md): compact cross-machine context covering research continuity, implementation state, evidence, known weaknesses, and next steps.
+- [`updates.md`](docs/reports/archive/updates.md): implementation summary, affected files, and tests for the authenticated-flow update.
 
 ## Reproduce E2P From a Fresh Machine
 
@@ -101,7 +112,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **89 passed, 0 failed**.
+The expected project self-test result for this revision is **152 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 
@@ -135,14 +146,25 @@ Open [http://127.0.0.1:4318](http://127.0.0.1:4318). `index.html` should not be 
 2. Select `Local llama.cpp` and choose `qwen3.8-vl-27b-iq1m-64k`. Leave the optional reviewer blank unless a separately benchmarked server/model is available.
 3. Use `Choose folder in Windows` or paste an absolute target-project directory, then select `Load project`.
 4. Review the detected framework, working directory, installation command, startup command, and base URL. Correct a value only when the target documentation requires it.
-5. Keep `Guest` access for the public benchmark and select `Explore live interface`.
+5. Keep `Guest` access for the public benchmark and select `Explore live interface`. The optional **Disposable local target** profile allows fictional amounts from -1000 to 1000 with up to two decimal places, respecting the field's actual minimum, maximum and step. Use it for an isolated locally started guest project with no external accounts or services. The command-line evaluator exposes the same opt-in as `--disposable-local`.
 6. Follow the sticky live viewer as the model chooses actions and E2P records states. The AI-first pipeline stops instead of silently substituting a heuristic plan when a required model stage fails.
 7. Review observed facts, inferred expectations, rejected hypotheses, and clean-session replay status under `Potential defects`.
 8. Select `Generate flows and criteria`, inspect semantic coverage, and approve only the flows that are appropriate for the experiment.
-9. Select `Generate Playwright tests`, followed by `Run tests and collect evidence`.
-10. Review pass/fail status, failure classification, screenshots, videos, traces, limitations, and final model interpretation.
+9. Select `Generate Playwright tests`; inspect each criterion-to-assertion contract. An unsupported criterion stays **unverified** even if a smoke test passes. Editing criteria invalidates generated files and requires regeneration.
+10. Select `Run tests and collect evidence`. Review the operational state separately from the test result, the assertion traceability, screenshots, videos, traces, limitations, and final model interpretation.
 
 Every run is isolated under `prototype-runs/<run-id>/`; E2P does not need to write generated tests into the selected target repository.
+
+### Reproducible result aggregation
+
+Individual, batch and `evaluate:blind-local` command-line runs write the same `run-log.json` schema. To derive CSV and Markdown tables from selected run IDs, use:
+
+```powershell
+npm.cmd run evaluate:aggregate -- --run-ids=RUN_ID_1,RUN_ID_2 --output=..\output\evaluation-summary
+npm.cmd run evaluate:aggregate -- --batch-id=BATCH_ID --output=..\output\batch-summary
+```
+
+Without `--run-ids` or `--batch-id`, the command scans all runs that have a log. Its totals distinguish completed operations, executions reached, tests passed, criteria with generated assertions, and human-adjudicated hypotheses. A generated assertion is not counted as an independently validated oracle. The prospective paired-comparison protocol, pre-change source hash, model hashes, and historical-batch limitations are in the sibling workspace evidence package at `../output/e2p-evolution-20261006/README.md`; copy that package when sharing results (it is not part of this repository).
 
 ### Repeat a run from the command line
 
@@ -154,7 +176,7 @@ npm.cmd run evaluate:blind-local -- "C:\path\to\web-project" "qwen2.5vl:7b" "gem
 
 The positional arguments are target directory, author/explorer model, and optional reviewer model. The evaluator performs inspection, guest exploration, finding review, flow planning, generation, execution, and insight consolidation. Its machine-readable summary is stored at `prototype-runs/<run-id>/results/blind-evaluation.json`; finding details are stored in `results/potential-bugs.json`.
 
-See [`BUG_DISCOVERY_TRIAL_REPORT.md`](BUG_DISCOVERY_TRIAL_REPORT.md) for the historical red/green control and [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md) for the five-project unknown-application trial.
+See [`BUG_DISCOVERY_TRIAL_REPORT.md`](docs/reports/archive/BUG_DISCOVERY_TRIAL_REPORT.md) for the historical red/green control and [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](docs/reports/archive/PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md) for the five-project unknown-application trial.
 
 ### Authenticated read-only runs
 
@@ -325,9 +347,9 @@ npm.cmd run server
 
 The exact target directories are the five clone roots except for Build a Quiz App, whose target is `javascript-quiz\Quiz App Master`. Dependency installation was completed before the recorded benchmark and E2P's `Run install before execution` option remained off so setup time would not be mixed with model evaluation.
 
-The original five full runs recorded 67 model actions and 59 interface states. After general compiler corrections, all five original scenarios passed; an expanded MDN Todo plan passed 5/5 tests at 42% observed-opportunity coverage. No target defect was confirmed in that sample. All 25 initially retained hypotheses were rejected by the current evidence contract as unsupported or contradicted. This is documented without inflating model performance in [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md).
+The original five full runs recorded 67 model actions and 59 interface states. After general compiler corrections, all five original scenarios passed; an expanded MDN Todo plan passed 5/5 tests at 42% observed-opportunity coverage. No target defect was confirmed in that sample. All 25 initially retained hypotheses were rejected by the current evidence contract as unsupported or contradicted. This is documented without inflating model performance in [`PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md`](docs/reports/archive/PUBLIC_REPOSITORIES_BENCHMARK_REPORT.md).
 
-Earlier per-candidate results remain in [`candidates.md`](candidates.md), [`AI_FIRST_CANDIDATE_REPORT.md`](AI_FIRST_CANDIDATE_REPORT.md), [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](EXTERNAL_BLIND_EVALUATION_REPORT.md), and [`MODEL_EVALUATION_REPORT.md`](MODEL_EVALUATION_REPORT.md).
+Earlier per-candidate results remain in [`candidates.md`](docs/research/candidates.md), [`AI_FIRST_CANDIDATE_REPORT.md`](docs/reports/archive/AI_FIRST_CANDIDATE_REPORT.md), [`EXTERNAL_BLIND_EVALUATION_REPORT.md`](docs/reports/archive/EXTERNAL_BLIND_EVALUATION_REPORT.md), and [`MODEL_EVALUATION_REPORT.md`](docs/reports/archive/MODEL_EVALUATION_REPORT.md).
 
 ## Supported Execution Strategies
 
@@ -378,7 +400,7 @@ This first version prioritizes robustness and demonstrability:
 - repeated runs with the same model can explore different actions, so model name, target revision, timestamps, action/state counts, and stop reasons must be retained;
 - SSO, CAPTCHA, and interactive MFA may require a pre-established session-cookie adapter or manual preparation outside E2P;
 - authenticated flows are navigation-and-observation only and intentionally do not click state-changing controls;
-- the quality of generated tests depends on the richness of the signals found in the project;
+- the quality of generated tests depends on the richness of the signals found in the project; unsupported acceptance criteria remain explicitly unverified;
 - local models can still choose weak actions or return malformed structured output; the pipeline stops and preserves those outcomes instead of presenting fallback output as model success;
 - model confidence is a self-assessment, not a calibrated probability that a proposed defect is correct;
 - independent replay may be blocked when a journey depends on accumulated or timer-driven state, and a reproduced observation does not prove the inferred expectation;

@@ -45,6 +45,8 @@ async function runAgenticExploration({
   visionEnabled = false,
   coveragePlan = null,
   isolateModelThinkTime = false,
+  onActionStart = () => {},
+  onActionEnd = () => {},
 }) {
   const normalized = normalizeAiConfig(aiConfig);
   if (!normalized.enabled) {
@@ -213,8 +215,10 @@ async function runAgenticExploration({
     usedActionKeys.add(actionSemanticKey(selectedAction));
 
     try {
+      onActionStart(attempt + 1, selectedAction);
       activePage = await executeDecision(activePage, decision, selectedAction);
       await activePage.waitForTimeout(700);
+      onActionEnd();
       const next = await observeCurrentPage(activePage);
       const afterFingerprint = fingerprintObservation(next);
       const changed = beforeFingerprint !== afterFingerprint;
@@ -251,6 +255,7 @@ async function runAgenticExploration({
           value: ["fill", "select"].includes(decision.action) ? String(decision.value || "").slice(0, 64) : "",
           label: selectedAction.label || "",
           placeholder: selectedAction.placeholder || "",
+          inputType: selectedAction.inputType || "",
           options: selectedAction.options || [],
           targetBlank: Boolean(selectedAction.targetBlank),
           testId: selectedAction.testId || "",
@@ -302,6 +307,7 @@ async function runAgenticExploration({
       });
 
     } catch (error) {
+      onActionEnd();
       if (error.code === "E2P_ACTION_UNAVAILABLE") {
         const refreshed = await observeCurrentPage(activePage);
         const refreshedFingerprint = fingerprintObservation(refreshed);
@@ -483,6 +489,7 @@ async function requestExplorationDecision({
       "If validation appears, read its guidance and correct the same field with an ordinary valid-looking synthetic value when a correction action is offered. Explore other available controls before ending.",
       "Never attempt checkout, payment, final submission, account changes, publishing, uploads, deletion, or external navigation.",
       "For fill actions, use a short value grounded in the visible purpose of the field. Do not enter personal data, credentials, scripts, or secrets.",
+      "When a number field is explicitly available in a disposable local application, use a fictional amount from -1000 through 1000 with at most two decimal places. Respect numericConstraints min, max and step: step 1 requires an integer, while step any allows decimals. Never use real financial or account data.",
       "Use plausible fictional values such as sampleuser or a meaningful search term, respecting visible constraints. Do not start with single-character, empty, malformed, or extreme inputs to provoke validation. The expected visible outcome is a tentative prediction to learn from, not a test oracle or bug verdict.",
       "For a text input, choose its fill action before its press action; use press only after the completed actions show that the same input was filled.",
       "For select controls, choose one supplied option value that differs from the current value.",
@@ -522,6 +529,7 @@ async function requestExplorationDecision({
         name: action.name,
         context: action.context || "",
         inputType: action.inputType,
+        numericConstraints: action.numericConstraints || null,
         minLength: action.minLength,
         boundaryProbe: Boolean(action.boundaryProbe),
         options: action.options,
@@ -665,6 +673,26 @@ function validateSelectedAction(rawDecision, selected, requestedDecision, action
   if (action === "fill" && selected.boundaryProbe && [...value].length !== 1) {
     throw new Error("This field is marked for a general single-character boundary probe. Select the same actionId with exactly one ordinary character.");
   }
+  if (action === 'fill' && selected.inputType === 'number' && (!/^-?\d{1,4}(?:\.\d{1,2})?$/.test(value) || Math.abs(Number(value)) > 1000)) {
+    throw new Error('Disposable numeric exploration accepts only a synthetic amount from -1000 through 1000 with at most two decimal places.');
+  }
+  if (action === 'fill' && selected.inputType === 'number') {
+    const constraints = selected.numericConstraints || {};
+    const numericValue = Number(value);
+    const minimum = constraints.min !== null && constraints.min !== undefined && constraints.min !== '' ? Number(constraints.min) : null;
+    const maximum = constraints.max !== null && constraints.max !== undefined && constraints.max !== '' ? Number(constraints.max) : null;
+    if ((minimum !== null && numericValue < minimum) || (maximum !== null && numericValue > maximum)) {
+      throw new Error(`The synthetic amount must respect the observed field bounds: min ${minimum}, max ${maximum}.`);
+    }
+    if (constraints.step !== 'any') {
+      const increment = Number(constraints.step || '1');
+      const base = Number(constraints.stepBase || minimum || '0');
+      const units = (numericValue - base) / increment;
+      if (increment > 0 && Math.abs(units - Math.round(units)) > 1e-7) {
+        throw new Error(`The observed number field requires step ${increment} from ${base}; choose a compatible synthetic value.`);
+      }
+    }
+  }
   if (action === "select" && !selected.options?.some((option) => option.value === value || option.label === value)) {
     throw new Error("The model selected an option that was not exposed by the current select control.");
   }
@@ -786,7 +814,7 @@ async function resumeApplicationClock(page) {
   }
 }
 
-function classifyExplorationAction(action, { authenticated = false } = {}) {
+function classifyExplorationAction(action, { authenticated = false, disposableLocalProfile = false } = {}) {
   const name = sanitizeText(action?.name);
   if (!name || BLOCKED_ACTION_PATTERN.test(name)) {
     return { safe: false, reason: "blocked-intent" };
@@ -795,9 +823,9 @@ function classifyExplorationAction(action, { authenticated = false } = {}) {
   if (action?.kind === "fill" || action?.kind === "press") {
     const inputType = String(action.inputType || "text").toLowerCase();
     const inputHint = `${name} ${action.placeholder || ""}`;
-    const allowed = ["text", "search"].includes(inputType)
+    const allowed = (["text", "search"].includes(inputType) || (inputType === 'number' && disposableLocalProfile))
       && !/password|email|phone|address|credential|token|secret|api\s*key|access\s*key|chave|senha|e-mail/i.test(inputHint);
-    return { safe: allowed && !authenticated, reason: allowed && !authenticated ? "safe-query-input" : "sensitive-or-authenticated-input" };
+    return { safe: allowed && !authenticated, reason: allowed && !authenticated ? (inputType === 'number' ? 'bounded-synthetic-number' : 'safe-query-input') : "sensitive-or-authenticated-input" };
   }
 
   if (action?.kind === "select") {
@@ -855,6 +883,7 @@ function summarizeState(observation) {
     buttons: (observation?.buttons || []).slice(0, 16).map((button) => button.ariaLabel || button.text || button.id || "").filter(Boolean),
     inputs: (observation?.inputs || []).slice(0, 10).map((input) => input.label || input.placeholder || input.name || input.type || "").filter(Boolean),
     inputDetails: (observation?.inputs || []).slice(0, 10).map((input) => ({
+      domId: input.domId || input.id || '',
       label: input.label || "",
       placeholder: input.placeholder || "",
       name: input.name || "",
@@ -882,6 +911,7 @@ function summarizeState(observation) {
       accessibleIndex: action.accessibleIndex,
       accessibleCount: action.accessibleCount,
       minLength: action.minLength,
+      numericConstraints: action.numericConstraints || null,
       boundaryProbe: Boolean(action.boundaryProbe),
       safe: action.safe,
       inOverlay: Boolean(action.inOverlay),

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "track-navigation-prev",
+    "title": "Track Navigation via Prev Button",
+    "summary": "Clicking the prev button changes the current track, updating the visible text from 'ukulele' to 'summer'.",
+    "confidence": "medium",
+    "sourceSignals": [
+      "Interactive action-btn 0"
+    ],
+    "assumptions": [
+      "The prev button cycles through tracks."
+    ],
+    "evidenceStateIds": [
+      "state-1",
+      "state-2"
+    ],
+    "criteria": [
+      {
+        "title": "Verify Track Change on Prev Click",
+        "given": "The user is on the Music Player page with the track 'ukulele' visible.",
+        "when": "The user clicks the prev button.",
+        "then": "The visible track name changes to 'summer' and the state transitions to state-2."
+      }
+    ],
+    "blueprint": {
+      "kind": "model-observed-journey",
+      "evidenceStateIds": [
+        "state-1",
+        "state-2"
+      ],
+      "baselineBlueprint": null
+    }
+  }
+]

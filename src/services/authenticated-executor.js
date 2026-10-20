@@ -263,12 +263,21 @@ async function assertPageDoesNotExposeSecrets(page, secretValues) {
 }
 
 function buildReport(tests, durationMs) {
+  const failed = tests.filter(test => test.status === 'failed');
+  const blocked = failed.filter(test => /\b(?:blocked by policy|read-only policy|not allowed by policy|forbidden action)\b/i.test(test.error || ''));
   return {
     summary: {
       total: tests.length,
       passed: tests.filter((test) => test.status === "passed").length,
-      failed: tests.filter((test) => test.status === "failed").length,
+      failed: failed.length,
       skipped: 0,
+      expected: tests.length,
+      missing: 0,
+      verified: tests.length,
+      executionState: tests.length ? 'completed' : 'incomplete',
+      result: !tests.length ? 'no-verification' : blocked.length === failed.length && failed.length ? 'policy-blocked'
+        : failed.length ? 'tests-failed' : 'passed',
+      issues: tests.length ? [] : ['No authenticated action plan produced a test result.'],
       durationMs,
     },
     tests,

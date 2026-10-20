@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
+const fs = require('node:fs/promises');
 const { openProjectDirectoryDialog } = require("./services/directory-picker");
 const { inspectProject } = require("./services/project-inspector");
 const {
@@ -27,6 +28,9 @@ const {
 const { runAiConsoleTurn } = require("./services/ai-console");
 const { operationTracker } = require("./services/operation-tracker");
 const { listRuns, readRun, saveReview } = require("./services/run-history");
+const { createBatchQueue } = require('./services/batch-runner');
+const { createLocalAccess } = require('./services/local-access');
+const { readRunLog, stageRecord, updateRunLog } = require('./services/run-log');
 const {
   isBaselineModeEnabled,
   isExplicitBaseline,
@@ -38,10 +42,14 @@ const app = express();
 const PORT = process.env.PORT || 4318;
 const prototypeRoot = path.resolve(__dirname, "..");
 const requestToken = crypto.randomBytes(24).toString("hex");
+const runsRoot = path.join(prototypeRoot, 'prototype-runs');
+const batchQueue = createBatchQueue({ prototypeRoot });
+const localAccess = createLocalAccess({ port: PORT });
 
+app.use(localAccess.boundary);
 app.use(express.json({ limit: "3mb" }));
 app.use(express.static(path.join(prototypeRoot, "public")));
-app.use("/artifacts", async (request, response, next) => {
+app.use("/artifacts", localAccess.requireArtifactSession, async (request, response, next) => {
   try {
     const runId = String(request.path || "").split("/").filter(Boolean)[0] || "";
     if (!/^[a-z0-9-]+$/i.test(runId)) {
@@ -79,7 +87,52 @@ app.get('/api/history/:runId', requireLocalRequestToken, async (request, respons
   catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
 });
 app.post('/api/history/:runId/reviews', requireLocalRequestToken, async (request, response) => {
-  try { response.json({ review: await saveReview(path.join(prototypeRoot, 'prototype-runs'), request.params.runId, request.body) }); }
+  try {
+    const review = await saveReview(runsRoot, request.params.runId, request.body);
+    const runDirectory = path.join(runsRoot, request.params.runId);
+    try {
+      if (await readRunLog(runDirectory)) {
+        await updateRunLog(runDirectory, {
+          events: [{ stage: 'human-review', at: review.createdAt,
+            message: `${review.decision}: ${review.title}`, review }],
+        });
+      }
+    } catch (logError) { console.warn(`[server] Review saved, but run log could not be updated: ${redactSecrets(logError.message)}`); }
+    response.json({ review });
+  }
+  catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
+});
+
+app.get('/api/batches', requireLocalRequestToken, (request, response) => {
+  response.json({ batches: batchQueue.list() });
+});
+app.get('/api/batches/:batchId', requireLocalRequestToken, (request, response) => {
+  const batch = batchQueue.get(request.params.batchId);
+  response.status(batch ? 200 : 404).json(batch ? { batch } : { error: 'Batch not found.' });
+});
+app.post('/api/batches', requireLocalRequestToken, async (request, response) => {
+  try {
+    const paths = request.body?.projectPaths;
+    if (!Array.isArray(paths) || !paths.length || paths.length > 30) {
+      throw new Error('Select between 1 and 30 project directories for a batch.');
+    }
+    requireAiForStage(request.body?.aiConfig, 'batch pipeline');
+    const projectPaths = [];
+    const seen = new Set();
+    for (const value of paths) {
+      if (typeof value !== 'string' || !value.trim()) throw new Error('Each project path must be a non-empty string.');
+      const resolved = await fs.realpath(value.trim());
+      if (!(await fs.stat(resolved)).isDirectory()) throw new Error(`${resolved} is not a directory.`);
+      const key = process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+      if (!seen.has(key)) { seen.add(key); projectPaths.push(resolved); }
+    }
+    const batch = await batchQueue.enqueue({ projectPaths, aiConfig: request.body.aiConfig,
+      authConfig: request.body.authConfig, autoSkipBugReview: request.body.autoSkipBugReview === true });
+    response.status(202).json({ batch });
+  } catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
+});
+app.post('/api/batches/:batchId/jobs/:jobId/continue', requireLocalRequestToken, async (request, response) => {
+  try { response.json({ batch: await batchQueue.resumeAfterReview(request.params.batchId, request.params.jobId) }); }
   catch (error) { response.status(400).json({ error: redactSecrets(error.message) }); }
 });
 
@@ -155,6 +208,7 @@ app.post("/api/project/load", async (request, response, next) => {
 
 app.post("/api/project/explore-live", requireLocalRequestToken, async (request, response, next) => {
   const operation = beginRequestOperation(request.body, "exploration", "Exploring the live application");
+  let run;
   try {
     const {
       projectPath,
@@ -173,7 +227,13 @@ app.post("/api/project/explore-live", requireLocalRequestToken, async (request, 
     requireAiForStage(aiConfig, "live interface exploration");
 
     operation.update({ phase: "evidence-workspace", message: "Preparing an isolated evidence workspace for this exploration...", progress: 5 });
-    const run = await createRunDirectory(path.join(prototypeRoot, "prototype-runs"), projectPath);
+    run = await createRunDirectory(runsRoot, projectPath);
+    await updateRunLog(run.runDirectory, { runId: run.runId, projectPath,
+      mode: 'individual', provider: aiConfig?.provider || '', model: aiConfig?.model || '',
+      modelConfig: { provider: aiConfig?.provider || '', endpoint: aiConfig?.endpoint || '',
+        model: aiConfig?.model || '', criticModel: aiConfig?.criticModel || '' },
+      runtimeConfig,
+      stages: { inspection: stageRecord(inspection) } }, { secretValues: [aiConfig?.apiKey] });
     const evidenceDirectory = path.join(run.artifactsDirectory, "exploration");
     await ensureDirectory(evidenceDirectory);
     const artifactRun = {
@@ -193,6 +253,11 @@ app.post("/api/project/explore-live", requireLocalRequestToken, async (request, 
     });
 
     await writeJson(path.join(run.runDirectory, "exploration.json"), liveExploration);
+    await updateRunLog(run.runDirectory, { stages: {
+      exploration: stageRecord(liveExploration, operation.events),
+    }, events: operation.events.map(event => ({ stage: 'exploration', ...event })),
+      bugHypotheses: liveExploration.bugDiscovery?.hypotheses || [],
+      bugVerdict: 'AI hypotheses only; no human confirmation implied.' }, { secretValues: [aiConfig?.apiKey] });
     if (liveExploration.bugDiscovery) {
       await writeJson(path.join(run.resultsDirectory, "potential-bugs.json"), liveExploration.bugDiscovery);
     }
@@ -211,6 +276,9 @@ app.post("/api/project/explore-live", requireLocalRequestToken, async (request, 
     // inspection here would add latency without adding a distinct evaluation stage.
     const enhancedInspection = mergedInspection;
     await writeJson(path.join(run.runDirectory, 'inspection.json'), enhancedInspection);
+    await updateRunLog(run.runDirectory, { stages: {
+      inspection: stageRecord(enhancedInspection),
+    } }, { secretValues: [aiConfig?.apiKey] });
 
     if (!isExplicitBaseline(aiConfig)) {
       requireCompletedAiExploration(enhancedInspection, "flow planning");
@@ -223,6 +291,8 @@ app.post("/api/project/explore-live", requireLocalRequestToken, async (request, 
     });
   } catch (error) {
     operation.fail(redactSecrets(error?.message || error));
+    if (run) await updateRunLog(run.runDirectory, { status: 'failed', failedStage: 'exploration',
+      error: redactSecrets(error?.message || error) }).catch(() => {});
     next(error);
   }
 });
@@ -260,12 +330,20 @@ app.post("/api/pipeline/plan", async (request, response, next) => {
       aiConfig,
       authConfig,
     });
+    const runId = inspection.liveExploration?.artifactRun?.runId;
+    if (runId) {
+      const runDirectory = path.join(runsRoot, runId);
+      await writeJson(path.join(runDirectory, 'plan.json'), plan);
+      await updateRunLog(runDirectory, { stages: { planning: stageRecord(plan, operation.events) },
+        events: operation.events.map(event => ({ stage: 'planning', ...event })) }, { secretValues: [aiConfig?.apiKey] });
+    }
 
     operation.update({ phase: "human-review", message: "Preparing criteria for human review and approval...", progress: 94 });
     operation.complete(`Prepared ${plan.flows?.length || 0} flow(s) for review.`);
     response.json({ plan });
   } catch (error) {
     operation.fail(redactSecrets(error?.message || error));
+    await markRunFailureFromRequest(request.body, 'planning', error, operation.events);
     next(error);
   }
 });
@@ -303,11 +381,15 @@ app.post("/api/tests/generate", async (request, response, next) => {
       authConfig,
       onProgress: operation.update,
     });
+    await updateRunLog(generated.runDirectory, { approvedFlows, stages: {
+      generation: stageRecord(generated, operation.events),
+    }, events: operation.events.map(event => ({ stage: 'generation', ...event })) }, { secretValues: [aiConfig?.apiKey] });
 
     operation.complete(`Generated ${generated.generatedTests?.length || 0} test artifact(s).`);
     response.json({ generated });
   } catch (error) {
     operation.fail(redactSecrets(error?.message || error));
+    await markRunFailureFromRequest(request.body, 'generation', error, operation.events);
     next(error);
   }
 });
@@ -350,6 +432,11 @@ app.post("/api/tests/run", requireLocalRequestToken, async (request, response, n
     });
 
     await writeJson(path.join(generated.runDirectory, 'results', 'execution.json'), execution);
+    await updateRunLog(generated.runDirectory, { summary: execution.report?.summary || null,
+      testResults: execution.report?.tests || [],
+      stages: { execution: stageRecord({ execution }, operation.events) },
+      events: operation.events.map(event => ({ stage: 'execution', ...event })) }, { secretValues: [aiConfig?.apiKey] });
+    const loggedExecutionEventCount = operation.events.length;
 
     operation.update({ phase: "insight-consolidation", message: "Consolidating outcomes, limitations, and visual evidence...", progress: 88 });
     const baseInsights = buildInsights({
@@ -359,6 +446,7 @@ app.post("/api/tests/run", requireLocalRequestToken, async (request, response, n
       runtime: execution.runtime,
       auth: execution.auth,
       policy: execution.policy,
+      generatedTests: generated.generatedTests || [],
     });
 
     const { insights } = await enhanceInsightsWithAi({
@@ -372,15 +460,21 @@ app.post("/api/tests/run", requireLocalRequestToken, async (request, response, n
 
     operation.update({ phase: "artifact-index", message: "Writing the final insight report and evidence index...", progress: 96 });
     await writeJson(path.join(generated.runDirectory, "results", "insights.json"), insights);
+    await updateRunLog(generated.runDirectory, { status: 'completed', result: execution.report?.summary?.result || 'unavailable', completedAt: new Date().toISOString(),
+      summary: execution.report?.summary || null,
+      testResults: execution.report?.tests || [],
+      stages: { execution: stageRecord({ execution, insights }, operation.events) },
+      events: operation.events.slice(loggedExecutionEventCount).map(event => ({ stage: 'execution', ...event })) }, { secretValues: [aiConfig?.apiKey] });
 
     const summary = execution.report?.summary || {};
-    operation.complete(`Execution completed: ${summary.passed || 0} passed, ${summary.failed || 0} failed.`);
+    operation.complete(`Execution finished (${summary.result || 'unavailable'}): ${summary.passed || 0} passed, ${summary.failed || 0} failed.`);
     response.json({
       execution,
       insights,
     });
   } catch (error) {
     operation.fail(redactSecrets(error?.message || error));
+    await markRunFailureFromRequest(request.body, 'execution', error, operation.events);
     next(error);
   }
 });
@@ -423,7 +517,7 @@ app.get("*", (request, response) => {
 });
 
 app.use((error, request, response, next) => {
-  const safeMessage = redactSecrets(error?.message || error);
+  const safeMessage = redactSecrets(error?.message || error, [request.body?.aiConfig?.apiKey]);
   console.error(`[server] ${safeMessage}`);
   response.status(500).json({
     error: safeMessage || "Internal prototype failure.",
@@ -445,10 +539,12 @@ function requireLocalRequestToken(request, response, next) {
 }
 
 function beginRequestOperation(body, kind, label) {
+  const events = [];
   const noOperation = {
-    update: () => {},
+    update: (event) => { events.push({ at: new Date().toISOString(), ...withoutPreview(event) }); },
     complete: () => {},
     fail: () => {},
+    events,
   };
 
   if (!body?.operationId) {
@@ -456,17 +552,40 @@ function beginRequestOperation(body, kind, label) {
   }
 
   try {
-    return operationTracker.begin({
+    const reporter = operationTracker.begin({
       id: body.operationId,
       kind,
       label,
     });
+    return { ...reporter, events,
+      update: (event) => { events.push({ at: new Date().toISOString(), ...withoutPreview(event) }); reporter.update(event); } };
   } catch {
     // Progress reporting is optional and must never prevent the requested pipeline work.
     return noOperation;
   }
 }
 
-app.listen(PORT, () => {
+function withoutPreview(event = {}) {
+  const { detail, ...rest } = event;
+  return detail ? { ...rest, detail: { ...detail, screenshotDataUrl: '' } } : rest;
+}
+
+async function markRunFailureFromRequest(body, stage, error, events = []) {
+  const runId = body?.inspection?.liveExploration?.artifactRun?.runId || body?.generated?.runId;
+  if (!/^[a-z0-9-]+$/i.test(String(runId || ''))) return;
+  const runDirectory = path.join(runsRoot, runId);
+  try {
+    const previous = await readRunLog(runDirectory);
+    const newEvents = events.slice(previous?.stages?.[stage]?.events?.length || 0);
+    const safeError = redactSecrets(error?.message || error, [body?.aiConfig?.apiKey]);
+    await updateRunLog(runDirectory, { status: 'failed', failedStage: stage,
+      error: safeError,
+      stages: { [stage]: { ...previous?.stages?.[stage], failedAt: new Date().toISOString(), error: safeError, events } },
+      events: newEvents.map(event => ({ stage, ...event })) },
+    { secretValues: [body?.aiConfig?.apiKey] });
+  } catch { /* Logging must not hide the original pipeline failure. */ }
+}
+
+batchQueue.initialize().then(() => app.listen(PORT, '127.0.0.1', () => {
   console.log(`Action E2E Prototype available at http://127.0.0.1:${PORT}`);
-});
+})).catch(error => { console.error(`[server] Batch queue initialization failed: ${redactSecrets(error.message)}`); process.exitCode = 1; });

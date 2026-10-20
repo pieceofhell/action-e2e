@@ -1,0 +1,69 @@
+{
+  "protocol": "recorded-hypotheses-current-evidence-contract",
+  "source": "The original trajectories and hypotheses remain preserved in exploration/validation.json.",
+  "serviceSha256": "f7fe7b33f3b4db62428caff2a73984f13f83c5a7ca7027d58f1fc53aeda540b6",
+  "runs": [
+    {
+      "target": "expense-tracker",
+      "repetition": 1,
+      "runId": "expense-tracker-2026-10-18T14-49-09-324Z-6a68b3",
+      "retained": [],
+      "rejected": []
+    },
+    {
+      "target": "movie-seat-booking",
+      "repetition": 1,
+      "runId": "movie-seat-booking-2026-10-18T14-50-21-653Z-b5fd04",
+      "retained": [],
+      "rejected": []
+    },
+    {
+      "target": "modal-menu-slider",
+      "repetition": 1,
+      "runId": "modal-menu-slider-2026-10-18T14-55-23-909Z-c59808",
+      "retained": [],
+      "rejected": [
+        {
+          "id": "bug-hypothesis-kvtdy1",
+          "title": "Sign Up modal opens with form fields but no visible feedback or error handling observed",
+          "reason": "The expected and observed outcomes are identical; the hypothesis states no distinct violated expectation.",
+          "verdict": "reject",
+          "screeningStage": "evidence-contract",
+          "authorConfidence": "medium",
+          "authorSeverity": "medium"
+        }
+      ]
+    },
+    {
+      "target": "expense-tracker",
+      "repetition": 2,
+      "runId": "expense-tracker-2026-10-18T14-57-15-892Z-4505a1",
+      "retained": [],
+      "rejected": []
+    },
+    {
+      "target": "movie-seat-booking",
+      "repetition": 2,
+      "runId": "movie-seat-booking-2026-10-18T14-58-31-767Z-6e1657",
+      "retained": [],
+      "rejected": []
+    },
+    {
+      "target": "modal-menu-slider",
+      "repetition": 2,
+      "runId": "modal-menu-slider-2026-10-18T15-03-37-184Z-16643d",
+      "retained": [],
+      "rejected": [
+        {
+          "id": "bug-hypothesis-kvtdy1",
+          "title": "Sign Up modal opens with form fields but no visible feedback or error handling observed",
+          "reason": "The expected and observed outcomes are identical; the hypothesis states no distinct violated expectation.",
+          "verdict": "reject",
+          "screeningStage": "evidence-contract",
+          "authorConfidence": "medium",
+          "authorSeverity": "medium"
+        }
+      ]
+    }
+  ]
+}

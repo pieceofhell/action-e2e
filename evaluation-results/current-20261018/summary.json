@@ -1,0 +1,15 @@
+{
+  "internalTests": 151,
+  "explorations": 6,
+  "sourceUnchanged": true,
+  "completedActions": 60,
+  "observedStatesSum": 52,
+  "verifiedProperties": 4,
+  "runtimeReproductions": 4,
+  "expenseEvidence": "C:\\Users\\henri\\Documents\\Codex\\E2P\\output\\e2p-evolution-20261006\\regression-pairs\\expense-tracker-2026-10-18T15-00-26-777Z\\pair-result.json",
+  "musicEvidence": "C:\\Users\\henri\\Documents\\Codex\\E2P\\output\\e2p-evolution-20261006\\regression-pairs\\music-player-2026-10-18T15-00-26-771Z\\pair-result.json",
+  "reviewedCandidates": 2,
+  "retainedAfterReview": 0,
+  "rejectedAfterReview": 2,
+  "reviewServiceSha256": "f7fe7b33f3b4db62428caff2a73984f13f83c5a7ca7027d58f1fc53aeda540b6"
+}

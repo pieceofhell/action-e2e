@@ -8,13 +8,16 @@ const { generateTestBundle } = require("../src/services/test-generator");
 const { runGeneratedTests } = require("../src/services/test-runner");
 const { buildInsights } = require("../src/services/insight-builder");
 const { createRunDirectory, ensureDirectory, writeJson } = require("../src/services/artifact-store");
+const { stageRecord, updateRunLog } = require('../src/services/run-log');
 
 const prototypeRoot = path.resolve(__dirname, "..");
-const targetPath = path.resolve(process.argv[2] || "");
+const argumentsList = process.argv.slice(2).filter(value => !value.startsWith('--'));
+const disposableLocalProfile = process.argv.includes('--disposable-local');
+const targetPath = path.resolve(argumentsList[0] || "");
 const provider = process.env.E2P_AI_PROVIDER || "llama-cpp";
 const endpoint = process.env.E2P_AI_ENDPOINT || "http://127.0.0.1:8081/v1";
-const model = process.argv[3] || "qwen3.8-vl-27b-iq1m-64k";
-const criticModel = process.argv[4] || "";
+const model = argumentsList[1] || "qwen3.8-vl-27b-iq1m-64k";
+const criticModel = argumentsList[2] || "";
 const aiConfig = {
   provider,
   endpoint,
@@ -23,8 +26,8 @@ const aiConfig = {
 };
 
 async function main() {
-  if (!process.argv[2]) {
-    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [author-model] [reviewer-model]. Configure E2P_AI_PROVIDER and E2P_AI_ENDPOINT when needed.");
+  if (!argumentsList[0]) {
+    throw new Error("Usage: npm run evaluate:blind-local -- <project-path> [author-model] [reviewer-model] [--disposable-local]. Configure E2P_AI_PROVIDER and E2P_AI_ENDPOINT when needed.");
   }
   const stat = await fs.stat(targetPath);
   if (!stat.isDirectory()) throw new Error("The target path must be a local directory.");
@@ -58,6 +61,7 @@ async function main() {
     provider,
     endpoint,
     criticModel: criticModel || model,
+    disposableLocalProfile,
     runId: run.runId,
     runDirectory: run.runDirectory,
     status: "running",
@@ -65,10 +69,24 @@ async function main() {
     stages: {},
   };
   let stage = "project inspection";
-
+  let stageEvents = [];
+  const log = patch => updateRunLog(run.runDirectory, patch, { secretValues: [process.env.E2P_AI_API_KEY] });
+  const progress = event => {
+    announceProgress(event);
+    stageEvents.push({ at: new Date().toISOString(), phase: event.phase || stage,
+      message: event.message || '', progress: event.progress ?? null });
+  };
+  const checkpoint = async (name, data) => {
+    await log({ stages: { [name]: stageRecord(data, stageEvents) },
+      events: stageEvents.map(event => ({ stage: name, ...event })) });
+    stageEvents = [];
+  };
   try {
+    await log({ runId: run.runId, projectPath: targetPath, mode: 'cli', provider, model,
+      modelConfig: { provider, endpoint, model, criticModel: criticModel || model },
+      reviewPolicy: 'blind-hypotheses-unconfirmed' });
     announce(stage);
-    const staticInspection = await inspectProject(targetPath, { onProgress: announceProgress });
+    const staticInspection = await inspectProject(targetPath, { onProgress: progress });
     const enhanced = await enhanceInspectionWithAi({ inspection: staticInspection, aiConfig });
     let inspection = enhanced.inspection;
     result.stages.inspection = {
@@ -77,12 +95,14 @@ async function main() {
       capabilities: inspection.ai?.mainCapabilities || [],
       runtime: inspection.runtime,
     };
+    await checkpoint('inspection', inspection);
 
     stage = "model-guided live exploration and defect discovery";
     announce(stage);
     const runtimeConfig = {
       ...inspection.runtime,
       runInstallBeforeExecution: false,
+      disposableLocalProfile,
     };
     const liveExploration = await exploreLiveProject({
       projectPath: targetPath,
@@ -91,7 +111,7 @@ async function main() {
       aiConfig,
       authConfig: { mode: "guest" },
       artifactRun,
-      onProgress: announceProgress,
+      onProgress: progress,
     });
     await writeJson(path.join(run.runDirectory, "exploration.json"), liveExploration);
     await writeJson(path.join(run.resultsDirectory, "potential-bugs.json"), liveExploration.bugDiscovery || {});
@@ -105,6 +125,7 @@ async function main() {
       diagnostics: liveExploration.diagnostics || {},
       bugDiscovery: liveExploration.bugDiscovery || null,
     };
+    await checkpoint('exploration', { inspection, liveExploration });
     if (liveExploration.status !== "completed") {
       throw new Error(liveExploration.error || "Live exploration did not complete.");
     }
@@ -126,6 +147,7 @@ async function main() {
     const approvedFlows = selectFlows(plan.flows);
     if (!approvedFlows.length) throw new Error("The model produced no admissible evidence-grounded flow.");
     result.stages.planning = { plan, approvedFlowIds: approvedFlows.map((flow) => flow.id) };
+    await checkpoint('planning', plan);
 
     stage = "Playwright test generation";
     announce(stage);
@@ -137,12 +159,13 @@ async function main() {
       runtimeConfig,
       aiConfig,
       authConfig: { mode: "guest" },
-      onProgress: announceProgress,
+      onProgress: progress,
     });
     result.stages.generation = {
       runId: generated.runId,
       tests: generated.generatedTests,
     };
+    await checkpoint('generation', generated);
 
     stage = "Playwright execution";
     announce(stage);
@@ -153,12 +176,13 @@ async function main() {
       targetProjectPath: targetPath,
       runtimeConfig: generated.runtimeConfig,
       authConfig: { mode: "guest" },
-      onProgress: announceProgress,
+      onProgress: progress,
     });
     result.stages.execution = {
       report: execution.report,
       runtime: execution.runtime,
     };
+    await checkpoint('execution', execution);
 
     stage = "result interpretation";
     announce(stage);
@@ -169,6 +193,7 @@ async function main() {
       runtime: execution.runtime,
       auth: execution.auth,
       policy: execution.policy,
+      generatedTests: generated.generatedTests || [],
     });
     const { insights } = await enhanceInsightsWithAi({
       inspection,
@@ -179,7 +204,9 @@ async function main() {
       aiConfig,
     });
     result.stages.insights = insights;
+    await checkpoint('insights', insights);
     result.status = execution.report.summary.failed ? "completed-with-test-failures" : "completed";
+    result.testResult = execution.report.summary.result;
   } catch (error) {
     result.status = "stopped";
     result.failedStage = stage;
@@ -188,6 +215,11 @@ async function main() {
 
   result.completedAt = new Date().toISOString();
   await writeJson(path.join(run.resultsDirectory, "blind-evaluation.json"), result);
+  await log({ status: result.status === 'stopped' ? 'failed' : 'completed', result: result.testResult || 'unavailable',
+    failedStage: result.failedStage || null, error: result.error || null, completedAt: result.completedAt,
+    summary: result.stages.execution?.report?.summary || null,
+    bugHypotheses: result.stages.exploration?.bugDiscovery?.hypotheses || [],
+    events: stageEvents.map(event => ({ stage, ...event })) });
   process.stdout.write(`\nEvaluation ${result.status}. Artifacts: ${run.runDirectory}\n`);
   if (result.error) process.stdout.write(`Stopped at ${result.failedStage}: ${result.error}\n`);
   if (result.status === "stopped") process.exitCode = 1;

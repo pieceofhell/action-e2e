@@ -24,3 +24,13 @@ latex/*.blg
 latex/*.synctex.gz
 latex/main_revisado.pdf
 output/pdf/
+test-results/
+logs/
+tmp/
+paper/**/main.pdf
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.bbl
+paper/**/*.blg
+paper/**/*.synctex.gz
+paper/**/*.xdv

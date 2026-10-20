@@ -63,7 +63,33 @@ test("refreshes exploration when an observed control becomes hidden", async () =
     await browser.close();
   }
 });
-const { calibrateFlowConfidence, deriveCoverageTargets, mergeAiFlows, measureFlowCoverage, validateInsightPayload } = require("../src/services/ai-workflows");
+const { calibrateFlowConfidence, deriveCoverageTargets, mergeAiFlows, measureFlowCoverage, summarizeLiveExplorationForPrompt, validateInsightPayload } = require("../src/services/ai-workflows");
+
+test("bounds planning evidence without losing the action-to-state mapping", () => {
+  const hugeActions = Array.from({ length: 300 }, (_, index) => ({ name: `unrelated-${index}`, options: 'x'.repeat(500) }));
+  const states = Array.from({ length: 19 }, (_, index) => ({
+    id: `state-${index + 1}`, fingerprint: `fingerprint-${index + 1}`, path: '/',
+    headings: ['Meal Finder'], buttons: ['Search'], inputs: ['Search meals'],
+    inputDetails: [{ label: 'Search meals', value: 'chicken' }],
+    visibleTextExcerpt: 'Meal results',
+  }));
+  const steps = states.map((state, index) => ({
+    step: index + 1, status: 'completed', afterStateId: state.id, afterFingerprint: state.fingerprint,
+    action: { kind: 'fill', name: 'Search meals', value: 'chicken', options: hugeActions },
+    observedAfter: { path: '/', headings: ['Meal Finder'], buttons: ['Search'],
+      inputDetails: [{ label: 'Search meals', value: 'chicken' }],
+      visibleTextExcerpt: 'Meal results', actions: hugeActions },
+  }));
+  const result = summarizeLiveExplorationForPrompt({
+    status: 'completed', mode: 'guest', baseUrl: 'http://127.0.0.1:3000', summary: {}, routes: [],
+    agenticExploration: { status: 'completed', states, steps, qaCoverage: { goals: [] } },
+  });
+  const serialized = JSON.stringify(result);
+  assert.ok(serialized.length < 40000, `Planning evidence was ${serialized.length} characters`);
+  assert.equal(result.agenticExploration.completedActions[18].resultingStateId, 'state-19');
+  assert.equal(result.agenticExploration.completedActions[0].observedAfter.inputDetails[0].value, 'chicken');
+  assert.doesNotMatch(serialized, /unrelated-299/);
+});
 const { buildInsights } = require("../src/services/insight-builder");
 const { requireAiForStage, requireCompletedAiExploration } = require("../src/services/pipeline-policy");
 
@@ -225,6 +251,27 @@ test("calibrates model confidence against observed evidence quality", () => {
   assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: ["Maybe signed in", "Maybe data exists"], criteria: [{}, {}], enteringStep: { changed: true } }), "low");
   assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: [], criteria: [{}], enteringStep: { changed: true } }), "medium");
   assert.equal(calibrateFlowConfidence({ requested: "high", assumptions: [], criteria: [{}, {}], enteringStep: { changed: true } }), "high");
+});
+
+test('compiles the cited action, not later actions that revisit the same state', () => {
+  const states = [
+    { id: 'state-1', fingerprint: 'empty', headings: ['Memory Cards Add New Card'], buttons: ['Clear Cards'], inputs: ['Question'] },
+    { id: 'state-2', fingerprint: 'filled', headings: ['Memory Cards Add New Card'], buttons: ['Clear Cards'], inputs: ['Question'] },
+  ];
+  const steps = [
+    { step: 1, status: 'completed', afterFingerprint: 'filled', action: { kind: 'fill', name: 'Question', domId: 'question', value: 'Paris' } },
+    { step: 2, status: 'completed', afterFingerprint: 'empty', action: { kind: 'click', name: 'Clear Cards', domId: 'clear' } },
+    { step: 3, status: 'completed', afterFingerprint: 'empty', action: { kind: 'click', name: 'Next', domId: 'next' } },
+  ];
+  const [flow] = mergeAiFlows([], [{
+    id: 'clear-cards', title: 'Clear Cards', evidenceStateIds: ['state-1'],
+    criteria: [{ title: 'Clear Cards', given: 'Memory Cards is open', when: 'Clear Cards is clicked', then: 'Question is empty' }],
+  }], { agenticExploration: { states, steps } });
+  assert.equal(flow.observedStepNumber, 2);
+  const source = buildObservedJourneySpecContent(flow, { liveExploration: { agenticExploration: { states, steps } } });
+  assert.match(source, /locator\("#clear"\)\.click/);
+  assert.doesNotMatch(source, /locator\("#next"\)/);
+  assert.match(source, /h1:visible/);
 });
 
 test("rejects a model flow whose cited state was produced by an unrelated action", () => {
@@ -929,6 +976,21 @@ test("asserts a retained input value as a value instead of rendered page text", 
   assert.match(source, /getByTestId\("text-input"\)\.press\("Enter"\)/);
   assert.match(source, /getByTestId\("text-input"\)\)\.toHaveValue\("a"\)/);
   assert.doesNotMatch(source, /getByText\("a"/);
+});
+
+test('observed-only batch tests assert their exact recorded outcome', () => {
+  const source = buildObservedJourneySpecContent({
+    id: 'observed-transition-1', title: 'Observed interaction: Username',
+    evidenceStateIds: ['state-2'], approvalBasis: 'observed-transition-only', observedStepNumber: 1,
+    observationCheck: { kind: 'input-value', value: 'sampleuser' },
+  }, { liveExploration: { agenticExploration: {
+    states: [{ id: 'state-1', fingerprint: 'before' }, { id: 'state-2', fingerprint: 'after', headings: ['Register'] }],
+    steps: [{ step: 1, status: 'completed', afterFingerprint: 'after', action: { kind: 'fill', name: 'Username', domId: 'username', value: 'sampleuser' } },
+      { step: 2, status: 'completed', afterFingerprint: 'after', action: { kind: 'click', name: 'Unrelated', domId: 'other' } }],
+  } } });
+  assert.match(source, /locator\("#username"\)\)\.toHaveValue\("sampleuser"\)/);
+  assert.doesNotMatch(source, /getByRole\("heading"/);
+  assert.doesNotMatch(source, /#other/);
 });
 
 test("asserts a closed overlay instead of a rotating promotional heading", () => {

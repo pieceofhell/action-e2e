@@ -11,6 +11,7 @@ function normalizeRuntimeConfig(defaultRuntime = {}, runtimeConfig = {}) {
     baseUrl: runtimeConfig?.baseUrl ?? defaultRuntime.baseUrl ?? "",
     workingDirectory: runtimeConfig?.workingDirectory ?? defaultRuntime.workingDirectory ?? ".",
     runInstallBeforeExecution: Boolean(runtimeConfig?.runInstallBeforeExecution),
+    disposableLocalProfile: runtimeConfig?.disposableLocalProfile === true,
   };
 
   if (merged.mode === "static") {

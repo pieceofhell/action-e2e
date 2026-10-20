@@ -218,7 +218,7 @@ function normalizeAiConfig(rawConfig = {}) {
 }
 
 function inferContextLengthFromModelName(model) {
-  const match = String(model || "").toLowerCase().match(/(?:^|[-_.:])(\d{2,3})k(?:$|[-_.:])/);
+  const match = String(model || "").toLowerCase().match(/(?:^|[-_.:])(\d{1,3})k(?:$|[-_.:])/);
   if (!match) return null;
   const tokens = Number(match[1]) * 1024;
   return Number.isFinite(tokens) ? tokens : null;

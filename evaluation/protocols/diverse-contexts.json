@@ -1,0 +1,11 @@
+{
+  "id": "diverse-contexts-v1",
+  "repetitions": 2,
+  "description": "Exploração inicial, sem roteiro ou descrição de defeito fornecidos ao modelo; avaliação posterior por trajetória e diagnóstico.",
+  "targets": [
+    { "id": "form-validator", "path": "../../../candidates/vanillawebprojects/form-validator" },
+    { "id": "music-player", "path": "../../../candidates/vanillawebprojects/music-player" },
+    { "id": "memory-cards", "path": "../../../candidates/vanillawebprojects/memory-cards" },
+    { "id": "todomvc-react", "path": "../../../candidates/todomvc/examples/react", "runtime": { "mode": "command", "startCommand": "npm run serve", "baseUrl": "http://127.0.0.1:7002" } }
+  ]
+}

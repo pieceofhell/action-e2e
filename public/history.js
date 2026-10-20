@@ -29,7 +29,7 @@
     status.textContent = `${filtered.length} saved run(s). Open a run to inspect evidence or review hypotheses.`;
     list.innerHTML = filtered.map(run => `<button type="button" class="history-run" data-open-run="${esc(run.id)}">
       <span><strong>${esc(run.projectName)}</strong><small>${esc(date(run.createdAt))} · ${esc(run.model || 'Model not recorded')}</small><small>${esc(run.projectPath || run.id)}</small></span>
-      <span>${esc(run.stage)}${run.summary ? ` · ${run.summary.passed || 0}/${run.summary.total || 0} passed` : ''}<small>${run.hypothesisCount} hypotheses · ${run.reviewCount} reviewed</small></span>
+      <span>${esc(run.stage)}${run.summary ? ` · ${esc(run.summary.result || 'unavailable')} · ${run.summary.passed || 0}/${run.summary.total || 0} passed` : ''}<small>${run.hypothesisCount} hypotheses · ${run.reviewCount} reviewed</small></span>
     </button>`).join('') || '<p>No matching saved runs.</p>';
   }
   async function openHistory() {
@@ -51,9 +51,15 @@
         <h3 tabindex="-1" id="historyRunTitle">${esc(run.projectName)} · ${esc(run.stage)}</h3>
         <p>${esc(run.id)} · ${esc(date(run.createdAt))}</p>
         <p>${esc(run.insights?.overview || 'This run has no final insight report. Available artifacts are shown below.')}</p>
-        ${run.qaCoverage ? `<p>QA goals: ${run.qaCoverage.summary?.covered || 0}/${run.qaCoverage.summary?.total || 0} covered</p>` : ''}
+        ${run.qaCoverage ? `<p>QA goals exercised: ${run.qaCoverage.summary?.covered || 0}/${run.qaCoverage.summary?.total || 0}; verified criteria are reported separately.</p>` : ''}
+        ${run.report?.summary ? `<p>Execution result: ${esc(run.report.summary.result || 'unavailable')}${run.report.summary.issues?.length ? ` · ${esc(run.report.summary.issues.join(' '))}` : ''}</p>` : ''}
         <p>Historical review only. Opening a run does not replace or execute your current project.</p>
+        ${run.hasRunLog ? `<p><a href="${esc(run.artifactBaseUrl)}/run-log.json" target="_blank" rel="noopener">Open complete run log (JSON)</a> · all stages, progress events, generated tests, outcomes, and insights.</p>` : ''}
       </article>
+      ${run.inspection ? `<details class="history-stage"><summary>Project understanding</summary><p>${esc(run.inspection.project?.description || run.inspection.summary || '')}</p><p>${esc((run.inspection.signals || []).join(' · '))}</p></details>` : ''}
+      ${run.explorationSummary ? `<details class="history-stage"><summary>Live exploration</summary><p>${esc(run.explorationSummary)}</p><p>${esc(run.qaCoverage?.summary ? `${run.qaCoverage.summary.covered || 0}/${run.qaCoverage.summary.total || 0} QA goals covered` : '')}</p></details>` : ''}
+      ${run.plan ? `<details class="history-stage"><summary>Flows and acceptance criteria (${run.plan.flows?.length || 0})</summary>${(run.plan.flows || []).map(flow => `<article class="result-card"><strong>${esc(flow.title)}</strong><p>${esc(flow.summary || '')}</p><pre class="code-block">${esc((flow.criteria || []).map(criterion => `${criterion.title}\nGiven ${criterion.given}\nWhen ${criterion.when}\nThen ${criterion.then}`).join('\n\n'))}</pre></article>`).join('')}</details>` : ''}
+      ${run.generatedTests?.length ? `<details class="history-stage"><summary>Generated tests (${run.generatedTests.length})</summary>${run.generatedTests.map(test => `<p>${esc(test.title)} · ${esc(test.generationMode || '')} · ${esc(test.fileName || '')}</p>`).join('')}</details>` : ''}
       ${run.report ? renderEvidenceGallery(run.report.tests, { baseUrl: run.artifactBaseUrl, authMode: run.authMode }) : '<p>No executed test report is available for this run.</p>'}
       ${(run.report?.tests || []).map(test => `<article class="result-card"><strong>${esc(test.title)} · ${esc(test.status)}</strong>${test.error ? `<pre class="code-block">${esc(test.error)}</pre>` : ''}</article>`).join('')}
       <h3>Hypotheses and human review</h3>
@@ -132,5 +138,5 @@
     } catch (error) { message.textContent = error.message; }
     finally { button.disabled = false; }
   });
-  window.E2PHistory = { reviewForm };
+  window.E2PHistory = { reviewForm, openRun: async id => { if (!dialog.open) await openHistory(); await openRun(id); } };
 })();

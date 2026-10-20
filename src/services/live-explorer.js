@@ -24,6 +24,14 @@ async function exploreLiveProject({
   onProgress({ phase: "runtime-configuration", message: "Checking the inferred start command and base URL...", progress: 8 });
   const normalizedRuntime = normalizeRuntimeConfig(inspection.runtime, runtimeConfig);
   const normalizedAuth = normalizeAuthConfig(authConfig);
+  if (normalizedRuntime.disposableLocalProfile) {
+    if (!['static', 'command'].includes(normalizedRuntime.mode) || normalizedAuth.mode !== 'guest') {
+      throw new Error('The disposable profile requires an explicitly selected guest project started locally by E2P.');
+    }
+    if (normalizedRuntime.mode === 'command' && !['127.0.0.1', 'localhost', '::1'].includes(new URL(normalizedRuntime.baseUrl).hostname)) {
+      throw new Error('The disposable profile requires a loopback target URL.');
+    }
+  }
 
   if (normalizedRuntime.mode === "manual") {
     return {
@@ -65,6 +73,9 @@ async function exploreLiveProject({
       targetProjectPath: projectPath,
       runtimeConfig: normalizedRuntime,
     });
+    if (normalizedRuntime.disposableLocalProfile && !['127.0.0.1', 'localhost', '::1'].includes(new URL(runtimeHandle.baseUrl).hostname)) {
+      throw new Error('The disposable profile can only explore a loopback target.');
+    }
 
     onProgress({ phase: "browser-startup", message: "Target is reachable; launching an isolated browser...", progress: 46 });
     browser = await chromium.launch({
@@ -115,6 +126,7 @@ async function exploreLiveProject({
       page: initialPage,
       targetUrl: initialTarget,
       baseUrl: runtimeHandle.baseUrl,
+      disposableLocalProfile: normalizedRuntime.disposableLocalProfile,
     });
     if (authSession) {
       await authSession.verifyPage(initialPage);
@@ -132,12 +144,15 @@ async function exploreLiveProject({
         page,
         baseUrl: runtimeHandle.baseUrl,
         authenticated: normalizedAuth.mode === "authenticated",
+        disposableLocalProfile: normalizedRuntime.disposableLocalProfile,
       }),
       onProgress,
       allowVisualPreview: normalizedAuth.mode !== "authenticated",
       visionEnabled,
       coveragePlan,
       isolateModelThinkTime: modelClockInstalled,
+      onActionStart: (step, action) => diagnosticsCollector.beginAction(step, action),
+      onActionEnd: () => diagnosticsCollector.endAction(),
       evidenceDirectory: artifactRun?.evidenceDirectory || "",
       artifactBaseUrl: artifactRun?.artifactBaseUrl
         ? `${artifactRun.artifactBaseUrl}/artifacts/exploration`
@@ -176,6 +191,7 @@ async function exploreLiveProject({
           page,
           targetUrl: resolvedUrl,
           baseUrl: runtimeHandle.baseUrl,
+          disposableLocalProfile: normalizedRuntime.disposableLocalProfile,
         });
         await page.close();
 
@@ -223,7 +239,8 @@ async function exploreLiveProject({
         baseUrl: runtimeHandle.baseUrl,
         exploration: agenticExploration,
         hypotheses: bugDiscovery.hypotheses,
-        observeCurrentPage: (page) => capturePageObservation({ page, baseUrl: runtimeHandle.baseUrl }),
+        observeCurrentPage: (page) => capturePageObservation({ page, baseUrl: runtimeHandle.baseUrl,
+          disposableLocalProfile: normalizedRuntime.disposableLocalProfile }),
         evidenceDirectory: artifactRun?.evidenceDirectory || "",
         artifactBaseUrl: artifactRun?.artifactBaseUrl
           ? `${artifactRun.artifactBaseUrl}/artifacts/exploration`
@@ -357,18 +374,18 @@ function deniesAvailableLiveExploration(value) {
   return /\b(?:no|without)\s+(?:live\s+|interface\s+)?exploration\b|\b(?:live\s+|interface\s+)?exploration\s+(?:data\s+)?(?:is\s+|was\s+)?(?:absent|missing|unavailable|not\s+available)\b/i.test(String(value || ""));
 }
 
-async function observePage({ page, targetUrl, baseUrl }) {
+async function observePage({ page, targetUrl, baseUrl, disposableLocalProfile = false }) {
   await page.goto(targetUrl, {
     waitUntil: "domcontentloaded",
     timeout: 45000,
   });
   await page.waitForTimeout(700);
 
-  return capturePageObservation({ page, baseUrl });
+  return capturePageObservation({ page, baseUrl, disposableLocalProfile });
 }
 
-async function capturePageObservation({ page, baseUrl, authenticated = false }) {
-  const observation = await page.evaluate(() => {
+async function capturePageObservation({ page, baseUrl, authenticated = false, disposableLocalProfile = false }) {
+  const observation = await page.evaluate(({ allowSyntheticNumbers }) => {
     function normalizeText(value) {
       return String(value || "").replace(/\s+/g, " ").trim();
     }
@@ -573,6 +590,11 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
         domId: normalizeText(element.getAttribute("id") || ""),
         placeholder: normalizeText(element.getAttribute("placeholder") || ""),
         inputType,
+        numericConstraints: inputType === 'number' ? {
+          min: element.getAttribute('min'), max: element.getAttribute('max'),
+          step: element.getAttribute('step') || '1',
+          stepBase: element.getAttribute('min') || element.getAttribute('value') || '0',
+        } : null,
         minLength: declaredMinLength,
         boundaryProbe,
         options: tag === "select"
@@ -646,7 +668,7 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
           const label = inputLabel(element);
           const placeholder = normalizeText(element.getAttribute("placeholder") || "");
           const name = normalizeText(element.getAttribute("name") || "");
-          const canExposeValue = ["text", "search", "textarea"].includes(type)
+          const canExposeValue = (["text", "search", "textarea"].includes(type) || (type === 'number' && allowSyntheticNumbers))
             && !/password|email|phone|address|credential|token|secret|api\s*key|access\s*key|chave|senha|e-mail/i.test(`${label} ${placeholder} ${name}`);
           const selectedLabel = element.tagName.toLowerCase() === "select"
             ? normalizeText(element.selectedOptions?.[0]?.textContent || "")
@@ -700,7 +722,7 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
       runtimeErrors,
       actions,
     };
-  });
+  }, { allowSyntheticNumbers: disposableLocalProfile && !authenticated });
 
   const origin = new URL(baseUrl).origin;
   observation.actions = (observation.actions || []).map((action) => {
@@ -711,7 +733,7 @@ async function capturePageObservation({ page, baseUrl, authenticated = false }) 
         return false;
       }
     })();
-    const safety = classifyExplorationAction({ ...action, sameOrigin }, { authenticated });
+    const safety = classifyExplorationAction({ ...action, sameOrigin }, { authenticated, disposableLocalProfile });
     return { ...action, sameOrigin, ...safety };
   });
 
@@ -872,6 +894,7 @@ function isSameOrigin(candidateUrl, baseUrl) {
 function createRuntimeDiagnosticsCollector(context, secretValues = []) {
   const diagnostics = buildEmptyDiagnostics();
   const attachedPages = new WeakSet();
+  let activeAction = null;
   const record = (category, item) => {
     const serialized = JSON.stringify(item);
     if (diagnostics[category].some((candidate) => JSON.stringify(candidate) === serialized)) return;
@@ -911,11 +934,26 @@ function createRuntimeDiagnosticsCollector(context, secretValues = []) {
         url: sanitizeUrl(page.url()),
       });
     });
+    page.on('dialog', async (dialog) => {
+      record('nativeDialogs', {
+        type: dialog.type(),
+        message: sanitizeMessage(dialog.message()),
+        at: new Date().toISOString(),
+        url: sanitizeUrl(page.url()),
+        actionStep: activeAction?.step ?? null,
+        actionName: activeAction?.name || null,
+        decision: 'dismiss',
+      });
+      await dialog.dismiss().catch(() => {});
+    });
   };
 
   context.on("page", attachPage);
+  for (const page of context.pages()) attachPage(page);
   return {
     attachPage,
+    beginAction: (step, action) => { activeAction = { step, name: action?.name || '' }; },
+    endAction: () => { activeAction = null; },
     snapshot: () => JSON.parse(JSON.stringify(diagnostics)),
   };
 }
@@ -924,6 +962,7 @@ function buildEmptyDiagnostics() {
   return {
     consoleErrors: [],
     pageErrors: [],
+    nativeDialogs: [],
   };
 }
 
@@ -964,6 +1003,7 @@ function uniqueStrings(items) {
 
 module.exports = {
   capturePageObservation,
+  createRuntimeDiagnosticsCollector,
   exploreLiveProject,
   mergeLiveExplorationIntoInspection,
 };

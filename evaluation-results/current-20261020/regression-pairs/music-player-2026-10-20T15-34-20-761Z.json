@@ -1,0 +1,150 @@
+{
+  "protocol": "frozen-journey-compiler-development-regression",
+  "independent": {
+    "correct": {
+      "before": "ukulele",
+      "after": "summer"
+    },
+    "defective": {
+      "before": "ukulele",
+      "after": "ukulele"
+    }
+  },
+  "sourceRunId": "music-player-journey",
+  "mutation": "prevBtn.addEventListener('click', prevSong);",
+  "target": "C:\\Users\\henri\\Documents\\Codex\\E2P\\candidates\\vanillawebprojects\\music-player",
+  "mutant": "C:\\Users\\henri\\Documents\\Codex\\E2P\\output\\e2p-evolution-20261006\\regression-pairs\\music-player-2026-10-20T15-34-20-761Z\\music-player-prev-disabled",
+  "suites": {
+    "V0": {
+      "runId": "music-player-2026-10-20T15-34-21-862Z-d4f463",
+      "sha256": "94094beb38c6420325e1996abf9e232f0046f15b0a6a164e8f505564f95ce409"
+    },
+    "V1": {
+      "runId": "music-player-2026-10-20T15-34-21-855Z-1332ec",
+      "sha256": "0b3f246dd6a737459d26d5f361e71609807f475baa227e2bc0628dcab056d3fc",
+      "criterionContract": [
+        {
+          "id": "track-navigation-prev-criterion-1",
+          "title": "Verify Track Change on Prev Click",
+          "given": "The user is on the Music Player page with the track 'ukulele' visible.",
+          "when": "The user clicks the prev button.",
+          "then": "The visible track name changes to 'summer' and the state transitions to state-2.",
+          "expectationSource": {
+            "kind": "inferred-from-observation",
+            "reference": null
+          },
+          "actionStep": 1,
+          "observedEntity": "visible text",
+          "expectedValue": "summer",
+          "comparison": "exact-visible-text",
+          "evidenceStateIds": [
+            "state-1",
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "track-navigation-prev-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "visible-text",
+            "value": "summer",
+            "observedEntity": "visible text",
+            "comparison": "exact-visible-text"
+          },
+          "reason": null,
+          "stepIndex": 0
+        }
+      ]
+    }
+  },
+  "replays": [
+    {
+      "version": "V0",
+      "member": "correct",
+      "suiteSha256": "94094beb38c6420325e1996abf9e232f0046f15b0a6a164e8f505564f95ce409",
+      "summary": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "passed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 0,
+        "durationMs": 6711.204,
+        "failureClassification": {}
+      },
+      "failures": []
+    },
+    {
+      "version": "V0",
+      "member": "defective",
+      "suiteSha256": "94094beb38c6420325e1996abf9e232f0046f15b0a6a164e8f505564f95ce409",
+      "summary": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "passed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 0,
+        "durationMs": 6734.474,
+        "failureClassification": {}
+      },
+      "failures": []
+    },
+    {
+      "version": "V1",
+      "member": "correct",
+      "suiteSha256": "0b3f246dd6a737459d26d5f361e71609807f475baa227e2bc0628dcab056d3fc",
+      "summary": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "passed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 0,
+        "durationMs": 6716.514,
+        "failureClassification": {}
+      },
+      "failures": []
+    },
+    {
+      "version": "V1",
+      "member": "defective",
+      "suiteSha256": "0b3f246dd6a737459d26d5f361e71609807f475baa227e2bc0628dcab056d3fc",
+      "summary": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "verified": 1,
+        "expected": 1,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "assertion-failed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 1,
+        "durationMs": 11712.554,
+        "failureClassification": {
+          "behavior-assertion": 1
+        }
+      },
+      "failures": []
+    }
+  ]
+}

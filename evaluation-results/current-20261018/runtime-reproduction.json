@@ -1,0 +1,34 @@
+{
+  "protocol": "known-runtime-reproduction",
+  "caveat": "Known actions replayed in clean contexts; not blind discovery.",
+  "results": [
+    {
+      "target": "music-player",
+      "repetition": 1,
+      "errors": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "target": "music-player",
+      "repetition": 2,
+      "errors": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "errors": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "errors": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    }
+  ]
+}

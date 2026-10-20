@@ -1,0 +1,215 @@
+{
+  "protocol": "constructed-journey-compiler-development-regression",
+  "caveat": "The correct-app browser journey was programmatically recorded, not chosen by an AI model. This checks the compiler and replay, not exploration quality or blind detection.",
+  "target": "C:\\Users\\henri\\Documents\\Codex\\E2P\\candidates\\vanillawebprojects\\expense-tracker",
+  "mutants": {
+    "balanceMutant": "C:\\Users\\henri\\Documents\\Codex\\E2P\\output\\e2p-evolution-20261006\\regression-pairs\\expense-tracker-2026-10-20T15-34-10-538Z\\balance-not-updated",
+    "storageMutant": "C:\\Users\\henri\\Documents\\Codex\\E2P\\output\\e2p-evolution-20261006\\regression-pairs\\expense-tracker-2026-10-20T15-34-10-538Z\\transaction-not-persisted"
+  },
+  "independent": {
+    "correct": {
+      "balanceAfterAdd": "$42.00",
+      "persisted": true
+    },
+    "balanceMutant": {
+      "balanceAfterAdd": "$0.00",
+      "persisted": true
+    },
+    "storageMutant": {
+      "balanceAfterAdd": "$42.00",
+      "persisted": false
+    }
+  },
+  "sourceRunId": "expense-tracker-2026-10-20T15-34-12-522Z-f804bb",
+  "suiteHashes": [
+    {
+      "fileName": "transaction-balance.spec.cjs",
+      "sha256": "c1384b17dceed3947426f4e968499070ac5aba3db00859bf12f9e0a78573cd1c"
+    },
+    {
+      "fileName": "transaction-persistence.spec.cjs",
+      "sha256": "5727c11b5a495e417f2c64a0bf639143471b45c130e91811cb928ec93d066891"
+    }
+  ],
+  "contracts": [
+    {
+      "flowId": "transaction-balance",
+      "criterionContract": [
+        {
+          "id": "transaction-balance-criterion-1",
+          "title": "Balance reflects the added transaction",
+          "given": "The balance starts at zero",
+          "when": "The user clicks Add transaction",
+          "then": "The balance becomes '$42.00' after adding 42.",
+          "expectationSource": {
+            "kind": "inferred-from-observation",
+            "reference": null
+          },
+          "actionStep": 3,
+          "observedEntity": "visible text",
+          "expectedValue": "$42.00",
+          "comparison": "exact-visible-text",
+          "evidenceStateIds": [
+            "state-1",
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "transaction-balance-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "visible-text",
+            "value": "$42.00",
+            "observedEntity": "visible text",
+            "comparison": "exact-visible-text"
+          },
+          "reason": null,
+          "stepIndex": 2
+        }
+      ]
+    },
+    {
+      "flowId": "transaction-persistence",
+      "criterionContract": [
+        {
+          "id": "transaction-persistence-criterion-1",
+          "title": "The same transaction survives reload",
+          "given": "Lunch with amount 42 has been added",
+          "when": "The page reloads",
+          "then": "The same Lunch transaction and its amount 42 remain after reload.",
+          "expectationSource": {
+            "kind": "inferred-from-observation",
+            "reference": null
+          },
+          "actionStep": 4,
+          "observedEntity": "visible list item or row",
+          "expectedValue": {
+            "description": "Lunch",
+            "amount": "42"
+          },
+          "comparison": "same-item-description-and-amount",
+          "evidenceStateIds": [
+            "state-1",
+            "state-5"
+          ],
+          "status": "asserted",
+          "assertionId": "transaction-persistence-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "entity-persisted",
+            "value": {
+              "description": "Lunch",
+              "amount": "42"
+            },
+            "observedEntity": "visible list item or row",
+            "comparison": "same-item-description-and-amount"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ]
+    }
+  ],
+  "replays": [
+    {
+      "member": "correct",
+      "summary": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "verified": 2,
+        "expected": 2,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "passed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 0,
+        "durationMs": 7460.803000000001,
+        "failureClassification": {}
+      },
+      "tests": [
+        {
+          "title": "Valid transaction updates balance",
+          "status": "passed",
+          "failureClass": null,
+          "error": null
+        },
+        {
+          "title": "Transaction persists after reload",
+          "status": "passed",
+          "failureClass": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "member": "balance-mutant",
+      "summary": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "skipped": 0,
+        "verified": 2,
+        "expected": 2,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "assertion-failed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 1,
+        "durationMs": 12219.701000000001,
+        "failureClassification": {
+          "behavior-assertion": 1
+        }
+      },
+      "tests": [
+        {
+          "title": "Valid transaction updates balance",
+          "status": "failed",
+          "failureClass": "behavior-assertion",
+          "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('$42.00', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('$42.00', { exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('$42.00', { exact: true }).first()\u001b[22m\n"
+        },
+        {
+          "title": "Transaction persists after reload",
+          "status": "passed",
+          "failureClass": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "member": "storage-mutant",
+      "summary": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "skipped": 0,
+        "verified": 2,
+        "expected": 2,
+        "missing": 0,
+        "executionState": "completed",
+        "result": "assertion-failed",
+        "issues": [],
+        "globalErrors": [],
+        "exitCode": 1,
+        "durationMs": 12599.928,
+        "failureClassification": {
+          "behavior-assertion": 1
+        }
+      },
+      "tests": [
+        {
+          "title": "Valid transaction updates balance",
+          "status": "passed",
+          "failureClass": null,
+          "error": null
+        },
+        {
+          "title": "Transaction persists after reload",
+          "status": "failed",
+          "failureClass": "behavior-assertion",
+          "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('li, [role=\\'listitem\\'], tr, article').filter({ hasText: 'Lunch' }).filter({ hasText: '42' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('li, [role=\\'listitem\\'], tr, article').filter({ hasText: 'Lunch' }).filter({ hasText: '42' }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('li, [role=\\'listitem\\'], tr, article').filter({ hasText: 'Lunch' }).filter({ hasText: '42' }).first()\u001b[22m\n"
+        }
+      ]
+    }
+  ]
+}

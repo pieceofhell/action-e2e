@@ -1,0 +1,26 @@
+{
+  "protocol": "candidate-expectation-check-not-blind-discovery",
+  "source": "form-validator/script.js: form submit handler",
+  "checks": [
+    {
+      "mode": "enter-in-username",
+      "submits": 1,
+      "errors": [
+        "Email is not valid",
+        "Password must be at least 6 characters",
+        "Password2 is required"
+      ]
+    },
+    {
+      "mode": "submit-button",
+      "submits": 1,
+      "errors": [
+        "Email is not valid",
+        "Password must be at least 6 characters",
+        "Password2 is required"
+      ]
+    }
+  ],
+  "sameValidation": true,
+  "assessment": "The candidate expectation that Enter validates only Username is unsupported. Both actions submit the form and invoke its whole-form validation; reproducing the messages is not evidence of a defect."
+}

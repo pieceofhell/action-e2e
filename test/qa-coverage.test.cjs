@@ -94,10 +94,26 @@ test("evaluates weighted QA coverage from recorded state transitions", () => {
     ],
   });
 
-  assert.equal(coverage.summary.covered, 2);
+  assert.equal(coverage.summary.covered, 1);
+  assert.equal(coverage.summary.partial, 1);
+  assert.equal(coverage.summary.verified, 0);
+  assert.equal(coverage.goals.find((goal) => goal.id === 'calculated-state').verificationStatus, 'unverified');
   assert.equal(coverage.summary.highPriorityUncovered, 1);
   assert.deepEqual(coverage.summary.uncoveredGoalIds, ["temporal-boundary"]);
-  assert.equal(coverage.summary.ratio, 0.667);
+  assert.equal(coverage.summary.ratio, 0.467);
+});
+
+test('empty objectives are not measurable and reload alone does not verify persistence', () => {
+  const empty = evaluateQaCoverage({ goals: [] });
+  assert.equal(empty.summary.ratio, null);
+  assert.equal(empty.summary.verifiedRatio, null);
+  assert.equal(empty.summary.measure, 'not-measurable');
+  const persistence = evaluateQaCoverage({ goals: [{ id: 'persistence-reload', category: 'persistence',
+    priority: 'high', requiredActionKinds: ['reload'] }] }, { steps: [{ status: 'completed',
+    changed: true, action: { kind: 'reload', name: 'Reload' } }] });
+  assert.equal(persistence.goals[0].status, 'partial');
+  assert.equal(persistence.goals[0].verificationStatus, 'unverified');
+  assert.equal(persistence.summary.verified, 0);
 });
 
 test("uses QA goal count to avoid under-budgeting otherwise small interfaces", () => {

@@ -1,0 +1,127 @@
+{
+  "protocol": "recorded-diagnostic-replay-no-new-exploration",
+  "startedAt": "2026-10-20T15:31:14.801Z",
+  "sourceManifestSha256": "50f093729964a5d95cd0804c59467fa87879a95c99f020a037ccf46d38280d97",
+  "reproducerSha256": "223362b7b37a65218234187ffc70c37dee771f828a831720bb10edd64bd3a0b7",
+  "originalCollectionUnmodified": true,
+  "attempts": [
+    {
+      "target": "music-player",
+      "repetition": 1,
+      "sourceRunId": "music-player-2026-10-20T15-22-08-988Z-4027dc",
+      "originalStatuses": [
+        "runtime-diagnostic-reproduced"
+      ],
+      "replays": [
+        {
+          "id": "runtime-diagnostic-8ymtqs",
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 1,
+            "stateSimilarity": 1,
+            "citedStateId": "state-2",
+            "replayDiagnostics": [
+              "Cannot set properties of null (setting 'innerHTML')",
+              "Cannot set properties of null (setting 'innerHTML')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-8ymtqs.png",
+              "artifactUrl": ""
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ]
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "sourceRunId": "memory-cards-2026-10-20T15-22-50-581Z-b9f899",
+      "originalStatuses": [
+        "reproduction-blocked"
+      ],
+      "replays": [
+        {
+          "id": "runtime-diagnostic-f93gmt",
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 9,
+            "stateSimilarity": 1,
+            "citedStateId": "state-3",
+            "replayDiagnostics": [
+              "Cannot set properties of undefined (setting 'className')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-f93gmt.png",
+              "artifactUrl": ""
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ]
+    },
+    {
+      "target": "music-player",
+      "repetition": 2,
+      "sourceRunId": "music-player-2026-10-20T15-26-41-922Z-01cf07",
+      "originalStatuses": [
+        "runtime-diagnostic-reproduced"
+      ],
+      "replays": [
+        {
+          "id": "runtime-diagnostic-8ymtqs",
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 1,
+            "stateSimilarity": 1,
+            "citedStateId": "state-2",
+            "replayDiagnostics": [
+              "Cannot set properties of null (setting 'innerHTML')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-8ymtqs.png",
+              "artifactUrl": ""
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ]
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "sourceRunId": "memory-cards-2026-10-20T15-27-23-987Z-4332a7",
+      "originalStatuses": [
+        "reproduction-blocked"
+      ],
+      "replays": [
+        {
+          "id": "runtime-diagnostic-f93gmt",
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 9,
+            "stateSimilarity": 1,
+            "citedStateId": "state-3",
+            "replayDiagnostics": [
+              "Cannot set properties of undefined (setting 'className')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-f93gmt.png",
+              "artifactUrl": ""
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ]
+    }
+  ],
+  "completedAt": "2026-10-20T15:31:30.106Z"
+}

@@ -25,9 +25,10 @@ async function runPath(root, id) {
 }
 async function readRun(root, id) {
   const directory = await runPath(root, id);
-  const [metadata, inspection, exploration, generatedTests, rawReport, insights, savedExecution, bugs, auth] = await Promise.all([
+  const [metadata, inspection, exploration, generatedTests, rawReport, insights, savedExecution, bugs, auth, runStatus, plan, approvedFlows] = await Promise.all([
     'run-metadata.json', 'inspection.json', 'exploration.json', 'generated-tests.json',
     'results/playwright-results.json', 'results/insights.json', 'results/execution.json', 'results/potential-bugs.json', 'auth-metadata.json',
+    'run-status.json', 'plan.json', 'approved-flows.json',
   ].map(file => optionalJson(path.join(directory, file))));
   const live = exploration || inspection?.liveExploration;
   const report = savedExecution?.report || (rawReport ? parsePlaywrightReport(rawReport, { runDirectory: directory }) : null);
@@ -37,13 +38,14 @@ async function readRun(root, id) {
     id, projectPath: metadata?.projectPath || inspection?.project?.path || '',
     projectName: inspection?.project?.name || path.basename(metadata?.projectPath || '') || id,
     createdAt: metadata?.createdAt || stat.birthtime.toISOString(),
-    stage: report ? 'executed' : generatedTests ? 'generated' : live ? live.status === 'failed' ? 'failed' : 'explored' : 'incomplete',
+    stage: runStatus?.status === 'failed' ? 'failed' : runStatus?.status === 'interrupted' ? 'interrupted' : report ? 'executed' : generatedTests ? 'generated' : live ? live.status === 'failed' ? 'failed' : 'explored' : 'incomplete',
     model: bugReport?.model || inspection?.ai?.model || '',
     artifactBaseUrl: `/artifacts/${id}`, report, insights, bugReport,
     authMode: savedExecution?.auth?.mode || auth?.mode || 'guest',
     qaCoverage: live?.agenticExploration?.qaCoverage || null,
     explorationSummary: live?.summary || live?.error || '',
     generatedTests: generatedTests || [],
+    hasRunLog: Boolean(runStatus), runStatus, plan, approvedFlows: approvedFlows || [], inspection,
     reviews: await readReviews(directory),
   };
 }
@@ -60,6 +62,14 @@ async function listRuns(root) {
   for (const entry of entries) {
     if (!entry.isDirectory() || !/^[a-z0-9-]+$/i.test(entry.name)) continue;
     try {
+      const directory = path.join(root, entry.name);
+      if (await isArtifactRunQuarantined(directory)) continue;
+      const index = await optionalJson(path.join(directory, 'run-index.json'));
+      if (index) {
+        const reviews = await readReviews(directory);
+        runs.push({ ...index, reviewCount: new Set(reviews.map(review => review.hypothesisId)).size });
+        continue;
+      }
       const run = await readRun(root, entry.name);
       runs.push({ id: run.id, projectName: run.projectName, projectPath: run.projectPath, createdAt: run.createdAt,
         stage: run.stage, model: run.model, summary: run.report?.summary || null,

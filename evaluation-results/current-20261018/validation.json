@@ -1,0 +1,89 @@
+{
+  "protocol": "current-version-autonomous-exploration-v1",
+  "targets": [
+    "expense-tracker",
+    "movie-seat-booking",
+    "modal-menu-slider"
+  ],
+  "repetitions": 2,
+  "startedAt": "2026-10-18T14:40:14.084Z",
+  "input": "Project files and live observations; no supplied journey or defect description.",
+  "profile": "disposable-local",
+  "model": "qwen3.8-vl-27b-iq1m-64k",
+  "sourceFiles": {
+    "src\\server.js": "b4dab3e3c419a05dd4b92cf30d82d521333ab2f9accf0be9ed3fda432406f80c",
+    "src\\services\\acceptance-contract.js": "175680c185e4e7c548c0a6ad7f49f5f660362743d65e2c89806d7bc46b9f57c4",
+    "src\\services\\agentic-explorer.js": "c8cc52a7472ece60b418f08a3a8b36fc7dfdbaa6ab9f0430e42b200ec788e382",
+    "src\\services\\ai-console.js": "e0e805cf9271f555c4d36a4317048b5a8a5fdbaca1b5dcf773cafe31886f4027",
+    "src\\services\\ai-workflows.js": "42d7d4e978c30290640aad694cc6c64f814d19b5b7a2d1a8354f147fb5a3febf",
+    "src\\services\\artifact-store.js": "c15e0a7aebf0e895568338ae3e0277a93d6769685664ef8f8f09dc2aa8916aef",
+    "src\\services\\auth-config.js": "a5d730b468c4cd4957484c23076e05742c3ec83edf1d51e27f4a987a024b675d",
+    "src\\services\\auth-session.js": "b96ebbf29022222bf978db3636ba521c0b4b80c0cc2157508793dc474e332489",
+    "src\\services\\authenticated-executor.js": "b203977a0091bfb72e759539e41354666334374c51e1741be131fc1a89c3f90d",
+    "src\\services\\batch-auto-approval.js": "a33ff9f09a2b90d27d9d0b6a983474b95a08e99b82888653e0e3e9184f270e96",
+    "src\\services\\batch-runner.js": "2da991d727ce27a3ffb82c2ecacf18b97c49f266ddddd8f86b4e2d550cb1922e",
+    "src\\services\\bug-discovery.js": "178460073f934e53da7a56f1d7f34c77c12d0fc7c527c824e62528b1c0d762ff",
+    "src\\services\\bug-evaluator.js": "5194c450cb16e03fdcb97fbe2f390989f0bf8b117f456dbea6a2db007e0bad3f",
+    "src\\services\\corpus-evaluation.js": "82621aadfc3a7cfafff555e8c9631794c2995e5732651b6d99d256444f21dc7e",
+    "src\\services\\directory-picker.js": "cacbdd76b8107b096df7318fd80af9e693a45e14be8dbbbc11113f7e222f1639",
+    "src\\services\\flow-planner.js": "5fc9561f76bc5166134828fa8a9ff3b4bd2bc607644714fe261e521ad7f5ab1b",
+    "src\\services\\hypothesis-reproducer.js": "c1ea46238e7353c49e0fde5b49177835fc7ebaadf85c1c2d8588d33890cfa22a",
+    "src\\services\\insight-builder.js": "ce1584d825061f6d8dfb241644f6f8318002da7c257932a0eb8ce6afee0e6112",
+    "src\\services\\live-explorer.js": "f457d676d9898b86df24f82a7e3e29c73b64e5a40b8d3b8dc4f8e40ddaa865d1",
+    "src\\services\\llm-provider.js": "0da40abc67baa769bd775d8df59b071f711fd59702b38cb083e4bb3e64ce9b1f",
+    "src\\services\\local-access.js": "b9b6f586e2c2bc697682b06278736a60356bd1f4b26dfc03546d314db46dc056",
+    "src\\services\\operation-tracker.js": "5d6af869cd9ff5809fdf648967b52828d7702469962de3d99c58c7b260078aac",
+    "src\\services\\pipeline-policy.js": "0b4b2377d09074c1afe9a3143336bd47de404c9048e3c38a9f401cc155d12486",
+    "src\\services\\project-inspector.js": "94294a34262d8203e2d1ddffcac7bdc6a701cbd2935a35e5d348e75ddbb05a98",
+    "src\\services\\qa-coverage.js": "244d0222c57fc00b27296331dc21f68ee96c98180d519e3eb81089d04055d4c1",
+    "src\\services\\read-only-policy.js": "ee3e612b0bdc62e76d54c6b66fcc3ee67c3664a8e75ea30ac627288cee32a178",
+    "src\\services\\run-history.js": "c2c4f89a5157fe8a7925ae415d8a0fcccf8124d1d1c97623cc738fcfc6585494",
+    "src\\services\\run-log.js": "270544188be6b0ef6a07e99a4ff64f653820ce4e4cb7afae3f6cdc0330edf48a",
+    "src\\services\\runtime-orchestrator.js": "8c560b25276351b92576f596a4139e08f10c07a4c356a848b2840dd916c13794",
+    "src\\services\\test-generator.js": "d694b433c1a24e91319065e3e9a7179c6b076a9ef68e3377c4ee0fe003a2a873",
+    "src\\services\\test-runner.js": "cb7963c2529499879b82f9523e8425196c43cda4667f8a7aeeaeeb9dcfb81224"
+  },
+  "attempts": [
+    {
+      "target": "expense-tracker",
+      "repetition": 1,
+      "exitCode": 1,
+      "runDirectory": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\prototype-runs\\expense-tracker-2026-10-18T14-40-14-651Z-faf3b8",
+      "status": "stopped",
+      "error": "No executed journey reaches the evidence state for \"Expense Tracker Persistence\".",
+      "completedActions": 5,
+      "observedStates": 3,
+      "actions": [
+        {
+          "kind": "fill",
+          "name": "Text",
+          "value": "Lunch"
+        },
+        {
+          "kind": "fill",
+          "name": "Amount (negative - expense, positive - income)",
+          "value": "-12.50"
+        },
+        {
+          "kind": "click",
+          "name": "Add transaction",
+          "value": ""
+        },
+        {
+          "kind": "press",
+          "name": "Press Enter in Text",
+          "value": ""
+        },
+        {
+          "kind": "reload",
+          "name": "Reload the current page and compare persisted state",
+          "value": ""
+        }
+      ],
+      "tests": null,
+      "criteria": 0,
+      "assertedCriteria": 0,
+      "hypotheses": 0
+    }
+  ]
+}

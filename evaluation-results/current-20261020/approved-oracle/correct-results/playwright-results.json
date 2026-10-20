@@ -1,0 +1,117 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\node_modules\\playwright\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\prototype-runs\\correct-2026-10-20T15-25-24-397Z-7666bc\\playwright.config.cjs"
+    ],
+    "configFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\prototype-runs\\correct-2026-10-20T15-25-24-397Z-7666bc\\playwright.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e/prototype-runs/correct-2026-10-20T15-25-24-397Z-7666bc/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e/prototype-runs/correct-2026-10-20T15-25-24-397Z-7666bc/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 15000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e\\prototype-runs\\correct-2026-10-20T15-25-24-397Z-7666bc\\results\\playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "approved-value.spec.cjs",
+      "file": "approved-value.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Amount follows the approved normalization rule",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:25:25.313Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b440a4d026cda6599248-ba2b259b893fe6d2e326",
+          "file": "approved-value.spec.cjs",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T15:25:24.974Z",
+    "duration": 5861.133,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

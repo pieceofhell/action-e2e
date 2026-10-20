@@ -116,6 +116,32 @@
           </p>
         </section>
 
+        <section class="card card--batch" aria-labelledby="batchTitle">
+          <div class="card__header">
+            <div>
+              <p class="kicker">Evaluation mode</p>
+              <h2 id="batchTitle">Batch queue</h2>
+            </div>
+            <span class="status-chip" id="batchStatus">Ready</span>
+          </div>
+          <p class="muted">Queue several local projects with the selected model. E2P inspects each project, infers its runtime, explores the interface, generates grounded flows and tests, executes them, and saves a complete run log. Jobs run one at a time.</p>
+          <label class="field">
+            <span>Project folders (one absolute path per line)</span>
+            <textarea id="batchPathsInput" rows="5" placeholder="C:\Users\...\project-one&#10;C:\Users\...\project-two"></textarea>
+          </label>
+          <div class="button-row batch-actions">
+            <button id="batchAddCurrentButton" class="button button--quiet" type="button">Add current project</button>
+            <button id="batchBrowseButton" class="button button--quiet" type="button">Choose another folder</button>
+          </div>
+          <label class="checkbox batch-review-option">
+            <input id="batchAutoSkipReview" type="checkbox" checked />
+            <span>Skip human bug feedback during the batch. AI findings stay labeled as unconfirmed hypotheses; you can review them later in Run history.</span>
+          </label>
+          <p class="muted">Flows with medium or high model confidence are auto-approved for batch execution. If human bug feedback is required, jobs with hypotheses pause until every hypothesis is reviewed.</p>
+          <div class="button-row batch-actions"><button id="batchQueueButton" class="button" type="button">Queue projects</button></div>
+          <div id="batchList" class="batch-list" aria-live="polite"></div>
+        </section>
+
         <section class="card card--ai">
           <div class="card__header">
             <div>
@@ -411,10 +437,14 @@
               <input id="workingDirectoryInput" type="text" placeholder="." />
             </label>
 
-            <label class="checkbox">
-              <input id="runInstallCheckbox" type="checkbox" />
-              <span>Run installation before the test execution</span>
-            </label>
+              <label class="checkbox">
+                <input id="runInstallCheckbox" type="checkbox" />
+                <span>Run installation before the test execution</span>
+              </label>
+              <label class="checkbox">
+                <input id="disposableLocalProfile" type="checkbox" />
+                <span>Disposable local target: allow fictional numbers from -1000 to 1000 within the field's limits. Use only for an isolated project with no external accounts or services.</span>
+              </label>
           </div>
 
           <div class="button-row">
@@ -540,5 +570,6 @@
 
     <script src="./app.js" defer></script>
     <script src="./history.js" defer></script>
+    <script src="./batch.js" defer></script>
   </body>
 </html>

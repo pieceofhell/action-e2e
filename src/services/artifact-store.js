@@ -1,5 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
+const crypto = require('node:crypto');
 
 function slugify(value) {
   return String(value)
@@ -20,7 +21,7 @@ async function ensureDirectory(dirPath) {
 
 async function createRunDirectory(runsRoot, projectPath) {
   const projectName = path.basename(projectPath);
-  const runId = `${slugify(projectName)}-${buildTimestamp()}`;
+  const runId = `${slugify(projectName)}-${buildTimestamp()}-${crypto.randomBytes(3).toString('hex')}`;
   const runDirectory = path.join(runsRoot, runId);
   const testsDirectory = path.join(runDirectory, "tests");
   const resultsDirectory = path.join(runDirectory, "results");

@@ -38,6 +38,15 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
   const context = await browser.newContext({ baseURL: baseUrl, viewport: { width: 1180, height: 760 } });
   const page = await context.newPage();
   const replayDiagnostics = [];
+  const replayNativeDialogs = [];
+  let activeReplayAction = null;
+  const attachDialogs = (targetPage) => targetPage.on('dialog', async (dialog) => {
+    replayNativeDialogs.push({ type: dialog.type(), message: dialog.message(), at: new Date().toISOString(),
+      actionStep: activeReplayAction?.step ?? null, actionName: activeReplayAction?.name || null, decision: 'dismiss' });
+    await dialog.dismiss().catch(() => {});
+  });
+  context.on('page', attachDialogs);
+  attachDialogs(page);
   page.on("pageerror", (error) => replayDiagnostics.push(String(error?.message || error)));
   page.on("console", (message) => {
     if (message.type() === "error") replayDiagnostics.push(message.text());
@@ -52,17 +61,32 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
   const journey = targetStepIndex >= 0
     ? exploration.steps.slice(0, targetStepIndex + 1).filter((step) => step.status === "completed")
     : [];
+  const expectedMessages = runtimeDiagnostic ? [
+    ...(hypothesis.evidence?.consoleErrors || []),
+    ...(hypothesis.evidence?.pageErrors || []),
+  ].map((item) => item?.message || item).filter(Boolean) : [];
+  const diagnosticMatched = () => expectedMessages.some((expected) => replayDiagnostics.some((actual) => (
+    diagnosticSimilarity(expected, actual) >= 0.55
+  )));
   let currentPage = page;
+  let replayedActions = 0;
   try {
     if (!targetState) throw new Error("No cited evidence state is available for replay.");
     await currentPage.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 45000 });
     await currentPage.waitForTimeout(500);
     for (const step of journey) {
+      if (runtimeDiagnostic && diagnosticMatched()) break;
       const observation = await observeCurrentPage(currentPage);
-      const candidate = findReplayAction(observation.actions || [], step.action || {});
+      // Reload and wait are bounded browser operations, not DOM controls.
+      const candidate = ['reload', 'wait'].includes(step.action?.kind)
+        ? step.action : findReplayAction(observation.actions || [], step.action || {});
       if (!candidate) throw new Error(`The observed control is no longer available: ${step.action?.name || step.action?.kind}.`);
+      activeReplayAction = { step: step.step, name: step.action?.name || '' };
       currentPage = await executeReplayAction(currentPage, candidate, step.action || {});
+      replayedActions += 1;
       await currentPage.waitForTimeout(500);
+      activeReplayAction = null;
+      if (runtimeDiagnostic && diagnosticMatched()) break;
     }
     const replayedObservation = await observeCurrentPage(currentPage);
     const similarity = stateSimilarity(targetState, replayedObservation);
@@ -73,22 +97,17 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
       artifactBaseUrl,
     });
     if (hypothesis.expected?.source === "runtime-diagnostic") {
-      const expectedMessages = [
-        ...(hypothesis.evidence?.consoleErrors || []),
-        ...(hypothesis.evidence?.pageErrors || []),
-      ].map((item) => item?.message || item).filter(Boolean);
-      const diagnosticMatched = expectedMessages.some((expected) => replayDiagnostics.some((actual) => (
-        diagnosticSimilarity(expected, actual) >= 0.55
-      )));
+      const matched = diagnosticMatched();
       return {
-        status: diagnosticMatched ? "runtime-diagnostic-reproduced" : "runtime-diagnostic-not-reproduced",
+        status: matched ? "runtime-diagnostic-reproduced" : "runtime-diagnostic-not-reproduced",
         independentSession: true,
-        replayedActions: journey.length,
+        replayedActions,
         stateSimilarity: similarity,
         citedStateId: targetState.id,
         replayDiagnostics: replayDiagnostics.slice(0, 12),
+        replayNativeDialogs: replayNativeDialogs.slice(0, 12),
         screenshot,
-        interpretation: diagnosticMatched
+        interpretation: matched
           ? "The same runtime diagnostic signature was captured in an independent browser session."
           : "The cited runtime diagnostic did not recur in the independent browser session.",
       };
@@ -96,10 +115,11 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
     return {
       status: similarity >= 0.72 ? "observation-reproduced" : "observation-diverged",
       independentSession: true,
-      replayedActions: journey.length,
+      replayedActions,
       stateSimilarity: similarity,
       citedStateId: targetState.id,
       screenshot,
+      replayNativeDialogs: replayNativeDialogs.slice(0, 12),
       interpretation: similarity >= 0.72
         ? "The cited interface state was reached again in a clean session. This reproduces the observation, not the inferred requirement."
         : "The clean replay reached a materially different interface state; human review is required before treating the hypothesis as reproducible.",
@@ -108,7 +128,8 @@ async function reproduceOne({ browser, baseUrl, exploration, hypothesis, observe
     return {
       status: "reproduction-blocked",
       independentSession: true,
-      replayedActions: 0,
+      replayedActions,
+      replayNativeDialogs: replayNativeDialogs.slice(0, 12),
       stateSimilarity: 0,
       citedStateId: targetState?.id || "",
       screenshot: null,
@@ -127,6 +148,18 @@ function gateReproducedHypotheses(hypotheses = []) {
     const accepted = status === "observation-reproduced" || status === "runtime-diagnostic-reproduced";
     if (accepted) {
       retained.push(hypothesis);
+      continue;
+    }
+    if (hypothesis.expected?.source === 'runtime-diagnostic' && status === 'reproduction-blocked') {
+      retained.push({
+        ...hypothesis,
+        confirmationStatus: 'observed-runtime-diagnostic-replay-blocked',
+        confidence: 'medium',
+        reproduction: {
+          ...hypothesis.reproduction,
+          interpretation: `${hypothesis.reproduction.interpretation} The original browser exception remains an observed, unconfirmed diagnostic; its cause and reproducibility are not established.`,
+        },
+      });
       continue;
     }
     rejected.push({
@@ -169,6 +202,18 @@ function findReplayAction(actions, recorded) {
 }
 
 async function executeReplayAction(page, candidate, recorded) {
+  if (recorded.kind === 'reload') {
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+    return page;
+  }
+  if (recorded.kind === 'wait') {
+    const durationMs = Math.max(250, Math.min(12000, Number(recorded.durationMs) || 3000));
+    await page.waitForTimeout(durationMs);
+    return page;
+  }
+  if (!['fill', 'press', 'select', 'click'].includes(recorded.kind)) {
+    throw new Error(`Unsupported recorded action kind: ${recorded.kind}`);
+  }
   const locator = page.locator(`[data-e2p-action-id="${candidate.locatorId || candidate.id}"]`).first();
   await locator.waitFor({ state: "visible", timeout: 7000 });
   if (recorded.kind === "fill") await locator.fill(recorded.value || "");
