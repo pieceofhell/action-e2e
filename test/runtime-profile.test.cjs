@@ -105,6 +105,7 @@ test('runtime options reject typos and honor explicit CPU and context overrides'
 
 test('Linux unit starts the supervisor directly with reboot/restart and process-group cleanup', () => {
   const unit = buildUnit({ root: '/home/test/My E2P', node: '/opt/node/bin/node', environmentFile: '/home/test/.config/e2p/environment' });
+  assert.ok(unit.includes('WorkingDirectory=/home/test/My E2P\n'));
   assert.ok(unit.includes('ExecStart="/opt/node/bin/node" "/home/test/My E2P/scripts/run-unattended.cjs"'));
   assert.ok(unit.includes('KillMode=control-group')); assert.ok(unit.includes('WantedBy=default.target'));
   assert.ok(unit.includes('Restart=on-failure')); assert.ok(!unit.includes('User=root'));

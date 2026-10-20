@@ -16,7 +16,7 @@ StartLimitBurst=10
 
 [Service]
 Type=simple
-WorkingDirectory=${quote(root)}
+WorkingDirectory=${root.replace(/%/g, '%%')}
 ExecStart=${quote(node)} ${quote(path.posix.join(root, 'scripts/run-unattended.cjs'))}
 Environment=${quote('PATH=' + nodeDirectory + ':/usr/local/bin:/usr/bin:/bin')}
 EnvironmentFile=-${quote(environmentFile)}
