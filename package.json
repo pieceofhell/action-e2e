@@ -19,6 +19,9 @@
     "evaluate:initial": "node scripts/validate-current-exploration.cjs",
     "verify:approved-oracle": "node scripts/verify-approved-oracle.cjs",
     "start:unattended": "node scripts/run-unattended.cjs",
+    "doctor": "node scripts/start-model.cjs --dry-run",
+    "model:start": "node scripts/start-model.cjs",
+    "service:linux": "node scripts/install-linux-service.cjs",
     "evaluate:protocol": "node scripts/evaluate-exploration-protocol.cjs",
     "setup:targets": "node scripts/setup-evaluation-targets.cjs",
     "verify:evidence": "node scripts/verify-evidence-integrity.cjs"

@@ -1,5 +1,7 @@
 # Executar o E2P na máquina remota com RTX 3060
 
+Atualização: a máquina utiliza Linux como boot padrão e RTX 3060 de 12 GB. O caminho recomendado é o [guia adaptável para Linux, Windows e notebook](portable-runtime.md), com seleção por memória e serviço no boot sem login. As instruções abaixo preservam o perfil fixo Windows preparado anteriormente.
+
 Perfil informado: i5-10400F, 16 GB DDR4 2666 e RTX 3060. A memória da GPU deve ser conferida com `nvidia-smi`: existem variantes de 8 e 12 GB. Os perfis abaixo são pontos de partida de implantação; os resultados do artigo foram medidos na outra máquina, com Radeon RX 9070 XT. Não há medição de desempenho nesta RTX 3060 ainda.
 
 ## Instalação no Windows

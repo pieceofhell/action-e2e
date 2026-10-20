@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
+const os = require('node:os');
 const cheerio = require("cheerio");
 const { chromium } = require("playwright");
 const { normalizeAiConfig, requestStructuredJson, supportsVisionInput } = require("../src/services/llm-provider");
@@ -1176,18 +1177,18 @@ test("builds authenticated plans only from approved read-only routes", () => {
 });
 
 test("rejects execution paths outside the generated run root", () => {
-  const prototypeRoot = "C:\\prototype";
+  const prototypeRoot = path.resolve(os.tmpdir(), 'e2p-prototype-path-validation');
   validateRunPaths({
     prototypeRoot,
-    runDirectory: "C:\\prototype\\prototype-runs\\safe-run",
-    resultsDirectory: "C:\\prototype\\prototype-runs\\safe-run\\results",
+    runDirectory: path.join(prototypeRoot, 'prototype-runs', 'safe-run'),
+    resultsDirectory: path.join(prototypeRoot, 'prototype-runs', 'safe-run', 'results'),
   });
 
   assert.throws(
     () => validateRunPaths({
       prototypeRoot,
-      runDirectory: "C:\\outside\\unsafe-run",
-      resultsDirectory: "C:\\outside\\unsafe-run\\results",
+      runDirectory: path.resolve(prototypeRoot, '..', 'outside', 'unsafe-run'),
+      resultsDirectory: path.resolve(prototypeRoot, '..', 'outside', 'unsafe-run', 'results'),
     }),
     /child of the prototype-runs directory/
   );

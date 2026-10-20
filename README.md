@@ -2,6 +2,8 @@
 
 Current research revision: **20 October 2026**. See the [documentation index](docs/README.md), [critical review and validation plan](docs/research/critical-review-20261020.md), [RTX 3060 remote setup](docs/guides/remote-rtx3060.md), and [paper versions](paper/README.md). `paper/current/` is the maintained article; `paper/versions/2026-10-18/` preserves the previous PDF and sources.
 
+For Linux boot without logon, automatic memory-based model selection, and an 8 GB laptop, use the [portable runtime guide](docs/guides/portable-runtime.md). Start with `npm run doctor`; `npm run start:unattended` supports Linux and Windows. The application can also use inference hosted on another computer through an SSH tunnel.
+
 Local prototype for experimenting with an action-oriented AI-assisted E2E test generation and execution pipeline.
 
 ## Goal
@@ -112,7 +114,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **152 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
+The expected project self-test result for this revision is **166 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 

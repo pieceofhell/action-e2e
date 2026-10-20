@@ -1,0 +1,32 @@
+name: Validate Linux and Windows
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify:evidence
+      - run: npm test
+      - name: Validate Linux service syntax
+        if: runner.os == 'Linux'
+        run: |
+          node scripts/install-linux-service.cjs > /tmp/e2p.service
+          systemd-analyze verify /tmp/e2p.service

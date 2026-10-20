@@ -1,0 +1,171 @@
+[
+  {
+    "scenario": "3060-12GB-16GB-RAM",
+    "simulated": true,
+    "plan": {
+      "profile": "vision-7b",
+      "hardware": {
+        "platform": "linux",
+        "cpu": "simulated",
+        "logicalCpus": 12,
+        "warnings": [],
+        "name": "3060-12GB-16GB-RAM",
+        "ramMiB": 16384,
+        "availableRamMiB": 12000,
+        "gpus": [
+          {
+            "index": 0,
+            "uuid": "GPU-simulated",
+            "name": "RTX 3060",
+            "totalMiB": 12288,
+            "freeMiB": 11000
+          }
+        ]
+      },
+      "backend": "cuda",
+      "gpu": {
+        "index": 0,
+        "uuid": "GPU-simulated",
+        "name": "RTX 3060",
+        "totalMiB": 12288,
+        "freeMiB": 11000
+      },
+      "server": null,
+      "runtime": {
+        "available": true,
+        "cuda": true
+      },
+      "args": [
+        "--alias",
+        "e2p-vl-7b-16k",
+        "--ctx-size",
+        "16384",
+        "--parallel",
+        "1",
+        "--split-mode",
+        "none",
+        "--n-gpu-layers",
+        "all",
+        "--device",
+        "CUDA0",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q8_0",
+        "--cache-type-v",
+        "q8_0",
+        "--fit",
+        "off",
+        "--threads",
+        "6",
+        "--batch-size",
+        "256",
+        "--ubatch-size",
+        "128",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081",
+        "--no-webui",
+        "-hf",
+        "ggml-org/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M"
+      ],
+      "alias": "e2p-vl-7b-16k",
+      "contextTokens": 16384,
+      "vision": true,
+      "modelSource": "ggml-org/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M",
+      "launchModel": true,
+      "reason": "Selected from available RAM, free VRAM and runtime capabilities at startup.",
+      "warnings": [],
+      "modelEnvironment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-simulated"
+      }
+    }
+  },
+  {
+    "scenario": "laptop-8GB-RAM-4GB-VRAM",
+    "simulated": true,
+    "plan": {
+      "profile": "text-3b",
+      "hardware": {
+        "platform": "linux",
+        "cpu": "simulated",
+        "logicalCpus": 12,
+        "warnings": [],
+        "name": "laptop-8GB-RAM-4GB-VRAM",
+        "ramMiB": 7936,
+        "availableRamMiB": 4096,
+        "gpus": [
+          {
+            "index": 0,
+            "uuid": "GPU-simulated",
+            "name": "RTX 3050 mobile scenario",
+            "totalMiB": 4096,
+            "freeMiB": 3500
+          }
+        ]
+      },
+      "backend": "cuda",
+      "gpu": {
+        "index": 0,
+        "uuid": "GPU-simulated",
+        "name": "RTX 3050 mobile scenario",
+        "totalMiB": 4096,
+        "freeMiB": 3500
+      },
+      "server": null,
+      "runtime": {
+        "available": true,
+        "cuda": true
+      },
+      "args": [
+        "--alias",
+        "e2p-text-3b-8k",
+        "--ctx-size",
+        "8192",
+        "--parallel",
+        "1",
+        "--split-mode",
+        "none",
+        "--n-gpu-layers",
+        "all",
+        "--device",
+        "CUDA0",
+        "--flash-attn",
+        "on",
+        "--cache-type-k",
+        "q8_0",
+        "--cache-type-v",
+        "q8_0",
+        "--fit",
+        "off",
+        "--threads",
+        "6",
+        "--batch-size",
+        "256",
+        "--ubatch-size",
+        "128",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081",
+        "--no-webui",
+        "-hf",
+        "Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M",
+        "--no-mmproj"
+      ],
+      "alias": "e2p-text-3b-8k",
+      "contextTokens": 8192,
+      "vision": false,
+      "modelSource": "Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M",
+      "launchModel": true,
+      "reason": "Selected from available RAM, free VRAM and runtime capabilities at startup.",
+      "warnings": [
+        "Text/DOM-only inference: screenshots are not supplied to this model. Exploration quality must be evaluated separately."
+      ],
+      "modelEnvironment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-simulated"
+      }
+    }
+  }
+]
