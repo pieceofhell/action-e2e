@@ -93,7 +93,7 @@ The corpus supports claims about compact browser applications, not validated med
 | --- | --- |
 | Operating system | Windows 11 was used for the recorded experiments. The application code is portable, but the native folder dialog is Windows-specific. |
 | Git | Any current Git release capable of cloning the repositories below. |
-| Node.js | Node.js 24 is recommended. The current validation used Node.js `24.15.0`; Playwright currently supports the latest 22.x, 24.x, and 26.x releases. |
+| Node.js | Node.js 24 is recommended. The current validation used Node.js `24.19.0`; Playwright currently supports the latest 22.x, 24.x, and 26.x releases. |
 | Browser runtime | Chromium installed through the project's Playwright dependency. Firefox may be used to open the E2P interface, but generated execution currently targets Chromium. |
 | AI runtime | `llama.cpp` with the Vulkan backend is the optimized local provider. Historical Ollama runs remain documented as prior experimental conditions. |
 | Storage | Allow space for `node_modules`, Playwright Chromium, target-project dependencies, run videos/traces, and local model files. The benchmark model pair occupies approximately 14 GB before runtime overhead. |

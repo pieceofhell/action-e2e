@@ -38,12 +38,14 @@ O [ensaio posterior](replay-after-fix/result.json) repetiu as mesmas quatro traj
 - [Pares de regressão](regression-pairs/): navegação de faixa, atualização de saldo e persistência. Mesmas asserções na referência e nas alterações; os resultados continuam separando teste do compilador e escolha de jornada pelo modelo.
 - Dados da jornada congelada do player estão em `test/fixtures/`; o teste não depende de um diretório privado e não retorna silenciosamente sem exercitar a regressão.
 - [Supervisor](supervisor-smoke.json): interface respondeu ao teste de saúde e voltou a responder após encerramento deliberado de seu processo filho. O perfil do modelo e o agendamento foram conferidos quanto à configuração/sintaxe; a operação prolongada na RTX 3060 ainda precisa ser medida nela.
+- [Instalação limpa](fresh-checkout.json): clone novo, instalação pelo lockfile e os mesmos 152 testes aprovados, sem histórico privado ou pasta de aplicações candidatas. O [log](fresh-tests.txt) acompanha a conferência.
 
 ## Reproduzir
 
 ```powershell
 npm.cmd ci
 npx.cmd playwright install chromium
+npm.cmd run verify:evidence
 npm.cmd test
 npm.cmd run setup:targets
 # Preparar as dependências e o build do exemplo React conforme o guia remoto.

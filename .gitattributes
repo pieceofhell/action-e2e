@@ -3,5 +3,8 @@
 *.png binary
 *.jpg binary
 *.webm binary
-paper/versions/** -whitespace
+paper/versions/** -text -whitespace
+paper/current/** -text whitespace=cr-at-eol
 paper/current/*.sty -whitespace
+evaluation-results/current-20261018/** -text whitespace=cr-at-eol
+evaluation-results/current-20261020/** -text whitespace=cr-at-eol

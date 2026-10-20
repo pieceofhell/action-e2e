@@ -1,0 +1,18 @@
+{
+  "testedCommit": "737c2353e5fe6895397dee05de8c2be1d2713f6e",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "npmCi": {
+    "exitCode": 0,
+    "auditVulnerabilities": 0
+  },
+  "tests": {
+    "passed": 152,
+    "failed": 0,
+    "skipped": 0
+  },
+  "privateHistoryAvailable": false,
+  "candidateApplicationsAvailable": false,
+  "paperPages": 16,
+  "oldPaperUnchanged": true
+}

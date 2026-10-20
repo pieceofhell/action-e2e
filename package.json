@@ -20,7 +20,8 @@
     "verify:approved-oracle": "node scripts/verify-approved-oracle.cjs",
     "start:unattended": "node scripts/run-unattended.cjs",
     "evaluate:protocol": "node scripts/evaluate-exploration-protocol.cjs",
-    "setup:targets": "node scripts/setup-evaluation-targets.cjs"
+    "setup:targets": "node scripts/setup-evaluation-targets.cjs",
+    "verify:evidence": "node scripts/verify-evidence-integrity.cjs"
   },
   "dependencies": {
     "@playwright/test": "^1.63.0",
