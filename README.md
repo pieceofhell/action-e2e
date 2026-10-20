@@ -114,7 +114,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **166 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
+The expected project self-test result for this revision is **167 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 

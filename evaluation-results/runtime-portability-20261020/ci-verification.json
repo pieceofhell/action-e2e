@@ -1,0 +1,34 @@
+[
+  {
+    "platform": "Ubuntu Linux",
+    "jobId": 118745882517,
+    "verifiedCommit": "6ce95172a3610d421f31d7cdd59b41bebe1dc6c7",
+    "runUrl": "https://github.com/pieceofhell/action-e2e/actions/runs/39456855091",
+    "conclusion": "success",
+    "metrics": [
+      "2026-10-20T16:22:37.0747238Z node: v24.21.0",
+      "2026-10-20T16:23:06.6476443Z 102 evidence, paper and source hashes verified.",
+      "2026-10-20T16:23:27.9979638Z ℹ tests 167",
+      "2026-10-20T16:23:27.9980159Z ℹ pass 167",
+      "2026-10-20T16:23:27.9980413Z ℹ fail 0",
+      "2026-10-20T16:23:27.9980931Z ℹ skipped 0",
+      "2026-10-20T16:23:27.9981474Z ℹ duration_ms 21205.195133"
+    ]
+  },
+  {
+    "platform": "Windows",
+    "jobId": 118745883634,
+    "verifiedCommit": "6ce95172a3610d421f31d7cdd59b41bebe1dc6c7",
+    "runUrl": "https://github.com/pieceofhell/action-e2e/actions/runs/39456855091",
+    "conclusion": "success",
+    "metrics": [
+      "2026-10-20T16:22:47.1681315Z node: v24.21.0\r",
+      "2026-10-20T16:23:15.6930591Z 102 evidence, paper and source hashes verified.\r",
+      "2026-10-20T16:23:39.3523769Z ℹ tests 167\r",
+      "2026-10-20T16:23:39.3524409Z ℹ pass 167\r",
+      "2026-10-20T16:23:39.3524731Z ℹ fail 0\r",
+      "2026-10-20T16:23:39.3525387Z ℹ skipped 0\r",
+      "2026-10-20T16:23:39.3526056Z ℹ duration_ms 22822.1091\r"
+    ]
+  }
+]
