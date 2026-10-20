@@ -107,6 +107,8 @@ npm run start:unattended -- --application-only
 
 Selecione Local llama.cpp, endpoint `http://127.0.0.1:8081/v1` e o modelo anunciado pela máquina antiga. Nesse caso o Playwright e o alvo consomem RAM do notebook, mas os pesos ficam no servidor. O túnel mantém a conexão em loopback nas duas pontas, compatível com o envio de imagens a um modelo local do E2P. Nenhuma porta do projeto precisa ser publicada na internet.
 
+Ao compartilhar o servidor de inferência, faça uma avaliação por vez para evitar que a espera de outro cliente consuma o orçamento de exploração.
+
 Um endpoint próprio também pode ser informado com `--remote URL` ou `E2P_AI_ENDPOINT`; o supervisor inicia só a aplicação. Na interface, configure o mesmo endpoint/provedor. APIs diretamente externas continuam sujeitas à política existente de entrada visual do projeto.
 
 ## Escolhas manuais

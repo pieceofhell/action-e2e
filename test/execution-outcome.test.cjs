@@ -4,6 +4,19 @@ const { parsePlaywrightReport } = require('../src/services/test-runner');
 const { buildInsights } = require('../src/services/insight-builder');
 
 const expectedTests = [{ title: 'Expected journey' }];
+test('report attachment paths preserve Windows/POSIX conventions and reject traversal or other roots', () => {
+  const scenarios = [
+    { root: 'C:\\runs\\safe', inside: 'C:\\runs\\safe\\results\\image.png', outside: ['C:\\runs\\safe\\..\\outside.png', 'D:\\runs\\safe\\image.png', 'C:\\runs\\safe-other\\image.png'] },
+    { root: '/tmp/runs/safe', inside: '/tmp/runs/safe/results/image.png', outside: ['/tmp/runs/safe/../outside.png', '/etc/passwd', '/tmp/runs/safe-other/image.png'] },
+    { root: '\\\\host\\share\\safe', inside: '\\\\host\\share\\safe\\results\\image.png', outside: ['\\\\other\\share\\safe\\image.png', '\\\\host\\share\\safe\\..\\outside.png'] },
+  ];
+  for (const scenario of scenarios) {
+    const parsed = parsePlaywrightReport({ suites: [{ specs: [{ title: 'Evidence', tests: [{ results: [{ status: 'passed', attachments:
+      [scenario.inside, ...scenario.outside, 'results/relative.png'].map(file => ({ name: 'screenshot', contentType: 'image/png', path: file })) }] }] }] }],
+      stats: { duration: 1 } }, { runDirectory: scenario.root });
+    assert.deepEqual(parsed.tests[0].evidence.map(item => item.relativePath), ['results/image.png']);
+  }
+});
 const reportFor = (status, error = null) => ({
   suites: [{ specs: [{ title: 'Expected journey', file: 'journey.spec.cjs', tests: [{
     results: [{ status, duration: 12, ...(error ? { error: { message: error } } : {}) }],

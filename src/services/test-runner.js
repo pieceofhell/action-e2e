@@ -284,9 +284,14 @@ function normalizeAttachments(attachments, runDirectory) {
 
 function toSafeRelativePath(absolutePath, runDirectory) {
   if (!absolutePath || !runDirectory) return "";
-  const relativePath = path.relative(runDirectory, absolutePath);
-  if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) return "";
-  return relativePath.split(path.sep).join("/");
+  // Interpret the report's recorded path convention, independently of the host OS.
+  const windowsAbsolute = value => /^[a-z]:[\\/]|^\\\\/i.test(value);
+  const paths = windowsAbsolute(runDirectory) ? path.win32 : runDirectory.startsWith('/') ? path.posix : path;
+  if (!paths.isAbsolute(runDirectory) || !paths.isAbsolute(absolutePath)) return "";
+  if (paths === path.win32 && !windowsAbsolute(absolutePath)) return "";
+  const relativePath = paths.relative(runDirectory, absolutePath);
+  if (!relativePath || relativePath.startsWith("..") || paths.isAbsolute(relativePath)) return "";
+  return relativePath.split(paths.sep).join("/");
 }
 
 function classifyEvidence(attachment) {
