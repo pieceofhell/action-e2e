@@ -13,11 +13,23 @@
   },
   {
     "date": "2026-10-20",
-    "path": "current/article.pdf",
+    "path": "versions/2026-10-20/article.pdf",
     "sha256": "600e89ea0fd898efb1bb7e47093641aa5041343e5065985bf796042581c34029",
     "sources": {
       "current-exploration.tex": "e7eac9a1aaae7fdbc74849c758773c3a83bed65112d3915fe1c94766eae0b563",
       "main.tex": "a75f79a39110e9420bc3981d4b62552913c9b78aaf4f96ad8ba0df1a70ed59f3",
+      "sbc-template.bib": "bb71cc55f2c80be41755498dc0c9a4507ec5a409251566f99308e3f24fd58f98",
+      "sbc-template.sty": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895",
+      "sbc.bst": "d884c6793e4ea54d13f5c751b3d6f4ea529a62d0906cd9774f2ec350b394691f"
+    }
+  },
+  {
+    "date": "2026-10-21",
+    "path": "current/article.pdf",
+    "sha256": "62451902a586b09183fac19c2a89650b52b64bab8b999516994e386caebc09e2",
+    "sources": {
+      "current-exploration.tex": "18b6b60930e5265ccbce4ba230ec7fb1cb315c8f727943f07ad6fce1fcd4b618",
+      "main.tex": "f309f53b072322c130500cbbd4e3f01174ddf194ce696162476a0c709bcca115",
       "sbc-template.bib": "bb71cc55f2c80be41755498dc0c9a4507ec5a409251566f99308e3f24fd58f98",
       "sbc-template.sty": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895",
       "sbc.bst": "d884c6793e4ea54d13f5c751b3d6f4ea529a62d0906cd9774f2ec350b394691f"
