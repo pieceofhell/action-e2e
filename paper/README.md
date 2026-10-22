@@ -4,7 +4,8 @@
 |---|---|---|---|
 | Anterior, preservada em 20/10/2026 | [18/10/2026](versions/2026-10-18/article.pdf) | [main.tex](versions/2026-10-18/main.tex) | Cópia integral do artigo que estava em uso antes desta revisão. Não foi sobrescrito. |
 | Incrementada, 20/10/2026, preservada | [20/10/2026](versions/2026-10-20/article.pdf) | [main.tex](versions/2026-10-20/main.tex) | Novos contextos de exploração, análise funcional, papel da instrumentação e reprodução. Cópia integral anterior à revisão editorial. |
-| Revisão editorial, 21/10/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Contribuição afirmativa, síntese dos resultados, terminologia consistente e separação da verificação após a coleta. |
+| Revisão editorial, 21/10/2026, preservada | [21/10/2026](versions/2026-10-21-editorial/article.pdf) | [main.tex](versions/2026-10-21-editorial/main.tex) | Revisão editorial anterior ao ajuste da declaração de IA. |
+| Declaração de IA ajustada, 21/10/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Somente o parágrafo da declaração foi substituído pelo texto fornecido pelo autor. |
 | Anteriormente publicada no GitHub | [Baseline remota](versions/remote-baseline/article.pdf) | [Fontes históricas](versions/remote-baseline/main.tex) | Preservada para continuidade do repositório. Não é o artigo de 18/10. |
 
 [versions.json](versions.json) registra hashes dos PDFs e fontes. O PDF anterior tem SHA-256 `c94145ddacaf7232c8169285b4ab7c29fc6e317643d647e7f44adfaad93b5d64`.
