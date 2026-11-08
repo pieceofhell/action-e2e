@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "diverse-contexts-functions-v1",
+  "protocol": "diverse-contexts-v1",
+  "definedAt": "2026-11-07",
+  "provenance": "Funções definidas a partir do código-fonte e da finalidade dos alvos (revisões fixadas por scripts/setup-evaluation-targets.cjs). Para a coleta de 20/10/2026 esta matriz é uma auditoria retroativa: a definição é posterior à coleta. Para coletas iniciadas depois de definedAt, ela é a referência congelada.",
+  "policy": "Este arquivo pertence ao avaliador. Não é fornecido ao explorador, ao planejador ou ao crítico; não é roteiro de navegação.",
+  "levels": {
+    "attempted": "Alguma ação da trajetória corresponde ao controle da função, em qualquer status.",
+    "exercised": "Ação correspondente concluída com mudança de estado registrada (ou, quando requireChange=false, apenas concluída) e, se houver, efeito textual observado no estado posterior.",
+    "verified": "Um teste gerado no mesmo run contém expect() compatível com a asserção de referência. Sem testes gerados, o nível fica como não disponível."
+  },
+  "targets": {
+    "form-validator": {
+      "aliases": ["form-validator"],
+      "functions": [
+        { "id": "validate-username", "label": "Validar nome de usuário", "match": [{ "kind": "fill", "descriptor": "#username\\b|username" }] },
+        { "id": "validate-email", "label": "Validar e-mail", "match": [{ "kind": "fill", "descriptor": "#email\\b|\\bemail\\b" }] },
+        { "id": "validate-password", "label": "Validar comprimento da senha", "match": [{ "kind": "fill", "descriptor": "#password\\b" }] },
+        { "id": "confirm-password", "label": "Conferir confirmação de senha", "match": [{ "kind": "fill", "descriptor": "#password2\\b|confirm" }] },
+        { "id": "submit", "label": "Submeter e exibir mensagens", "match": [{ "kind": "click", "descriptor": "submit" }, { "kind": "press", "descriptor": "enter" }], "assertion": "error|success|toHaveClass" }
+      ]
+    },
+    "music-player": {
+      "aliases": ["music-player"],
+      "functions": [
+        { "id": "play-pause", "label": "Reproduzir/pausar", "match": [{ "kind": "click", "descriptor": "#play\\b|play" }], "assertion": "play|pause" },
+        { "id": "next-track", "label": "Avançar faixa", "match": [{ "kind": "click", "descriptor": "#next\\b" }], "assertion": "title|toHaveText" },
+        { "id": "previous-track", "label": "Voltar faixa", "match": [{ "kind": "click", "descriptor": "#prev\\b" }], "assertion": "title|toHaveText" },
+        { "id": "seek", "label": "Buscar posição na barra de progresso", "match": [{ "kind": "click", "descriptor": "progress" }], "assertion": "progress|width|currentTime" }
+      ]
+    },
+    "memory-cards": {
+      "aliases": ["memory-cards"],
+      "functions": [
+        { "id": "open-form", "label": "Abrir formulário de cartão", "match": [{ "kind": "click", "descriptor": "#show\\b|add new card" }] },
+        { "id": "create-card", "label": "Criar cartão (pergunta + resposta + adicionar)", "match": [{ "kind": "click", "descriptor": "#add-card\\b|^click add card" }], "assertion": "card|toHaveCount" },
+        { "id": "flip-card", "label": "Virar cartão para ver a resposta", "match": [{ "kind": "click", "descriptor": "\\.card\\b|inner-card|show-answer" }], "assertion": "show-answer|toHaveClass" },
+        { "id": "navigate-cards", "label": "Navegar entre cartões", "match": [{ "kind": "click", "descriptor": "#(prev|next)\\b" }], "assertion": "current|\\d+\\s*/\\s*\\d+" },
+        { "id": "clear-cards", "label": "Limpar coleção", "match": [{ "kind": "click", "descriptor": "#clear\\b|clear cards" }], "assertion": "toHaveCount\\(0\\)|clear" },
+        { "id": "persist-reload", "label": "Restaurar cartões após recarga", "match": [{ "kind": "reload" }], "requireChange": false, "requiresPriorChange": true, "assertion": "reload" }
+      ]
+    },
+    "todomvc-react": {
+      "aliases": ["react", "todomvc-react"],
+      "functions": [
+        { "id": "create", "label": "Criar tarefa", "match": [{ "kind": "press", "descriptor": "new todo|text-input" }], "assertion": "todo-item|toHaveText" },
+        { "id": "complete", "label": "Concluir tarefa", "match": [{ "kind": "click", "descriptor": "todo-item-toggle|toggle(?! all)" }], "assertion": "completed|toBeChecked" },
+        { "id": "toggle-all", "label": "Concluir todas", "match": [{ "kind": "click", "descriptor": "toggle all|toggle-all" }], "assertion": "completed|toBeChecked" },
+        { "id": "delete", "label": "Excluir tarefa", "match": [{ "kind": "click", "descriptor": "todo-item-button|destroy|delete" }], "assertion": "toHaveCount" },
+        { "id": "filter", "label": "Filtrar Active/Completed", "match": [{ "kind": "click", "descriptor": "^click (active|completed)\\b" }], "assertion": "active|completed|toHaveCount" },
+        { "id": "clear-completed", "label": "Limpar concluídas", "match": [{ "kind": "click", "descriptor": "clear completed|clear-completed" }], "assertion": "toHaveCount" }
+      ]
+    }
+  }
+}

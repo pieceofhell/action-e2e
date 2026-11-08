@@ -1,0 +1,23 @@
+{
+  "reviewer": "",
+  "runId": "form-validator-2026-11-08T01-06-19-304Z-86db46",
+  "instructions": "Rotule cada item sem consultar outro avaliador. Categorias sugeridas: defeito-confirmado, nao-sustentado, inconclusivo. Justifique com a evidência citada.",
+  "labels": [
+    {
+      "id": "form-validator-2026-11-08T01-06-19-304Z-86db46#bug-hypothesis-1uobm3i",
+      "summary": "Username field does not validate or update state after input",
+      "observedFacts": [],
+      "inferredExpectation": "",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "form-validator-2026-11-08T01-06-19-304Z-86db46#bug-hypothesis-915scs",
+      "summary": "Form validation triggered by Enter key in Username field does not align with documented behavior",
+      "observedFacts": [],
+      "inferredExpectation": "",
+      "label": "",
+      "justification": ""
+    }
+  ]
+}

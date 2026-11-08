@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Exercise a primary input via Question and Answer fields",
+    "status": "passed",
+    "evidence": [
+      {
+        "name": "screenshot",
+        "kind": "screenshot",
+        "contentType": "image/png",
+        "relativePath": "results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/test-finished-1.png"
+      },
+      {
+        "name": "video",
+        "kind": "video",
+        "contentType": "video/webm",
+        "relativePath": "results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/video.webm"
+      },
+      {
+        "name": "trace",
+        "kind": "trace",
+        "contentType": "application/zip",
+        "relativePath": "results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/trace.zip"
+      }
+    ]
+  },
+  {
+    "title": "Commit input via Enter key in Question and Answer fields",
+    "status": "passed",
+    "evidence": [
+      {
+        "name": "screenshot",
+        "kind": "screenshot",
+        "contentType": "image/png",
+        "relativePath": "results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/test-finished-1.png"
+      },
+      {
+        "name": "video",
+        "kind": "video",
+        "contentType": "video/webm",
+        "relativePath": "results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/video.webm"
+      },
+      {
+        "name": "trace",
+        "kind": "trace",
+        "contentType": "application/zip",
+        "relativePath": "results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/trace.zip"
+      }
+    ]
+  },
+  {
+    "title": "User fills Question field to initiate card creation",
+    "status": "passed",
+    "evidence": [
+      {
+        "name": "screenshot",
+        "kind": "screenshot",
+        "contentType": "image/png",
+        "relativePath": "results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/test-finished-1.png"
+      },
+      {
+        "name": "video",
+        "kind": "video",
+        "contentType": "video/webm",
+        "relativePath": "results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/video.webm"
+      },
+      {
+        "name": "trace",
+        "kind": "trace",
+        "contentType": "application/zip",
+        "relativePath": "results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/trace.zip"
+      }
+    ]
+  }
+]

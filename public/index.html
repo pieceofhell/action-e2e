@@ -102,17 +102,17 @@
           <div class="path-picker">
             <label class="field">
               <span>Project path</span>
-              <input id="projectPathInput" type="text" placeholder="C:\Users\...\my-repository" />
+              <input id="projectPathInput" type="text" placeholder="C:\Users\...\my-repository or /Users/.../my-repository" />
             </label>
             <div class="button-row">
-              <button id="browseProjectButton" class="button button--secondary">Choose folder in Windows</button>
+              <button id="browseProjectButton" class="button button--secondary">Choose folder</button>
               <button id="loadProjectButton" class="button">Load project</button>
             </div>
           </div>
 
           <p class="muted">
-            The button tries to open a native Windows folder picker on the desktop itself. If the
-            operating system blocks that dialog, the manual path field remains available as a fallback.
+            The button opens the native folder picker of the machine running E2P (Windows, macOS, or Linux with
+            zenity/kdialog). If the operating system blocks that dialog, the manual path field remains available as a fallback.
           </p>
         </section>
 

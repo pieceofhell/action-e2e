@@ -1,0 +1,253 @@
+{
+  "config": {
+    "argv": [
+      "/Users/4081dtidigital/.nvm/versions/node/v24.14.0/bin/node",
+      "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/node_modules/playwright/cli.js",
+      "test",
+      "--config",
+      "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/playwright.config.cjs"
+    ],
+    "configFile": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/playwright.config.cjs",
+    "rootDir": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 5,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "flow-1-input-interaction.spec.cjs",
+      "file": "flow-1-input-interaction.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Exercise a primary input via Question and Answer fields",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6729,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T01:25:49.789Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-1-input-interaction-E-92a7f--Question-and-Answer-fields/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "754d10b73b94cee03556-ec972c8b90ecf24fb2fa",
+          "file": "flow-1-input-interaction.spec.cjs",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "flow-2-input-commit.spec.cjs",
+      "file": "flow-2-input-commit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Commit input via Enter key in Question and Answer fields",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 7124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T01:25:49.791Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/flow-2-input-commit-Commit-a5d66--Question-and-Answer-fields/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e61c54ab21ea3a17389-ab15280182c2a18af22d",
+          "file": "flow-2-input-commit.spec.cjs",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "question-state-2.spec.cjs",
+      "file": "question-state-2.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "User fills Question field to initiate card creation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 6685,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-08T01:25:49.791Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/results/test-artifacts/question-state-2-User-fill-b4f60-d-to-initiate-card-creation/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce443dd7d53ee8646fa-9000454c32c5d842599d",
+          "file": "question-state-2.spec.cjs",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-08T01:25:49.349Z",
+    "duration": 8245.614000000001,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

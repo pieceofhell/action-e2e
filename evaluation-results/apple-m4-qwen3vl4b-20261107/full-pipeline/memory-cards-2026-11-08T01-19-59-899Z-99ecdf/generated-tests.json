@@ -1,0 +1,180 @@
+[
+  {
+    "flowId": "flow-1-input-interaction",
+    "title": "Exercise a primary input via Question and Answer fields",
+    "fileName": "flow-1-input-interaction.spec.cjs",
+    "filePath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/tests/flow-1-input-interaction.spec.cjs",
+    "generationMode": "model-journey-compiled",
+    "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+    "locatorValidation": {
+      "status": "passed",
+      "checkedActions": 2,
+      "strategies": [
+        "dom-id",
+        "dom-id"
+      ]
+    },
+    "criterionContract": [
+      {
+        "id": "flow-1-input-interaction-criterion-1",
+        "title": "Fill Question input with a valid question",
+        "given": "The application is on the main page with empty inputs.",
+        "when": "The 'Question' textarea is filled with 'What is the capital of France?'",
+        "then": "The UI updates to state-2, and the Question field retains the entered value.",
+        "expectationSource": {
+          "kind": "inferred-from-observation",
+          "reference": null
+        },
+        "actionStep": 1,
+        "observedEntity": "question",
+        "expectedValue": "What is the capital of France?",
+        "comparison": "exact-input-value",
+        "evidenceStateIds": [
+          "state-2",
+          "state-3"
+        ],
+        "status": "asserted",
+        "assertionId": "flow-1-input-interaction-criterion-1-assertion-1",
+        "assertion": {
+          "kind": "input-value",
+          "value": "What is the capital of France?",
+          "observedEntity": "question",
+          "comparison": "exact-input-value"
+        },
+        "reason": null,
+        "stepIndex": 0
+      },
+      {
+        "id": "flow-1-input-interaction-criterion-2",
+        "title": "Fill Answer input with a valid answer",
+        "given": "The application is on state-2 with Question filled.",
+        "when": "The 'Answer' textarea is filled with 'Paris'",
+        "then": "The UI updates to state-3, and the Answer field retains the entered value.",
+        "expectationSource": {
+          "kind": "inferred-from-observation",
+          "reference": null
+        },
+        "actionStep": 2,
+        "observedEntity": "answer",
+        "expectedValue": "Paris",
+        "comparison": "exact-input-value",
+        "evidenceStateIds": [
+          "state-2",
+          "state-3"
+        ],
+        "status": "asserted",
+        "assertionId": "flow-1-input-interaction-criterion-2-assertion-1",
+        "assertion": {
+          "kind": "input-value",
+          "value": "Paris",
+          "observedEntity": "answer",
+          "comparison": "exact-input-value"
+        },
+        "reason": null,
+        "stepIndex": 1
+      }
+    ]
+  },
+  {
+    "flowId": "flow-2-input-commit",
+    "title": "Commit input via Enter key in Question and Answer fields",
+    "fileName": "flow-2-input-commit.spec.cjs",
+    "filePath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/tests/flow-2-input-commit.spec.cjs",
+    "generationMode": "model-journey-compiled",
+    "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+    "locatorValidation": {
+      "status": "passed",
+      "checkedActions": 3,
+      "strategies": [
+        "dom-id",
+        "dom-id",
+        "dom-id"
+      ]
+    },
+    "criterionContract": [
+      {
+        "id": "flow-2-input-commit-criterion-1",
+        "title": "Press Enter in Question field without submitting",
+        "given": "The application is on state-3 with Question and Answer filled.",
+        "when": "Enter is pressed in the Question field",
+        "then": "The UI remains on state-1 with no change to input values or UI state.",
+        "expectationSource": {
+          "kind": "inferred-from-observation",
+          "reference": null
+        },
+        "actionStep": null,
+        "observedEntity": null,
+        "expectedValue": null,
+        "comparison": null,
+        "evidenceStateIds": [
+          "state-1"
+        ],
+        "status": "unverified",
+        "assertionId": null,
+        "assertion": null,
+        "reason": "No supported behavior assertion can be grounded in this executed journey."
+      },
+      {
+        "id": "flow-2-input-commit-criterion-2",
+        "title": "Press Enter in Answer field without submitting",
+        "given": "The application is on state-1 with empty inputs.",
+        "when": "Enter is pressed in the Answer field",
+        "then": "The UI remains on state-1 with no change to input values or UI state.",
+        "expectationSource": {
+          "kind": "inferred-from-observation",
+          "reference": null
+        },
+        "actionStep": null,
+        "observedEntity": null,
+        "expectedValue": null,
+        "comparison": null,
+        "evidenceStateIds": [
+          "state-1"
+        ],
+        "status": "unverified",
+        "assertionId": null,
+        "assertion": null,
+        "reason": "No supported behavior assertion can be grounded in this executed journey."
+      }
+    ]
+  },
+  {
+    "flowId": "question-state-2",
+    "title": "User fills Question field to initiate card creation",
+    "fileName": "question-state-2.spec.cjs",
+    "filePath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs/memory-cards-2026-11-08T01-19-59-899Z-99ecdf/tests/question-state-2.spec.cjs",
+    "generationMode": "model-journey-compiled",
+    "generationNote": "E2P compiled the model's successfully executed browser journey into constrained Playwright. Every interaction passed the observed-locator contract before the file was saved.",
+    "locatorValidation": {
+      "status": "passed",
+      "checkedActions": 1,
+      "strategies": [
+        "dom-id"
+      ]
+    },
+    "criterionContract": [
+      {
+        "id": "question-state-2-criterion-1",
+        "title": "Question field is targeted for input",
+        "given": "The 'Question' input field is visible and labeled as a primary interactive element.",
+        "when": "The user focuses on or fills the 'Question' field.",
+        "then": "The system prepares for the next step of committing the input, likely triggering the 'Add Card' button or similar action.",
+        "expectationSource": {
+          "kind": "inferred-from-observation",
+          "reference": null
+        },
+        "actionStep": 1,
+        "observedEntity": null,
+        "expectedValue": null,
+        "comparison": null,
+        "evidenceStateIds": [
+          "state-2"
+        ],
+        "status": "unverified",
+        "assertionId": null,
+        "assertion": null,
+        "reason": "No supported behavior assertion can be grounded in this executed journey."
+      }
+    ]
+  }
+]

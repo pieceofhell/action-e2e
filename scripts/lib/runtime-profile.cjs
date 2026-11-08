@@ -13,7 +13,17 @@ const PROFILES = [
     ramMiB: 6656, availableRamMiB: 3072, freeGpuMiB: 3072 },
   { id: 'text-1.5b', repository: 'Qwen/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M', vision: false, context: 8192,
     ramMiB: 6144, availableRamMiB: 2560, freeGpuMiB: 1536 },
+  // Apple Silicon (Metal, unified memory). Weights + projector + Q8 KV cache must fit both the Metal working set
+  // and the RAM that macOS can reclaim, because GPU and CPU share the same memory. Qwen3-VL is newer than the
+  // Qwen2.5-VL profiles above and keeps screenshot input; auto-selection only considers it on the Metal backend so
+  // historical CUDA/Vulkan conditions remain unchanged. Explicit --profile works on any backend.
+  { id: 'vision-qwen3-8b', repository: 'Qwen/Qwen3-VL-8B-Instruct-GGUF:Q4_K_M', vision: true, context: 16384,
+    ramMiB: 16384, availableRamMiB: 7168, freeGpuMiB: 7168, autoBackends: ['metal'] },
+  { id: 'vision-qwen3-4b', repository: 'Qwen/Qwen3-VL-4B-Instruct-GGUF:Q4_K_M', vision: true, context: 16384,
+    ramMiB: 12288, availableRamMiB: 3072, freeGpuMiB: 4096, autoBackends: ['metal'] },
 ];
+// Order in which auto-selection tries profiles on unified-memory Metal machines (largest first).
+const METAL_AUTO_ORDER = ['vision-qwen3-8b', 'vision-qwen3-4b', 'text-3b', 'text-1.5b'];
 
 function parseNvidiaSmi(output) {
   return String(output || '').trim().split(/\r?\n/).filter(Boolean).flatMap(line => {
@@ -31,11 +41,37 @@ function availableLinuxMemory(text, fallbackMiB) {
   return match ? Math.floor(Number(match[1]) / 1024) : fallbackMiB;
 }
 
-function detectHardware({ platform = process.platform, env = process.env, execute = execFileSync, read = fs.readFileSync } = {}) {
-  const hardware = { platform, cpu: os.cpus()[0]?.model || 'unknown', logicalCpus: os.cpus().length,
+// macOS keeps most reclaimable memory as inactive/speculative pages, so os.freemem() reports only a few hundred
+// MiB on a healthy 16 GB Mac. Like Linux MemAvailable, count free + inactive + speculative pages. Purgeable pages
+// are already part of active/inactive and are not added again.
+function availableDarwinMemory(text, fallbackMiB) {
+  const source = String(text || '');
+  const pageSize = Number(source.match(/page size of (\d+) bytes/)?.[1]);
+  const pages = name => Number(source.match(new RegExp(`^Pages ${name}:\\s+(\\d+)\\.`, 'm'))?.[1]);
+  const counts = ['free', 'inactive', 'speculative'].map(pages);
+  if (!Number.isFinite(pageSize) || counts.some(value => !Number.isFinite(value))) return fallbackMiB;
+  return Math.floor(counts.reduce((sum, value) => sum + value, 0) * pageSize / 1048576);
+}
+
+// "MTL0: Apple M4 (12124 MiB, 12123 MiB free)" from `llama-server --list-devices`.
+function parseMetalDevices(output) {
+  return [...String(output || '').matchAll(/^\s*(MTL\d+):\s*(.+?)\s*\((\d+) MiB,\s*(\d+) MiB free\)/gm)]
+    .map(([, id, name, total, free]) => ({ id, name, totalMiB: Number(total), freeMiB: Number(free) }));
+}
+
+function detectHardware({ platform = process.platform, arch = process.arch, env = process.env, execute = execFileSync, read = fs.readFileSync } = {}) {
+  const hardware = { platform, arch, cpu: os.cpus()[0]?.model || 'unknown', logicalCpus: os.cpus().length,
     ramMiB: Math.floor(os.totalmem() / 1048576), availableRamMiB: Math.floor(os.freemem() / 1048576), gpus: [], warnings: [] };
   if (platform === 'linux') {
     try { hardware.availableRamMiB = availableLinuxMemory(read('/proc/meminfo', 'utf8'), hardware.availableRamMiB); } catch {}
+  }
+  if (platform === 'darwin') {
+    try { hardware.availableRamMiB = availableDarwinMemory(execute('vm_stat', [], { encoding: 'utf8', timeout: 3000 }), hardware.availableRamMiB); } catch {}
+    if (arch === 'arm64') {
+      // Conservative estimate of Metal's recommended working set until llama.cpp reports the real value.
+      hardware.unifiedMemory = { backend: 'metal', estimatedWorkingSetMiB: Math.floor(hardware.ramMiB * 0.66), source: 'estimate' };
+      return hardware;
+    }
   }
   try {
     hardware.gpus = parseNvidiaSmi(execute('nvidia-smi', ['--query-gpu=index,uuid,name,memory.total,memory.free', '--format=csv,noheader,nounits'],
@@ -64,7 +100,8 @@ function inspectRuntime(server) {
     if (result.status !== 0) throw result.error || new Error(`exit ${result.status}`);
     const devices = `${result.stdout || ''}\n${result.stderr || ''}`.trim();
     const version = spawnSync(server, ['--version'], { encoding: 'utf8', timeout: 10000, windowsHide: true });
-    return { available: true, cuda: /\bCUDA\d+\b/.test(devices),
+    const metal = parseMetalDevices(devices);
+    return { available: true, cuda: /\bCUDA\d+\b/.test(devices), metal: metal.length ? metal : null,
       version: `${version.stdout || ''}\n${version.stderr || ''}`.trim().slice(0, 1000), devices: devices.slice(0, 3000) };
   } catch (error) {
     // Some builds print the inventory on stderr. It still must be a successful invocation.
@@ -72,14 +109,33 @@ function inspectRuntime(server) {
   }
 }
 
-function chooseProfile(hardware, { profile = 'auto', cuda = null, cpu = false } = {}) {
+function metalBudget(hardware, metal) {
+  if (!hardware.unifiedMemory) return null;
+  const device = Array.isArray(metal) && metal.length ? [...metal].sort((a, b) => b.freeMiB - a.freeMiB)[0] : null;
+  return device ? { id: device.id, name: device.name, freeMiB: device.freeMiB, source: 'llama.cpp' }
+    : { id: 'MTL0', name: hardware.cpu, freeMiB: hardware.unifiedMemory.estimatedWorkingSetMiB, source: 'estimate' };
+}
+
+function chooseProfile(hardware, { profile = 'auto', cuda = null, cpu = false, metal = null } = {}) {
   if (profile !== 'auto' && !PROFILES.some(item => item.id === profile)) throw new Error(`Unknown profile: ${profile}`);
+  const unified = !cpu ? metalBudget(hardware, metal) : null;
+  if (unified) {
+    // GPU and CPU share RAM: a profile must fit the Metal working set AND the memory macOS can reclaim now.
+    const fits = item => hardware.ramMiB >= item.ramMiB && hardware.availableRamMiB >= item.availableRamMiB && unified.freeMiB >= item.freeGpuMiB;
+    const selected = profile === 'auto'
+      ? METAL_AUTO_ORDER.map(id => PROFILES.find(item => item.id === id)).find(fits)
+      : PROFILES.find(item => item.id === profile);
+    if (!selected) return { profile: null, gpu: null, backend: 'separate-provider',
+      reason: 'Reclaimable unified memory is below the Metal starting profiles. Close heavy applications or use another inference server.' };
+    return { profile: selected, gpu: unified, backend: 'metal',
+      reason: profile === 'auto' ? 'Selected from total/reclaimable unified memory and the Metal working set at startup.' : 'Explicit profile; memory estimates are advisory.' };
+  }
   const gpu = !cpu && cuda !== false ? [...hardware.gpus].sort((a, b) => b.freeMiB - a.freeMiB)[0] : null;
   const fitsRam = item => hardware.ramMiB >= item.ramMiB && hardware.availableRamMiB >= item.availableRamMiB;
   let selected = profile === 'auto'
-    ? PROFILES.find(item => gpu && fitsRam(item) && gpu.freeMiB >= item.freeGpuMiB)
+    ? PROFILES.find(item => !item.autoBackends && gpu && fitsRam(item) && gpu.freeMiB >= item.freeGpuMiB)
     : PROFILES.find(item => item.id === profile);
-  if (!selected && hardware.ramMiB >= 6144 && hardware.availableRamMiB >= 4096) selected = PROFILES.at(-1);
+  if (!selected && hardware.ramMiB >= 6144 && hardware.availableRamMiB >= 4096) selected = PROFILES.find(item => item.id === 'text-1.5b');
   if (!selected) return { profile: null, gpu: null, backend: 'separate-provider',
     reason: 'Available memory is below the local starting profiles. Run the interface/browser here and use another inference server.' };
   const useGpu = Boolean(gpu && (profile !== 'auto' || gpu.freeMiB >= selected.freeGpuMiB));
@@ -100,7 +156,7 @@ function buildPlan({ hardware, runtime = { available: false, cuda: null }, serve
     throw new Error('Context must be a multiple of 1024 from 4096 through 32768.');
   }
   if (modelPath && profile === 'auto') throw new Error('Local GGUF paths require an explicit --profile; their size cannot be inferred from the machine.');
-  const selected = chooseProfile(hardware, { profile, cuda: device ? true : runtime.cuda, cpu });
+  const selected = chooseProfile(hardware, { profile, cuda: device ? true : runtime.cuda, cpu, metal: runtime.metal });
   const warnings = [...(hardware.warnings || [])];
   if (!selected.profile) return { ...selected, profile: 'separate-provider', hardware, launchModel: false, warnings };
   const config = selected.profile;
@@ -113,7 +169,8 @@ function buildPlan({ hardware, runtime = { available: false, cuda: null }, serve
   const backend = device ? 'explicit-device' : selected.backend;
   const alias = `e2p-${config.vision ? 'vl' : 'text'}-${config.id.replace(/^(vision|text)-/, '')}-${contextTokens / 1024}k`;
   const args = ['--alias', alias, '--ctx-size', String(contextTokens), '--parallel', '1', '--split-mode', 'none',
-    '--n-gpu-layers', backend === 'cpu' ? '0' : 'all', '--device', device || (backend === 'cuda' ? 'CUDA0' : 'none'),
+    '--n-gpu-layers', backend === 'cpu' ? '0' : 'all',
+    '--device', device || (backend === 'cuda' ? 'CUDA0' : backend === 'metal' ? selected.gpu.id : 'none'),
     '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--fit', 'off',
     '--threads', String(Math.max(1, Math.min(6, Math.floor(hardware.logicalCpus / 2)))),
     '--batch-size', '256', '--ubatch-size', '128', '--host', '127.0.0.1', '--port', '8081', '--no-webui'];
@@ -128,6 +185,8 @@ function buildPlan({ hardware, runtime = { available: false, cuda: null }, serve
   if (profile !== 'auto' && (hardware.ramMiB < config.ramMiB || hardware.availableRamMiB < config.availableRamMiB)) {
     warnings.push('Available system memory is below this profile starting budget. Choose a smaller profile or a separate provider.');
   }
+  if (backend === 'metal' && selected.gpu.source === 'estimate') warnings.push('Metal working set was estimated from RAM; install llama.cpp so --list-devices can report it.');
+  if (backend === 'metal' && runtime.available && !runtime.metal) warnings.push('This llama.cpp binary did not list a Metal device. Install an Apple Silicon build (for example `brew install llama.cpp`).');
   if (!config.vision) warnings.push('Text/DOM-only inference: screenshots are not supplied to this model. Exploration quality must be evaluated separately.');
   return { profile: config.id, hardware, backend, gpu: selected.gpu, server, runtime, args, alias,
     contextTokens, vision: config.vision, modelSource: modelPath ? 'local-files' : config.repository,
@@ -161,5 +220,5 @@ function preparePlan(options) {
   return buildPlan({ ...options, hardware, runtime, server });
 }
 
-module.exports = { PROFILES, parseNvidiaSmi, availableLinuxMemory, detectHardware, findExecutable, inspectRuntime,
+module.exports = { PROFILES, METAL_AUTO_ORDER, parseNvidiaSmi, availableLinuxMemory, availableDarwinMemory, parseMetalDevices, detectHardware, findExecutable, inspectRuntime,
   chooseProfile, buildPlan, parseOptions, preparePlan };

@@ -1,0 +1,31 @@
+{
+  "reviewer": "",
+  "runId": "music-player-2026-11-08T01-09-00-125Z-b1896c",
+  "instructions": "Rotule cada item sem consultar outro avaliador. Categorias sugeridas: defeito-confirmado, nao-sustentado, inconclusivo. Justifique com a evidência citada.",
+  "labels": [
+    {
+      "id": "music-player-2026-11-08T01-09-00-125Z-b1896c#runtime-diagnostic-8ymtqs",
+      "summary": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+      "observedFacts": [],
+      "inferredExpectation": "",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "music-player-2026-11-08T01-09-00-125Z-b1896c#bug-hypothesis-1jelcla",
+      "summary": "Play/pause button does not function as expected",
+      "observedFacts": [],
+      "inferredExpectation": "",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "music-player-2026-11-08T01-09-00-125Z-b1896c#bug-hypothesis-1qp6s96",
+      "summary": "Previous button does not navigate to prior track",
+      "observedFacts": [],
+      "inferredExpectation": "",
+      "label": "",
+      "justification": ""
+    }
+  ]
+}

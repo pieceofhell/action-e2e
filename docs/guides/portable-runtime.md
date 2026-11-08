@@ -36,6 +36,8 @@ A primeira inicialização pode baixar o modelo e o projetor pelo mecanismo `-hf
 | `vision-3b` | DOM, texto e imagens | 8k | RAM total ≥10 GiB, disponível ≥4 GiB e VRAM livre ≥6 GiB. |
 | `text-3b` | DOM e texto | 8k | RAM total ≥6,5 GiB, disponível ≥3 GiB e VRAM livre ≥3 GiB. |
 | `text-1.5b` | DOM e texto | 8k | RAM total ≥6 GiB, disponível ≥2,5 GiB e VRAM livre ≥1,5 GiB; em CPU, disponível ≥4 GiB. |
+| `vision-qwen3-8b` | DOM, texto e imagens (Qwen3-VL 8B Q4_K_M, ~5,4 GiB com projetor) | 16k | Somente Apple Silicon/Metal em modo automático: RAM ≥16 GiB, recuperável ≥7 GiB e working set Metal ≥7 GiB. |
+| `vision-qwen3-4b` | DOM, texto e imagens (Qwen3-VL 4B Q4_K_M, ~2,8 GiB com projetor) | 16k | Somente Apple Silicon/Metal em modo automático: RAM ≥12 GiB, recuperável ≥3 GiB e working set Metal ≥4 GiB. |
 | Provedor separado | Conforme o servidor escolhido | Conforme o servidor | Memória insuficiente para os pontos de partida locais ou endpoint explicitamente configurado. |
 
 São margens de implantação, não resultados medidos nessas máquinas. O tamanho do arquivo de pesos não inclui cache, projetor, buffers, navegador e sistema. A detecção automática de VRAM usa `nvidia-smi`; mede a GPU permitida com mais memória livre, sem somar placas. Respeita `CUDA_VISIBLE_DEVICES`. O binário também precisa listar um dispositivo CUDA. Em Linux, a RAM disponível vem de `MemAvailable`, que considera memória recuperável de cache.
@@ -45,6 +47,18 @@ Na **RTX 3060 12 GB com 16 GB de RAM**, o ponto de partida esperado é `vision-7
 Os perfis visuais usam [Qwen2.5-VL GGUF](https://github.com/ggml-org/llama.cpp/blob/master/docs/multimodal.md). Os perfis de texto usam [Qwen2.5-3B](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF) ou [Qwen2.5-1.5B](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF), em Q4_K_M. A qualidade da seleção de ações e das hipóteses precisa ser avaliada em cada perfil. Sem entrada visual, screenshots podem continuar nos artefatos, mas não são enviadas ao modelo.
 
 O plano é fixado ao iniciar e salvo em `logs/runtime-plan.json`; não há troca silenciosa de modelo durante uma execução. Se a inicialização falhar por memória, escolha um perfil menor e reinicie. O supervisor reinicia processos que terminam, com espera progressiva, mas não diagnostica todos os travamentos. Logs são limitados; as evidências em `prototype-runs/` não são apagadas automaticamente.
+
+## macOS com Apple Silicon (Metal)
+
+Em Macs M1–M4 a GPU usa a mesma memória do sistema. O plano passa a considerar dois limites ao mesmo tempo: a memória que o macOS consegue recuperar agora (`vm_stat`: páginas livres, inativas e especulativas) e o *working set* Metal informado por `llama-server --list-devices` (sem o binário, estima-se 66% da RAM e o plano avisa). `os.freemem()` conta só páginas totalmente livres; num M4 de 16 GB em uso normal isso dava ~600 MiB e levava a recomendar um provedor externo sem necessidade.
+
+```sh
+brew install llama.cpp
+npm run doctor
+npm run model:start
+```
+
+A ordem automática é `vision-qwen3-8b` → `vision-qwen3-4b` → `text-3b` → `text-1.5b`. Os perfis Qwen3-VL só entram na seleção automática em Metal, para não alterar as condições históricas em NVIDIA/Vulkan; com `--profile` podem ser usados em qualquer backend. Medição de referência (M4 10 núcleos, 16 GB, llama.cpp build 12110, Qwen3-VL-4B Q4_K_M): ~28 tokens/s de geração e ~80 tokens/s de prompt curto. Com navegador, IDE e outros aplicativos abertos, a memória recuperável costuma ficar entre 3 e 6 GiB, por isso o 4B é o ponto de partida provável; feche aplicativos pesados para que o 8B seja escolhido.
 
 ## Linux: iniciar no boot, sem login
 

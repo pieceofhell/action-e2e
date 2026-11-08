@@ -44,3 +44,11 @@ Para cada comportamento, registrar separadamente:
 | Custo e interrupções | Quanto custaram também as tentativas malsucedidas? |
 
 Exemplos de profundidade: no seletor de assentos, restaurar identidades e preço após recarga; no buscador de receitas, relacionar consulta, resultado selecionado e detalhe; na lista reordenável, conferir ordem antes/depois; no player, conferir identidade da faixa; em fala, distinguir chamada da API de qualidade audível. Esses são objetivos para definição de critérios e coleta, não resultados já demonstrados.
+
+## Matriz função × execução e concordância entre avaliadores
+
+`reference-functions/diverse-contexts-v1.json` define, por alvo, as funções que o avaliador espera ver exercitadas, com padrões sobre as ações registradas. O arquivo não é fornecido ao modelo. `npm run evaluate:functions` classifica cada execução em **tentada**, **exercitada** (ação concluída com mudança de estado citada por identificador) ou **verificada** (asserção `expect()` compatível em teste gerado). Sem testes gerados, a verificação fica como não disponível, e não como zero. O protocolo `protocols/diverse-contexts-v2.json` registra o hash do arquivo de funções no manifesto antes da coleta.
+
+Para a coleta de 20/10/2026, a matriz é uma auditoria retroativa (definida depois). Para coletas posteriores a 07/11/2026, é a referência congelada.
+
+`npm run evaluate:agreement` gera modelos de rotulação cegos (sem o veredito do modelo) e calcula concordância observada, kappa de Cohen, matriz de confusão e divergências entre dois avaliadores humanos. Itens rotulados por só um avaliador ficam listados e fora do kappa. Com uma única categoria usada, o kappa é indefinido e não é apresentado como concordância perfeita.

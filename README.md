@@ -1,8 +1,8 @@
 # Action E2E Prototype
 
-Current research revision: **20 October 2026**. See the [documentation index](docs/README.md), [critical review and validation plan](docs/research/critical-review-20261020.md), [RTX 3060 remote setup](docs/guides/remote-rtx3060.md), and [paper versions](paper/README.md). `paper/current/` is the maintained article; `paper/versions/2026-10-18/` preserves the previous PDF and sources.
+Current research revision: **7 November 2026** (Apple Silicon/Metal runtime, function × execution matrix, reviewer agreement; see [`evaluation-results/apple-m4-qwen3vl4b-20261107`](evaluation-results/apple-m4-qwen3vl4b-20261107/README.md)). Previous revision: 20 October 2026. See the [documentation index](docs/README.md), [critical review and validation plan](docs/research/critical-review-20261020.md), [RTX 3060 remote setup](docs/guides/remote-rtx3060.md), and [paper versions](paper/README.md). `paper/current/` is the maintained article; `paper/versions/2026-10-18/` preserves the previous PDF and sources.
 
-For Linux boot without logon, automatic memory-based model selection, and an 8 GB laptop, use the [portable runtime guide](docs/guides/portable-runtime.md). Start with `npm run doctor`; `npm run start:unattended` supports Linux and Windows. The application can also use inference hosted on another computer through an SSH tunnel.
+For Linux boot without logon, automatic memory-based model selection, Apple Silicon Macs (Metal), and an 8 GB laptop, use the [portable runtime guide](docs/guides/portable-runtime.md). Start with `npm run doctor`; `npm run start:unattended` supports Linux and Windows. The application can also use inference hosted on another computer through an SSH tunnel.
 
 Local prototype for experimenting with an action-oriented AI-assisted E2E test generation and execution pipeline.
 
@@ -93,11 +93,11 @@ The corpus supports claims about compact browser applications, not validated med
 
 | Requirement | Reproducible baseline |
 | --- | --- |
-| Operating system | Windows 11 was used for the recorded experiments. The application code is portable, but the native folder dialog is Windows-specific. |
+| Operating system | Windows 11 was used for the October experiments; the 7 November 2026 collection ran on macOS (Apple M4, 16 GB). CI validates Linux and Windows. The native folder dialog works on Windows, macOS and Linux (zenity/kdialog). |
 | Git | Any current Git release capable of cloning the repositories below. |
 | Node.js | Node.js 24 is recommended. The current validation used Node.js `24.19.0`; Playwright currently supports the latest 22.x, 24.x, and 26.x releases. |
 | Browser runtime | Chromium installed through the project's Playwright dependency. Firefox may be used to open the E2P interface, but generated execution currently targets Chromium. |
-| AI runtime | `llama.cpp` with the Vulkan backend is the optimized local provider. Historical Ollama runs remain documented as prior experimental conditions. |
+| AI runtime | `llama.cpp` (Vulkan/CUDA on PCs, Metal on Apple Silicon via `brew install llama.cpp`). Historical Ollama runs remain documented as prior experimental conditions. |
 | Storage | Allow space for `node_modules`, Playwright Chromium, target-project dependencies, run videos/traces, and local model files. The benchmark model pair occupies approximately 14 GB before runtime overhead. |
 
 Official downloads: [Git](https://git-scm.com/downloads), [Node.js](https://nodejs.org/en/download/), [llama.cpp releases](https://github.com/ggml-org/llama.cpp/releases), and [Playwright installation guidance](https://playwright.dev/docs/intro).
@@ -114,7 +114,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **167 passed, 0 failed, 0 skipped** (20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
+The expected project self-test result for this revision is **185 passed, 0 failed, 0 skipped** (7 November 2026; 167 on 20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 
@@ -146,7 +146,7 @@ Open [http://127.0.0.1:4318](http://127.0.0.1:4318). `index.html` should not be 
 
 1. Keep the `llama.cpp` launcher running and confirm that `qwen3.8-vl-27b-iq1m-64k` appears under `Selectable model`.
 2. Select `Local llama.cpp` and choose `qwen3.8-vl-27b-iq1m-64k`. Leave the optional reviewer blank unless a separately benchmarked server/model is available.
-3. Use `Choose folder in Windows` or paste an absolute target-project directory, then select `Load project`.
+3. Use `Choose folder` (native picker on Windows, macOS, or Linux with zenity/kdialog) or paste an absolute target-project directory, then select `Load project`.
 4. Review the detected framework, working directory, installation command, startup command, and base URL. Correct a value only when the target documentation requires it.
 5. Keep `Guest` access for the public benchmark and select `Explore live interface`. The optional **Disposable local target** profile allows fictional amounts from -1000 to 1000 with up to two decimal places, respecting the field's actual minimum, maximum and step. Use it for an isolated locally started guest project with no external accounts or services. The command-line evaluator exposes the same opt-in as `--disposable-local`.
 6. Follow the sticky live viewer as the model chooses actions and E2P records states. The AI-first pipeline stops instead of silently substituting a heuristic plan when a required model stage fails.
@@ -156,6 +156,31 @@ Open [http://127.0.0.1:4318](http://127.0.0.1:4318). `index.html` should not be 
 10. Select `Run tests and collect evidence`. Review the operational state separately from the test result, the assertion traceability, screenshots, videos, traces, limitations, and final model interpretation.
 
 Every run is isolated under `prototype-runs/<run-id>/`; E2P does not need to write generated tests into the selected target repository.
+
+### Start a local model on an Apple Silicon Mac
+
+```sh
+brew install llama.cpp
+npm run doctor        # expected on a 16 GB M4: profile vision-qwen3-4b or vision-qwen3-8b, backend metal
+npm run model:start   # downloads the GGUF on first use and serves http://127.0.0.1:8081/v1
+```
+
+Select `Local llama.cpp` and the alias shown by `doctor` (for example `e2p-vl-qwen3-4b-16k`). On macOS the plan measures reclaimable memory with `vm_stat` and the Metal working set reported by `llama-server --list-devices`; `os.freemem()` alone reports only truly free pages and previously made a 16 GB Mac look unable to run any local model. Qwen3-VL results are a **different complete configuration** from the 27B IQ1_M October collection, not a controlled model comparison.
+
+### Function × execution matrix and reviewer agreement
+
+The evaluator-owned reference functions in `evaluation/reference-functions/` are never sent to the model. They classify each run as **attempted**, **exercised** (completed action with a cited state change) or **verified** (matching `expect()` in a generated test), without counting clicks or internal QA-goal ratios as functional coverage:
+
+```sh
+npm run evaluate:functions -- --runs-root=evaluation-results/current-20261020/runs --output=../output/function-matrix
+```
+
+For independent human adjudication of defect hypotheses, create blind templates (no model verdict) per reviewer and compute Cohen's kappa after both label them independently:
+
+```sh
+npm run evaluate:agreement -- --template=prototype-runs/<run-id> --reviewer=A --output=labels-A.json
+npm run evaluate:agreement -- --first=labels-A.json --second=labels-B.json --output=agreement.json
+```
 
 ### Reproducible result aggregation
 
@@ -206,7 +231,7 @@ Authenticated execution is intentionally more restrictive than guest execution:
 
 The normal E2P workflow is AI-first. A configured model is required for semantic inspection, live action selection, flow and criteria planning, test generation, and result interpretation.
 
-- `Local llama.cpp`: the optimized default provider, served at `http://127.0.0.1:8081/v1` with direct Vulkan offload and OpenAI-compatible APIs.
+- `Local llama.cpp`: the optimized default provider, served at `http://127.0.0.1:8081/v1` with Vulkan/CUDA offload on PCs or Metal on Apple Silicon, and OpenAI-compatible APIs. `npm run doctor` picks a profile (Qwen2.5-VL on NVIDIA; Qwen3-VL 8B/4B on Apple Silicon) from measured memory.
 - `Local Ollama`: retained only for reproducing historical benchmark conditions. The public trial used `qwen2.5vl:7b` for exploration and authorship plus `gemma3:12b` for independent review.
 - `Local LM Studio`: for a model loaded locally and exposed through LM Studio's OpenAI-compatible server.
 - `OpenRouter`, `Groq`, `Together AI`, and `Hugging Face Inference Providers`: preset hosted endpoints; the user supplies a model identifier and the required API key.
@@ -241,10 +266,10 @@ Important notes:
 6. Explore the rendered interface with the selected access mode.
 7. Review potential defects, their observed facts, inferred expectations, screenshots, and rejected candidates.
 8. Check clean-session replay status and distinguish target behavior assertions from generated-automation failures.
-8. Generate primary flows and acceptance criteria.
-9. Manually approve the desired flows and review the generated criteria.
-10. Adjust execution mode, startup command, and base URL when necessary.
-11. Generate and run the tests, then review the available artifacts.
+9. Generate primary flows and acceptance criteria.
+10. Manually approve the desired flows and review the generated criteria.
+11. Adjust execution mode, startup command, and base URL when necessary.
+12. Generate and run the tests, then review the available artifacts.
 
 ## Example Usage
 

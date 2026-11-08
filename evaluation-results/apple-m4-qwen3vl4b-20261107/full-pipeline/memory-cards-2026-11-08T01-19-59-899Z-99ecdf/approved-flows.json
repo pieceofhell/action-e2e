@@ -1,0 +1,121 @@
+[
+  {
+    "id": "flow-1-input-interaction",
+    "title": "Exercise a primary input via Question and Answer fields",
+    "summary": "Fills the Question and Answer textareas to validate input interaction and state change, confirming that primary inputs are responsive and update the UI state.",
+    "confidence": "low",
+    "sourceSignals": [
+      "Question",
+      "Answer",
+      "fill",
+      "resultingStateId: state-2",
+      "resultingStateId: state-3"
+    ],
+    "assumptions": [
+      "The 'Question' and 'Answer' inputs are primary interactive elements.",
+      "Filling them triggers state updates as observed."
+    ],
+    "evidenceStateIds": [
+      "state-2",
+      "state-3"
+    ],
+    "observedStepNumber": 2,
+    "criteria": [
+      {
+        "title": "Fill Question input with a valid question",
+        "given": "The application is on the main page with empty inputs.",
+        "when": "The 'Question' textarea is filled with 'What is the capital of France?'",
+        "then": "The UI updates to state-2, and the Question field retains the entered value."
+      },
+      {
+        "title": "Fill Answer input with a valid answer",
+        "given": "The application is on state-2 with Question filled.",
+        "when": "The 'Answer' textarea is filled with 'Paris'",
+        "then": "The UI updates to state-3, and the Answer field retains the entered value."
+      }
+    ],
+    "blueprint": {
+      "kind": "model-observed-journey",
+      "evidenceStateIds": [
+        "state-2",
+        "state-3"
+      ],
+      "baselineBlueprint": null
+    }
+  },
+  {
+    "id": "flow-2-input-commit",
+    "title": "Commit input via Enter key in Question and Answer fields",
+    "summary": "Tests input commitment behavior by pressing Enter in both fields, verifying that no state change occurs but input remains committed without triggering form submission.",
+    "confidence": "low",
+    "sourceSignals": [
+      "Press Enter in Question",
+      "Press Enter in Answer",
+      "press",
+      "resultingStateId: state-1",
+      "changed: false"
+    ],
+    "assumptions": [
+      "Pressing Enter in input fields does not submit or commit unless explicitly triggered by a button.",
+      "State remains unchanged after Enter press, indicating no implicit submission."
+    ],
+    "evidenceStateIds": [
+      "state-1"
+    ],
+    "observedStepNumber": 4,
+    "criteria": [
+      {
+        "title": "Press Enter in Question field without submitting",
+        "given": "The application is on state-3 with Question and Answer filled.",
+        "when": "Enter is pressed in the Question field",
+        "then": "The UI remains on state-1 with no change to input values or UI state."
+      },
+      {
+        "title": "Press Enter in Answer field without submitting",
+        "given": "The application is on state-1 with empty inputs.",
+        "when": "Enter is pressed in the Answer field",
+        "then": "The UI remains on state-1 with no change to input values or UI state."
+      }
+    ],
+    "blueprint": {
+      "kind": "model-observed-journey",
+      "evidenceStateIds": [
+        "state-1"
+      ],
+      "baselineBlueprint": null
+    }
+  },
+  {
+    "id": "question-state-2",
+    "title": "User fills Question field to initiate card creation",
+    "summary": "The user interacts with the 'Question' input field as the primary step in adding a new memory card, setting up the next action of committing the input.",
+    "confidence": "low",
+    "sourceSignals": [
+      "The 'Question' input field is a primary interactive element for entering content.",
+      "Filling it with a plausible question aligns with the 'input-interaction' goal and sets up the next step of committing the input."
+    ],
+    "assumptions": [
+      "The user intends to create a new memory card by entering a question.",
+      "The 'Add Card' button is expected to be triggered after input is provided."
+    ],
+    "evidenceStateIds": [
+      "state-2"
+    ],
+    "observedStepNumber": 1,
+    "criteria": [
+      {
+        "title": "Question field is targeted for input",
+        "given": "The 'Question' input field is visible and labeled as a primary interactive element.",
+        "when": "The user focuses on or fills the 'Question' field.",
+        "then": "The system prepares for the next step of committing the input, likely triggering the 'Add Card' button or similar action."
+      }
+    ],
+    "blueprint": {
+      "kind": "model-observed-journey",
+      "evidenceStateIds": [
+        "state-2"
+      ],
+      "baselineBlueprint": null
+    }
+  }
+]

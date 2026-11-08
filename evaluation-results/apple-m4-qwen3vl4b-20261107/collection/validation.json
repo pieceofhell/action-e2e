@@ -1,0 +1,1940 @@
+{
+  "protocol": {
+    "id": "diverse-contexts-v2",
+    "repetitions": 2,
+    "description": "Exploração inicial, sem roteiro ou descrição de defeito fornecidos ao modelo; avaliação posterior por trajetória e diagnóstico. v2: mesmos alvos e repetições da v1, com matriz de funções de referência congelada e com hash registrado antes da coleta.",
+    "targets": [
+      {
+        "id": "form-validator",
+        "path": "../../../candidates/vanillawebprojects/form-validator"
+      },
+      {
+        "id": "music-player",
+        "path": "../../../candidates/vanillawebprojects/music-player"
+      },
+      {
+        "id": "memory-cards",
+        "path": "../../../candidates/vanillawebprojects/memory-cards"
+      },
+      {
+        "id": "todomvc-react",
+        "path": "../../../candidates/todomvc/examples/react",
+        "runtime": {
+          "mode": "command",
+          "startCommand": "npm run serve",
+          "baseUrl": "http://127.0.0.1:7002"
+        }
+      }
+    ],
+    "referenceFunctions": "../reference-functions/diverse-contexts-v1.json"
+  },
+  "protocolSha256": "79b624c3977e5491f78e9fc0cb34922641592657ad66d5490ab485f197b11819",
+  "startedAt": "2026-11-08T00:55:59.333Z",
+  "aiConfig": {
+    "provider": "llama-cpp",
+    "endpoint": "http://127.0.0.1:8081/v1",
+    "model": "e2p-vl-qwen3-4b-16k"
+  },
+  "suppliedJourney": false,
+  "suppliedDefectDescription": false,
+  "host": {
+    "platform": "darwin",
+    "node": "v24.14.0",
+    "cpu": "Apple M4",
+    "ramBytes": 17179869184
+  },
+  "implementation": {
+    "revision": "32ebee042c2874ed97cbf989e083a7bc11917351",
+    "sourceFiles": {
+      "server.js": "b4dab3e3c419a05dd4b92cf30d82d521333ab2f9accf0be9ed3fda432406f80c",
+      "services/acceptance-contract.js": "175680c185e4e7c548c0a6ad7f49f5f660362743d65e2c89806d7bc46b9f57c4",
+      "services/agentic-explorer.js": "a386147d5471f485f90152ae355153702bc3467a8d907a26be5c5b0a9964f43e",
+      "services/ai-console.js": "e0e805cf9271f555c4d36a4317048b5a8a5fdbaca1b5dcf773cafe31886f4027",
+      "services/ai-workflows.js": "42d7d4e978c30290640aad694cc6c64f814d19b5b7a2d1a8354f147fb5a3febf",
+      "services/artifact-store.js": "c15e0a7aebf0e895568338ae3e0277a93d6769685664ef8f8f09dc2aa8916aef",
+      "services/auth-config.js": "a5d730b468c4cd4957484c23076e05742c3ec83edf1d51e27f4a987a024b675d",
+      "services/auth-session.js": "b96ebbf29022222bf978db3636ba521c0b4b80c0cc2157508793dc474e332489",
+      "services/authenticated-executor.js": "b203977a0091bfb72e759539e41354666334374c51e1741be131fc1a89c3f90d",
+      "services/batch-auto-approval.js": "a33ff9f09a2b90d27d9d0b6a983474b95a08e99b82888653e0e3e9184f270e96",
+      "services/batch-runner.js": "2da991d727ce27a3ffb82c2ecacf18b97c49f266ddddd8f86b4e2d550cb1922e",
+      "services/bug-discovery.js": "f7fe7b33f3b4db62428caff2a73984f13f83c5a7ca7027d58f1fc53aeda540b6",
+      "services/bug-evaluator.js": "5194c450cb16e03fdcb97fbe2f390989f0bf8b117f456dbea6a2db007e0bad3f",
+      "services/corpus-evaluation.js": "82621aadfc3a7cfafff555e8c9631794c2995e5732651b6d99d256444f21dc7e",
+      "services/directory-picker.js": "c07411f684df80c59acaa964c32b689b07a3c20b382707bd7b4fd53ab9bea12c",
+      "services/flow-planner.js": "5fc9561f76bc5166134828fa8a9ff3b4bd2bc607644714fe261e521ad7f5ab1b",
+      "services/function-matrix.js": "96306ddd3d23bd5994ce792a0a1cffe8cd54ed28d36a1ad79fc1049da183ace1",
+      "services/hypothesis-reproducer.js": "223362b7b37a65218234187ffc70c37dee771f828a831720bb10edd64bd3a0b7",
+      "services/insight-builder.js": "ce1584d825061f6d8dfb241644f6f8318002da7c257932a0eb8ce6afee0e6112",
+      "services/live-explorer.js": "ebe4c775fc3e69c4f1688bb724bcc2534d4c497d294282136e230c5606cb7dc0",
+      "services/llm-provider.js": "390d983129f250306fa925d5afead2b17512127103dc70c584cfa2c8ecdfb43a",
+      "services/local-access.js": "b9b6f586e2c2bc697682b06278736a60356bd1f4b26dfc03546d314db46dc056",
+      "services/operation-tracker.js": "5d6af869cd9ff5809fdf648967b52828d7702469962de3d99c58c7b260078aac",
+      "services/pipeline-policy.js": "0b4b2377d09074c1afe9a3143336bd47de404c9048e3c38a9f401cc155d12486",
+      "services/project-inspector.js": "94294a34262d8203e2d1ddffcac7bdc6a701cbd2935a35e5d348e75ddbb05a98",
+      "services/qa-coverage.js": "244d0222c57fc00b27296331dc21f68ee96c98180d519e3eb81089d04055d4c1",
+      "services/read-only-policy.js": "ee3e612b0bdc62e76d54c6b66fcc3ee67c3664a8e75ea30ac627288cee32a178",
+      "services/reviewer-agreement.js": "cd3096a79d69b3afa984ba70493283d861887372b537f9138a121429d0e2e929",
+      "services/run-history.js": "c2c4f89a5157fe8a7925ae415d8a0fcccf8124d1d1c97623cc738fcfc6585494",
+      "services/run-log.js": "270544188be6b0ef6a07e99a4ff64f653820ce4e4cb7afae3f6cdc0330edf48a",
+      "services/runtime-orchestrator.js": "8c560b25276351b92576f596a4139e08f10c07a4c356a848b2840dd916c13794",
+      "services/test-generator.js": "d694b433c1a24e91319065e3e9a7179c6b076a9ef68e3377c4ee0fe003a2a873",
+      "services/test-runner.js": "fd53f0f2cdae73abc2f72e2ee257cc7a51c057feb53e89b72883897a54d05185"
+    }
+  },
+  "targets": [
+    {
+      "id": "form-validator",
+      "projectPath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/candidates/vanillawebprojects/form-validator",
+      "revision": "adc66a181a67049fb413c8862181ddc6c45ba22b",
+      "sourceFiles": {
+        "index.html": "677af9949c922d45113c4fbae9a7d9711b1720a414014ad4065e497b1d931301",
+        "readme.md": "4a1f6656700f969c38e3c88fea389c9de12b343dd3c3c7537e00c5574c8b6114",
+        "script.js": "3c3fbcfda2eb07abba9ef94ba453c5a2dce5a51c60fb17affb3a635f744b7684",
+        "style.css": "925a786766327b908b0be0c6b400619679a76f71931092004dae8490492229a3"
+      },
+      "unchanged": true
+    },
+    {
+      "id": "music-player",
+      "projectPath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/candidates/vanillawebprojects/music-player",
+      "revision": "adc66a181a67049fb413c8862181ddc6c45ba22b",
+      "sourceFiles": {
+        "index.html": "8c7401b1d9708039f26b51162fde1469b377717fbcb57baa6b174cae91ae6b54",
+        "readme.md": "2b352cbc1cedd0a7a726a3ae72442e8eb557cadf18c6b4f2df9072f8c852bb62",
+        "script.js": "979226e785a66bd113aed59c78dbd5974c842abd925bd9dd2edb7514483fa025",
+        "style.css": "e35dba6d17e62364a11662bd92e173c4bae905cd704d061932678848e9da89b4"
+      },
+      "unchanged": true
+    },
+    {
+      "id": "memory-cards",
+      "projectPath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/candidates/vanillawebprojects/memory-cards",
+      "revision": "adc66a181a67049fb413c8862181ddc6c45ba22b",
+      "sourceFiles": {
+        "index.html": "15f3186d4a967bab093cb1b324d4b11b4155be9a195538f45fbc737ba418dc0b",
+        "readme.md": "4cec74013b3640f00d88b188e26f1d43193813c06d02bd1e156ca3ef525fccbc",
+        "script.js": "0954749554b4ac2e2e256291d63258d5193dcbb7eb6c87407c65efeb551bb30f",
+        "style.css": "d3a6a7e489a0ec0c5ffb81d4f0ef034f97112509d0b69867183dcee1377cec8b"
+      },
+      "unchanged": true
+    },
+    {
+      "id": "todomvc-react",
+      "projectPath": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/candidates/todomvc/examples/react",
+      "revision": "ff43b02e59dfa604386bb382034b2cd07c2bcd8a",
+      "sourceFiles": {
+        "package-lock.json": "aea2330afc769b02493c52c1c88b3086ad04395e69458002c93b5efd4793a694",
+        "package.json": "22919dc47cf8bfedf540d1f695997f3f6e41605b0b82408c7e900e4dd2ee5fff",
+        "public/index.html": "f0ca369f97add6e96052e7d8a24784628a88796a13fbbe230f1438cd567cf6e2",
+        "readme.md": "0c6eaf68bb3804ac7b014df1f84b2fb1bad6952ff5780e26989ec75da67d48da",
+        "src/index.js": "5f7a9a0fa40f0680b927efc306b6a5a2a780e0eae0c2b16be55ffba36ddabd7e",
+        "src/todo/app.css": "3f75fd17df69bdbec69f014ea7f81daec632d8215876ed53f43ab16172ad0c4d",
+        "src/todo/app.jsx": "9062e9b90d3ef5c292e84cc2e765797d1336373271d7c5f39944d704f98d661f",
+        "src/todo/components/footer.jsx": "36cdfa5e44e268eac560551a035cf51335883a761ef94eae4f9c20dcb48d5fdf",
+        "src/todo/components/header.jsx": "0c266389617ea90e8d0a7d25762d8023410ee3ce89ff99b8210efe3180f12b23",
+        "src/todo/components/input.jsx": "ccd8d46861920a85e27fcd903bfd6dfb5687cfb3e309c038a9939708e1647f06",
+        "src/todo/components/item.jsx": "49c48717b33728e6c001070e95ee29a290d8da9909f7cdf12000d20adc28a086",
+        "src/todo/components/main.jsx": "09164b4bb70f4162ca2d32e3961133653fd0f9934244ba21eb85477218008a28",
+        "src/todo/constants.js": "9ed0dc00e202fc727747beea153a68863f72bf399c2974132300303dad6d7325",
+        "src/todo/reducer.js": "57a59689cf665b27f2fd1172857f9bcf249475c5b6fa5b9da78e92c0f9b8cf2b",
+        "webpack.common.js": "03c261f4a4ec439362f4c0f518f3724f0596161a8f0e5dfdd94696115ce1bf3b",
+        "webpack.dev.js": "5015831b8f294acabd6de10e2bab8d5cd7322456b9c990c7e5e8235e1b7f99ee",
+        "webpack.prod.js": "ffb8d4d06570190b01a6736faedc380c0f5a811de48262f7b68b8e9ab78aa5a6"
+      },
+      "unchanged": true
+    }
+  ],
+  "attempts": [
+    {
+      "target": "form-validator",
+      "repetition": 1,
+      "runId": "form-validator-2026-11-08T00-55-59-588Z-f2fb5d",
+      "startedAt": "2026-11-08T00:55:59.589Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 7,
+        "adaptiveDurationMs": 82500,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 2,
+        "changedStates": 2,
+        "uniqueStates": 3,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "qaCoverageRatio": 0.667,
+        "qaCoverageGoals": 4,
+        "qaCoverageCovered": 2,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 2,
+          "isolatedDurationMs": 24368
+        },
+        "durationMs": 26279
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "Username",
+          "accessibleName": "Username",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "sampleuser",
+          "label": "Username",
+          "placeholder": "Enter username",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "username",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "press",
+          "name": "Press Enter in Username",
+          "accessibleName": "Username",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "Username",
+          "placeholder": "Enter username",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "username",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        }
+      ],
+      "hypotheses": [],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T00:57:45.111Z",
+      "elapsedMs": 105522
+    },
+    {
+      "target": "music-player",
+      "repetition": 1,
+      "runId": "music-player-2026-11-08T00-57-45-113Z-724262",
+      "startedAt": "2026-11-08T00:57:45.115Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 6,
+        "adaptiveDurationMs": 75000,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 2,
+        "changedStates": 1,
+        "uniqueStates": 2,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [],
+        "observedOpportunities": [
+          "product-details",
+          "navigation"
+        ],
+        "qaCoverageRatio": 0.477,
+        "qaCoverageGoals": 3,
+        "qaCoverageCovered": 1,
+        "qaCoverageHighPriorityUncovered": 1,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 3,
+          "isolatedDurationMs": 34862
+        },
+        "durationMs": 44700
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "click",
+          "name": "Interactive action-btn 0",
+          "accessibleName": "Interactive action-btn 0",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "prev",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "primary-activation"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "click",
+          "name": "Interactive action-btn action-btn-big 0",
+          "accessibleName": "Interactive action-btn action-btn-big 0",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "play",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [
+        {
+          "id": "runtime-diagnostic-8ymtqs",
+          "confirmationStatus": "runtime-diagnostic",
+          "title": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+          "objectiveDescription": "The application emitted an unhandled runtime diagnostic while rendering or executing the observed journey.",
+          "affectedFlow": "Application startup or observed interaction",
+          "preconditions": [
+            "Open the application and replay the observed journey."
+          ],
+          "reproductionSteps": [
+            "Open the application",
+            "Replay the recorded actions, if any"
+          ],
+          "observed": {
+            "result": "Cannot set properties of null (setting 'innerHTML')",
+            "facts": [
+              {
+                "statement": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+                "evidenceRefs": [
+                  "page-error-1"
+                ]
+              },
+              {
+                "statement": "The application reached an observed browser state while the diagnostic was captured.",
+                "evidenceRefs": [
+                  "state-2"
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "result": "The observed journey should not emit an unhandled runtime exception.",
+            "justification": "Unhandled runtime exceptions are direct execution evidence, not a model-inferred interface preference.",
+            "source": "runtime-diagnostic"
+          },
+          "severity": "medium",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "evidence": {
+            "screenshots": [
+              {
+                "stateId": "state-2",
+                "artifactUrl": "/artifacts/music-player-2026-11-08T00-57-45-113Z-724262/artifacts/exploration/state-2-viewport-1.jpg",
+                "fileName": "state-2-viewport-1.jpg",
+                "viewportIndex": 1
+              }
+            ],
+            "executedActions": [],
+            "consoleErrors": [],
+            "pageErrors": [
+              {
+                "id": "page-error-1",
+                "message": "Cannot set properties of null (setting 'innerHTML')",
+                "url": "http://127.0.0.1:61964/"
+              }
+            ],
+            "nativeDialogs": []
+          },
+          "requiresHumanValidation": true,
+          "criticReview": {
+            "verdict": "retain",
+            "reason": "Retained deterministically because an actionable unhandled runtime diagnostic was captured directly by the browser.",
+            "confidence": "high",
+            "evidenceAssessment": "supports-anomaly",
+            "actionExecuted": true,
+            "expectationGrounded": true,
+            "evidenceSufficient": true,
+            "expectationSatisfied": false,
+            "observedOutcome": "Cannot set properties of null (setting 'innerHTML')"
+          },
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 1,
+            "stateSimilarity": 1,
+            "citedStateId": "state-2",
+            "replayDiagnostics": [
+              "Cannot set properties of null (setting 'innerHTML')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-8ymtqs.png",
+              "artifactUrl": "/artifacts/music-player-2026-11-08T00-57-45-113Z-724262/artifacts/exploration/reproduction/runtime-diagnostic-8ymtqs.png"
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [
+          {
+            "message": "Cannot set properties of null (setting 'innerHTML')",
+            "url": "http://127.0.0.1:61964/"
+          }
+        ],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T00:59:33.917Z",
+      "elapsedMs": 108802
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "runId": "memory-cards-2026-11-08T00-59-33-922Z-08c653",
+      "startedAt": "2026-11-08T00:59:33.925Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 12,
+        "adaptiveDurationMs": 120000,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 6,
+        "changedStates": 3,
+        "uniqueStates": 3,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details",
+          "navigation"
+        ],
+        "qaCoverageRatio": 0.721,
+        "qaCoverageGoals": 6,
+        "qaCoverageCovered": 3,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 6,
+          "isolatedDurationMs": 92374
+        },
+        "durationMs": 123347
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "Question",
+          "accessibleName": "Question",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "What is the capital of France?",
+          "label": "Question",
+          "placeholder": "Enter question...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "question",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "fill",
+          "name": "Answer",
+          "accessibleName": "Answer",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "Paris",
+          "label": "Answer",
+          "placeholder": "Enter Answer...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "answer",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 4,
+          "kind": "click",
+          "name": "Clear Cards",
+          "accessibleName": "Clear Cards",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "clear",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "primary-activation"
+          ]
+        },
+        {
+          "step": 5,
+          "kind": "press",
+          "name": "Press Enter in Question",
+          "accessibleName": "Question",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "Question",
+          "placeholder": "Enter question...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "question",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 6,
+          "kind": "reload",
+          "name": "Reload the current page and compare persisted state",
+          "accessibleName": "Reload the current page and compare persisted state",
+          "context": "Persistence coverage probe",
+          "role": "browser",
+          "tagName": "",
+          "nameAttribute": "",
+          "tagIndex": -1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "persistence-reload"
+          ]
+        },
+        {
+          "step": 7,
+          "kind": "click",
+          "name": "Add New Card",
+          "accessibleName": "Add New Card",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "show",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:02:50.801Z",
+      "elapsedMs": 196876
+    },
+    {
+      "target": "todomvc-react",
+      "repetition": 1,
+      "runId": "react-2026-11-08T01-02-50-803Z-c229fe",
+      "startedAt": "2026-11-08T01:02:50.805Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 11,
+        "adaptiveDurationMs": 112500,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 5,
+        "changedStates": 3,
+        "uniqueStates": 4,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "qaCoverageRatio": 0.733,
+        "qaCoverageGoals": 4,
+        "qaCoverageCovered": 2,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 5,
+          "isolatedDurationMs": 72000
+        },
+        "durationMs": 77570
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "New Todo Input",
+          "accessibleName": "New Todo Input",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "Sample Todo",
+          "label": "New Todo Input",
+          "placeholder": "What needs to be done?",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "text-input",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "press",
+          "name": "Press Enter in New Todo Input",
+          "accessibleName": "New Todo Input",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "New Todo Input",
+          "placeholder": "What needs to be done?",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "text-input",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 3,
+          "kind": "click",
+          "name": "Active",
+          "accessibleName": "Active",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 4,
+          "kind": "click",
+          "name": "All",
+          "accessibleName": "All",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 5,
+          "kind": "click",
+          "name": "Completed",
+          "accessibleName": "Completed",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 2,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [],
+      "diagnostics": {
+        "consoleErrors": [
+          {
+            "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "url": "http://127.0.0.1:7002/"
+          }
+        ],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:06:19.295Z",
+      "elapsedMs": 208490
+    },
+    {
+      "target": "form-validator",
+      "repetition": 2,
+      "runId": "form-validator-2026-11-08T01-06-19-304Z-86db46",
+      "startedAt": "2026-11-08T01:06:19.306Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 7,
+        "adaptiveDurationMs": 82500,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 2,
+        "changedStates": 2,
+        "uniqueStates": 3,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "qaCoverageRatio": 0.667,
+        "qaCoverageGoals": 4,
+        "qaCoverageCovered": 2,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 2,
+          "isolatedDurationMs": 16444
+        },
+        "durationMs": 18315
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "Username",
+          "accessibleName": "Username",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "sampleuser",
+          "label": "Username",
+          "placeholder": "Enter username",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "username",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "press",
+          "name": "Press Enter in Username",
+          "accessibleName": "Username",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "Username",
+          "placeholder": "Enter username",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "username",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        }
+      ],
+      "hypotheses": [
+        {
+          "id": "bug-hypothesis-1uobm3i",
+          "confirmationStatus": "hypothesis",
+          "title": "Username field does not validate or update state after input",
+          "objectiveDescription": "Verify that entering a value into the Username field triggers any validation or state change that would indicate successful input or error.",
+          "affectedFlow": "User input validation and state transition after field interaction",
+          "preconditions": [
+            "The form is initially empty and unvalidated."
+          ],
+          "reproductionSteps": [
+            "Step 1: Fill the Username field with 'sampleuser'.",
+            "Step 2: Press Enter in the Username field."
+          ],
+          "triggerStep": 2,
+          "triggerActionName": "Press Enter in Username",
+          "observed": {
+            "result": "The Username field displays 'sampleuser' but no validation error or success indicator appears. The form remains in the same visual state as before the interaction.",
+            "facts": [
+              {
+                "statement": "After filling the Username field with 'sampleuser', the form state transitions to state-2, which shows the same visual layout without any error indicators.",
+                "evidenceRefs": [
+                  "state-2"
+                ]
+              },
+              {
+                "statement": "After pressing Enter in the Username field, the form state transitions to state-3, which shows error messages for Email, Password, and Confirm Password fields, but the Username field is still filled and shows no validation indicator.",
+                "evidenceRefs": [
+                  "state-3"
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "result": "The Username field should either show a success indicator or trigger validation that would update the form state to reflect a valid input.",
+            "justification": "The project documentation states that the form should validate required fields and display error messages under specific inputs. The Username field is marked as required, so its validation should be triggered upon interaction.",
+            "source": "project-documentation"
+          },
+          "severity": "medium",
+          "confidence": "medium",
+          "evidenceStateIds": [
+            "state-2",
+            "state-3"
+          ],
+          "evidence": {
+            "screenshots": [
+              {
+                "stateId": "state-2",
+                "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/state-2-viewport-1.jpg",
+                "fileName": "state-2-viewport-1.jpg",
+                "viewportIndex": 1
+              },
+              {
+                "stateId": "state-3",
+                "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/state-3-viewport-1.jpg",
+                "fileName": "state-3-viewport-1.jpg",
+                "viewportIndex": 1
+              }
+            ],
+            "executedActions": [
+              {
+                "step": 1,
+                "action": {
+                  "kind": "fill",
+                  "name": "Username",
+                  "accessibleName": "Username",
+                  "context": "",
+                  "role": "input",
+                  "tagName": "input",
+                  "nameAttribute": "",
+                  "tagIndex": 0,
+                  "value": "sampleuser",
+                  "label": "Username",
+                  "placeholder": "Enter username",
+                  "inputType": "text",
+                  "options": [],
+                  "targetBlank": false,
+                  "testId": "",
+                  "domId": "username",
+                  "visualSelector": "",
+                  "visualIndex": -1,
+                  "accessibleIndex": 0,
+                  "accessibleCount": 1,
+                  "minLength": -1,
+                  "boundaryProbe": false,
+                  "durationMs": 0,
+                  "coverageGoalIds": [
+                    "input-interaction",
+                    "input-commit"
+                  ]
+                },
+                "changed": true
+              },
+              {
+                "step": 2,
+                "action": {
+                  "kind": "press",
+                  "name": "Press Enter in Username",
+                  "accessibleName": "Username",
+                  "context": "",
+                  "role": "input",
+                  "tagName": "input",
+                  "nameAttribute": "",
+                  "tagIndex": 0,
+                  "value": "",
+                  "label": "Username",
+                  "placeholder": "Enter username",
+                  "inputType": "text",
+                  "options": [],
+                  "targetBlank": false,
+                  "testId": "",
+                  "domId": "username",
+                  "visualSelector": "",
+                  "visualIndex": -1,
+                  "accessibleIndex": 0,
+                  "accessibleCount": 1,
+                  "minLength": -1,
+                  "boundaryProbe": false,
+                  "durationMs": 0,
+                  "coverageGoalIds": [
+                    "input-commit"
+                  ]
+                },
+                "changed": true
+              }
+            ],
+            "consoleErrors": [],
+            "pageErrors": [],
+            "nativeDialogs": []
+          },
+          "requiresHumanValidation": true,
+          "criticReview": {
+            "verdict": "retain",
+            "reason": "The action of pressing Enter in the Username field was executed, and the expected behavior — triggering validation or state change — was not observed. The form's visual state remains unchanged, indicating that the validation logic for the Username field is not being triggered or processed after the input commit. This contradicts the documented requirement that required fields should be validated and display error messages or success indicators.",
+            "confidence": "high",
+            "evidenceAssessment": "supports-anomaly",
+            "actionExecuted": true,
+            "expectationGrounded": true,
+            "evidenceSufficient": true,
+            "expectationSatisfied": false,
+            "observedOutcome": "The Username field displays 'sampleuser' but no validation error or success indicator appears. The form remains in the same visual state as before the interaction."
+          },
+          "reproduction": {
+            "status": "observation-reproduced",
+            "independentSession": true,
+            "replayedActions": 2,
+            "stateSimilarity": 1,
+            "citedStateId": "state-3",
+            "screenshot": {
+              "fileName": "reproduction/bug-hypothesis-1uobm3i.png",
+              "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/reproduction/bug-hypothesis-1uobm3i.png"
+            },
+            "replayNativeDialogs": [],
+            "interpretation": "The cited interface state was reached again in a clean session. This reproduces the observation, not the inferred requirement."
+          }
+        },
+        {
+          "id": "bug-hypothesis-915scs",
+          "confirmationStatus": "hypothesis",
+          "title": "Form validation triggered by Enter key in Username field does not align with documented behavior",
+          "objectiveDescription": "Verify that pressing Enter in the Username field triggers validation or submission as per documented capabilities.",
+          "affectedFlow": "User interaction with form fields and validation response",
+          "preconditions": [
+            "Username field is pre-filled with 'sampleuser'",
+            "Form validation functions are implemented as per documentation"
+          ],
+          "reproductionSteps": [
+            "Press Enter in the Username field"
+          ],
+          "triggerStep": 2,
+          "triggerActionName": "Press Enter in Username",
+          "observed": {
+            "result": "Form validation triggers, displaying errors for Email, Password, and Confirm Password fields, despite no explicit submission action being taken.",
+            "facts": [
+              {
+                "statement": "After pressing Enter in Username, the form displays validation errors for Email, Password, and Confirm Password fields.",
+                "evidenceRefs": [
+                  "state-3"
+                ]
+              },
+              {
+                "statement": "The Username field is pre-filled with 'sampleuser' in state-2, indicating it was not empty.",
+                "evidenceRefs": [
+                  "state-2"
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "result": "Validation should not trigger unless a submit action is explicitly performed, as pressing Enter in a non-submit field should not initiate validation.",
+            "justification": "The project documentation states client-side validation is triggered by specific functions (e.g., checkRequired, checkLength), not by user input alone. Pressing Enter should not be a trigger for validation unless explicitly coded to do so.",
+            "source": "project-documentation"
+          },
+          "severity": "medium",
+          "confidence": "medium",
+          "evidenceStateIds": [
+            "state-2",
+            "state-3"
+          ],
+          "evidence": {
+            "screenshots": [
+              {
+                "stateId": "state-2",
+                "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/state-2-viewport-1.jpg",
+                "fileName": "state-2-viewport-1.jpg",
+                "viewportIndex": 1
+              },
+              {
+                "stateId": "state-3",
+                "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/state-3-viewport-1.jpg",
+                "fileName": "state-3-viewport-1.jpg",
+                "viewportIndex": 1
+              }
+            ],
+            "executedActions": [
+              {
+                "step": 1,
+                "action": {
+                  "kind": "fill",
+                  "name": "Username",
+                  "accessibleName": "Username",
+                  "context": "",
+                  "role": "input",
+                  "tagName": "input",
+                  "nameAttribute": "",
+                  "tagIndex": 0,
+                  "value": "sampleuser",
+                  "label": "Username",
+                  "placeholder": "Enter username",
+                  "inputType": "text",
+                  "options": [],
+                  "targetBlank": false,
+                  "testId": "",
+                  "domId": "username",
+                  "visualSelector": "",
+                  "visualIndex": -1,
+                  "accessibleIndex": 0,
+                  "accessibleCount": 1,
+                  "minLength": -1,
+                  "boundaryProbe": false,
+                  "durationMs": 0,
+                  "coverageGoalIds": [
+                    "input-interaction",
+                    "input-commit"
+                  ]
+                },
+                "changed": true
+              },
+              {
+                "step": 2,
+                "action": {
+                  "kind": "press",
+                  "name": "Press Enter in Username",
+                  "accessibleName": "Username",
+                  "context": "",
+                  "role": "input",
+                  "tagName": "input",
+                  "nameAttribute": "",
+                  "tagIndex": 0,
+                  "value": "",
+                  "label": "Username",
+                  "placeholder": "Enter username",
+                  "inputType": "text",
+                  "options": [],
+                  "targetBlank": false,
+                  "testId": "",
+                  "domId": "username",
+                  "visualSelector": "",
+                  "visualIndex": -1,
+                  "accessibleIndex": 0,
+                  "accessibleCount": 1,
+                  "minLength": -1,
+                  "boundaryProbe": false,
+                  "durationMs": 0,
+                  "coverageGoalIds": [
+                    "input-commit"
+                  ]
+                },
+                "changed": true
+              }
+            ],
+            "consoleErrors": [],
+            "pageErrors": [],
+            "nativeDialogs": []
+          },
+          "requiresHumanValidation": true,
+          "criticReview": {
+            "verdict": "retain",
+            "reason": "The hypothesis claims that pressing Enter in the Username field should not trigger validation, as per documented capabilities. However, the observed outcome shows validation errors for all fields, indicating that the form's validation logic is being triggered by the Enter key press, which contradicts the expectation that validation should only occur on explicit submission or via specific functions like checkRequired(). The evidence from state-2 and state-3 confirms this behavior, and the executed action (pressing Enter) is clearly recorded. The project documentation explicitly states that validation is triggered by specific functions, not by user input alone, making the observed behavior a deviation from expected behavior.",
+            "confidence": "high",
+            "evidenceAssessment": "supports-anomaly",
+            "actionExecuted": true,
+            "expectationGrounded": true,
+            "evidenceSufficient": true,
+            "expectationSatisfied": false,
+            "observedOutcome": "Form validation triggers, displaying errors for Email, Password, and Confirm Password fields, despite no explicit submission action being taken."
+          },
+          "reproduction": {
+            "status": "observation-reproduced",
+            "independentSession": true,
+            "replayedActions": 2,
+            "stateSimilarity": 1,
+            "citedStateId": "state-3",
+            "screenshot": {
+              "fileName": "reproduction/bug-hypothesis-915scs.png",
+              "artifactUrl": "/artifacts/form-validator-2026-11-08T01-06-19-304Z-86db46/artifacts/exploration/reproduction/bug-hypothesis-915scs.png"
+            },
+            "replayNativeDialogs": [],
+            "interpretation": "The cited interface state was reached again in a clean session. This reproduces the observation, not the inferred requirement."
+          }
+        }
+      ],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:09:00.118Z",
+      "elapsedMs": 160812
+    },
+    {
+      "target": "music-player",
+      "repetition": 2,
+      "runId": "music-player-2026-11-08T01-09-00-125Z-b1896c",
+      "startedAt": "2026-11-08T01:09:00.127Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 6,
+        "adaptiveDurationMs": 75000,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 2,
+        "changedStates": 1,
+        "uniqueStates": 2,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [],
+        "observedOpportunities": [
+          "product-details",
+          "navigation"
+        ],
+        "qaCoverageRatio": 0.477,
+        "qaCoverageGoals": 3,
+        "qaCoverageCovered": 1,
+        "qaCoverageHighPriorityUncovered": 1,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 3,
+          "isolatedDurationMs": 39995
+        },
+        "durationMs": 49819
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "click",
+          "name": "Interactive action-btn 0",
+          "accessibleName": "Interactive action-btn 0",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "prev",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "primary-activation"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "click",
+          "name": "Interactive action-btn action-btn-big 0",
+          "accessibleName": "Interactive action-btn action-btn-big 0",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "play",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [
+        {
+          "id": "runtime-diagnostic-8ymtqs",
+          "confirmationStatus": "runtime-diagnostic",
+          "title": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+          "objectiveDescription": "The application emitted an unhandled runtime diagnostic while rendering or executing the observed journey.",
+          "affectedFlow": "Application startup or observed interaction",
+          "preconditions": [
+            "Open the application and replay the observed journey."
+          ],
+          "reproductionSteps": [
+            "Open the application",
+            "Replay the recorded actions, if any"
+          ],
+          "observed": {
+            "result": "Cannot set properties of null (setting 'innerHTML')",
+            "facts": [
+              {
+                "statement": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+                "evidenceRefs": [
+                  "page-error-1"
+                ]
+              },
+              {
+                "statement": "The application reached an observed browser state while the diagnostic was captured.",
+                "evidenceRefs": [
+                  "state-2"
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "result": "The observed journey should not emit an unhandled runtime exception.",
+            "justification": "Unhandled runtime exceptions are direct execution evidence, not a model-inferred interface preference.",
+            "source": "runtime-diagnostic"
+          },
+          "severity": "medium",
+          "confidence": "high",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "evidence": {
+            "screenshots": [
+              {
+                "stateId": "state-2",
+                "artifactUrl": "/artifacts/music-player-2026-11-08T01-09-00-125Z-b1896c/artifacts/exploration/state-2-viewport-1.jpg",
+                "fileName": "state-2-viewport-1.jpg",
+                "viewportIndex": 1
+              }
+            ],
+            "executedActions": [],
+            "consoleErrors": [],
+            "pageErrors": [
+              {
+                "id": "page-error-1",
+                "message": "Cannot set properties of null (setting 'innerHTML')",
+                "url": "http://127.0.0.1:62205/"
+              }
+            ],
+            "nativeDialogs": []
+          },
+          "requiresHumanValidation": true,
+          "criticReview": {
+            "verdict": "retain",
+            "reason": "Retained deterministically because an actionable unhandled runtime diagnostic was captured directly by the browser.",
+            "confidence": "high",
+            "evidenceAssessment": "supports-anomaly",
+            "actionExecuted": true,
+            "expectationGrounded": true,
+            "evidenceSufficient": true,
+            "expectationSatisfied": false,
+            "observedOutcome": "Cannot set properties of null (setting 'innerHTML')"
+          },
+          "reproduction": {
+            "status": "runtime-diagnostic-reproduced",
+            "independentSession": true,
+            "replayedActions": 1,
+            "stateSimilarity": 1,
+            "citedStateId": "state-2",
+            "replayDiagnostics": [
+              "Cannot set properties of null (setting 'innerHTML')"
+            ],
+            "replayNativeDialogs": [],
+            "screenshot": {
+              "fileName": "reproduction/runtime-diagnostic-8ymtqs.png",
+              "artifactUrl": "/artifacts/music-player-2026-11-08T01-09-00-125Z-b1896c/artifacts/exploration/reproduction/runtime-diagnostic-8ymtqs.png"
+            },
+            "interpretation": "The same runtime diagnostic signature was captured in an independent browser session."
+          }
+        }
+      ],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [
+          {
+            "message": "Cannot set properties of null (setting 'innerHTML')",
+            "url": "http://127.0.0.1:62205/"
+          }
+        ],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:10:54.229Z",
+      "elapsedMs": 114102
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "runId": "memory-cards-2026-11-08T01-10-54-237Z-e478bc",
+      "startedAt": "2026-11-08T01:10:54.239Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 12,
+        "adaptiveDurationMs": 120000,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 8,
+        "changedStates": 3,
+        "uniqueStates": 3,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details",
+          "navigation"
+        ],
+        "qaCoverageRatio": 0.721,
+        "qaCoverageGoals": 6,
+        "qaCoverageCovered": 3,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 10,
+          "isolatedDurationMs": 115388
+        },
+        "durationMs": 138031
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "Question",
+          "accessibleName": "Question",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "What is the capital of France?",
+          "label": "Question",
+          "placeholder": "Enter question...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "question",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "fill",
+          "name": "Answer",
+          "accessibleName": "Answer",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "Paris",
+          "label": "Answer",
+          "placeholder": "Enter Answer...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "answer",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 4,
+          "kind": "click",
+          "name": "Clear Cards",
+          "accessibleName": "Clear Cards",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "clear",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "primary-activation"
+          ]
+        },
+        {
+          "step": 5,
+          "kind": "press",
+          "name": "Press Enter in Question",
+          "accessibleName": "Question",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "Question",
+          "placeholder": "Enter question...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "question",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 6,
+          "kind": "reload",
+          "name": "Reload the current page and compare persisted state",
+          "accessibleName": "Reload the current page and compare persisted state",
+          "context": "Persistence coverage probe",
+          "role": "browser",
+          "tagName": "",
+          "nameAttribute": "",
+          "tagIndex": -1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "persistence-reload"
+          ]
+        },
+        {
+          "step": 7,
+          "kind": "click",
+          "name": "Add New Card",
+          "accessibleName": "Add New Card",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "show",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 9,
+          "kind": "click",
+          "name": "Interactive btn btn-small btn-ghost 0",
+          "accessibleName": "Interactive btn btn-small btn-ghost 0",
+          "context": "",
+          "role": "button",
+          "tagName": "button",
+          "nameAttribute": "",
+          "tagIndex": 4,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "button",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "hide",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": -1,
+          "accessibleCount": 0,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 10,
+          "kind": "press",
+          "name": "Press Enter in Answer",
+          "accessibleName": "Answer",
+          "context": "",
+          "role": "input",
+          "tagName": "textarea",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "Answer",
+          "placeholder": "Enter Answer...",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "answer",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [],
+      "diagnostics": {
+        "consoleErrors": [],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:14:53.139Z",
+      "elapsedMs": 238900
+    },
+    {
+      "target": "todomvc-react",
+      "repetition": 2,
+      "runId": "react-2026-11-08T01-14-53-148Z-d24578",
+      "startedAt": "2026-11-08T01:14:53.151Z",
+      "status": "completed",
+      "metrics": {
+        "adaptiveStepLimit": 11,
+        "adaptiveDurationMs": 112500,
+        "hardStepLimit": 20,
+        "hardDurationMs": 180000,
+        "completedActions": 5,
+        "changedStates": 3,
+        "uniqueStates": 4,
+        "invalidDecisions": 0,
+        "failedActions": 0,
+        "coverageAreas": [
+          "product-details",
+          "search-filter"
+        ],
+        "observedOpportunities": [
+          "product-details"
+        ],
+        "qaCoverageRatio": 0.733,
+        "qaCoverageGoals": 4,
+        "qaCoverageCovered": 2,
+        "qaCoverageHighPriorityUncovered": 0,
+        "modelThinkTimeIsolation": {
+          "enabled": true,
+          "pauseCount": 5,
+          "isolatedDurationMs": 43526
+        },
+        "durationMs": 49085
+      },
+      "actions": [
+        {
+          "step": 1,
+          "kind": "fill",
+          "name": "New Todo Input",
+          "accessibleName": "New Todo Input",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "Sample Todo",
+          "label": "New Todo Input",
+          "placeholder": "What needs to be done?",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "text-input",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-interaction",
+            "input-commit"
+          ]
+        },
+        {
+          "step": 2,
+          "kind": "press",
+          "name": "Press Enter in New Todo Input",
+          "accessibleName": "New Todo Input",
+          "context": "",
+          "role": "input",
+          "tagName": "input",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "New Todo Input",
+          "placeholder": "What needs to be done?",
+          "inputType": "text",
+          "options": [],
+          "targetBlank": false,
+          "testId": "text-input",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": [
+            "input-commit"
+          ]
+        },
+        {
+          "step": 3,
+          "kind": "click",
+          "name": "Active",
+          "accessibleName": "Active",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 1,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 4,
+          "kind": "click",
+          "name": "All",
+          "accessibleName": "All",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 0,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        },
+        {
+          "step": 5,
+          "kind": "click",
+          "name": "Completed",
+          "accessibleName": "Completed",
+          "context": "",
+          "role": "link",
+          "tagName": "a",
+          "nameAttribute": "",
+          "tagIndex": 2,
+          "value": "",
+          "label": "",
+          "placeholder": "",
+          "inputType": "a",
+          "options": [],
+          "targetBlank": false,
+          "testId": "",
+          "domId": "",
+          "visualSelector": "",
+          "visualIndex": -1,
+          "accessibleIndex": 0,
+          "accessibleCount": 1,
+          "minLength": -1,
+          "boundaryProbe": false,
+          "durationMs": 0,
+          "coverageGoalIds": []
+        }
+      ],
+      "hypotheses": [],
+      "diagnostics": {
+        "consoleErrors": [
+          {
+            "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "url": "http://127.0.0.1:7002/"
+          }
+        ],
+        "pageErrors": [],
+        "nativeDialogs": []
+      },
+      "error": null,
+      "completedAt": "2026-11-08T01:17:27.587Z",
+      "elapsedMs": 154436
+    }
+  ],
+  "referenceFunctions": {
+    "path": "evaluation/reference-functions/diverse-contexts-v1.json",
+    "sha256": "d08ddef6c99edee678e7844806706e1703e0c6ec2cbb9c309f76348595f3b012",
+    "suppliedToModel": false
+  },
+  "sourceUnchanged": true,
+  "targetsUnchanged": true,
+  "completedAt": "2026-11-08T01:17:27.646Z"
+}

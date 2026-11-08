@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-08T01:27:02.503Z",
+  "reference": {
+    "id": "diverse-contexts-functions-v1",
+    "path": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/evaluation/reference-functions/diverse-contexts-v1.json",
+    "definedAt": "2026-11-07",
+    "provenance": "Funções definidas a partir do código-fonte e da finalidade dos alvos (revisões fixadas por scripts/setup-evaluation-targets.cjs). Para a coleta de 20/10/2026 esta matriz é uma auditoria retroativa: a definição é posterior à coleta. Para coletas iniciadas depois de definedAt, ela é a referência congelada.",
+    "levels": {
+      "attempted": "Alguma ação da trajetória corresponde ao controle da função, em qualquer status.",
+      "exercised": "Ação correspondente concluída com mudança de estado registrada (ou, quando requireChange=false, apenas concluída) e, se houver, efeito textual observado no estado posterior.",
+      "verified": "Um teste gerado no mesmo run contém expect() compatível com a asserção de referência. Sem testes gerados, o nível fica como não disponível."
+    }
+  },
+  "runsRoot": "/Users/4081dtidigital/Library/Application Support/Claude/scratch-workspaces/f1592a2e-6bd7-41a4-a382-cea65acfc663/d42a66ac-ec95-42ae-94dc-8194a7daeb96/scratch-2026-11-08-06f7a1/action-e2e/prototype-runs",
+  "runs": [
+    {
+      "runId": "memory-cards-2026-11-08T01-19-59-899Z-99ecdf",
+      "target": "memory-cards",
+      "model": "e2p-vl-qwen3-4b-16k",
+      "status": "completed",
+      "actions": 10,
+      "testsAvailable": true,
+      "totals": {
+        "functions": 6,
+        "attempted": 4,
+        "exercised": 2,
+        "verified": 0
+      },
+      "functions": [
+        {
+          "id": "open-form",
+          "label": "Abrir formulário de cartão",
+          "level": "attempted",
+          "attemptedSteps": [
+            7
+          ],
+          "exercisedSteps": [],
+          "verified": false,
+          "verifiedBy": []
+        },
+        {
+          "id": "create-card",
+          "label": "Criar cartão (pergunta + resposta + adicionar)",
+          "level": "attempted",
+          "attemptedSteps": [
+            3
+          ],
+          "exercisedSteps": [],
+          "verified": false,
+          "verifiedBy": []
+        },
+        {
+          "id": "flip-card",
+          "label": "Virar cartão para ver a resposta",
+          "level": "not-attempted",
+          "attemptedSteps": [],
+          "exercisedSteps": [],
+          "verified": false,
+          "verifiedBy": []
+        },
+        {
+          "id": "navigate-cards",
+          "label": "Navegar entre cartões",
+          "level": "not-attempted",
+          "attemptedSteps": [],
+          "exercisedSteps": [],
+          "verified": false,
+          "verifiedBy": []
+        },
+        {
+          "id": "clear-cards",
+          "label": "Limpar coleção",
+          "level": "exercised",
+          "attemptedSteps": [
+            4
+          ],
+          "exercisedSteps": [
+            {
+              "step": 4,
+              "beforeStateId": "state-3",
+              "afterStateId": "state-1"
+            }
+          ],
+          "verified": false,
+          "verifiedBy": []
+        },
+        {
+          "id": "persist-reload",
+          "label": "Restaurar cartões após recarga",
+          "level": "exercised",
+          "attemptedSteps": [
+            6
+          ],
+          "exercisedSteps": [
+            {
+              "step": 6,
+              "beforeStateId": "state-1",
+              "afterStateId": "state-1"
+            }
+          ],
+          "verified": false,
+          "verifiedBy": []
+        }
+      ]
+    }
+  ],
+  "skipped": [],
+  "targets": [
+    {
+      "target": "form-validator",
+      "runs": 0,
+      "functions": [
+        {
+          "id": "validate-username",
+          "label": "Validar nome de usuário",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "validate-email",
+          "label": "Validar e-mail",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "validate-password",
+          "label": "Validar comprimento da senha",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "confirm-password",
+          "label": "Conferir confirmação de senha",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "submit",
+          "label": "Submeter e exibir mensagens",
+          "levels": [],
+          "exercisedIn": 0
+        }
+      ]
+    },
+    {
+      "target": "music-player",
+      "runs": 0,
+      "functions": [
+        {
+          "id": "play-pause",
+          "label": "Reproduzir/pausar",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "next-track",
+          "label": "Avançar faixa",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "previous-track",
+          "label": "Voltar faixa",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "seek",
+          "label": "Buscar posição na barra de progresso",
+          "levels": [],
+          "exercisedIn": 0
+        }
+      ]
+    },
+    {
+      "target": "memory-cards",
+      "runs": 1,
+      "functions": [
+        {
+          "id": "open-form",
+          "label": "Abrir formulário de cartão",
+          "levels": [
+            "attempted"
+          ],
+          "exercisedIn": 0
+        },
+        {
+          "id": "create-card",
+          "label": "Criar cartão (pergunta + resposta + adicionar)",
+          "levels": [
+            "attempted"
+          ],
+          "exercisedIn": 0
+        },
+        {
+          "id": "flip-card",
+          "label": "Virar cartão para ver a resposta",
+          "levels": [
+            "not-attempted"
+          ],
+          "exercisedIn": 0
+        },
+        {
+          "id": "navigate-cards",
+          "label": "Navegar entre cartões",
+          "levels": [
+            "not-attempted"
+          ],
+          "exercisedIn": 0
+        },
+        {
+          "id": "clear-cards",
+          "label": "Limpar coleção",
+          "levels": [
+            "exercised"
+          ],
+          "exercisedIn": 1
+        },
+        {
+          "id": "persist-reload",
+          "label": "Restaurar cartões após recarga",
+          "levels": [
+            "exercised"
+          ],
+          "exercisedIn": 1
+        }
+      ]
+    },
+    {
+      "target": "todomvc-react",
+      "runs": 0,
+      "functions": [
+        {
+          "id": "create",
+          "label": "Criar tarefa",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "complete",
+          "label": "Concluir tarefa",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "toggle-all",
+          "label": "Concluir todas",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "delete",
+          "label": "Excluir tarefa",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "filter",
+          "label": "Filtrar Active/Completed",
+          "levels": [],
+          "exercisedIn": 0
+        },
+        {
+          "id": "clear-completed",
+          "label": "Limpar concluídas",
+          "levels": [],
+          "exercisedIn": 0
+        }
+      ]
+    }
+  ]
+}

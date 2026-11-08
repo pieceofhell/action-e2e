@@ -111,3 +111,61 @@ test('Linux unit starts the supervisor directly with reboot/restart and process-
   assert.ok(unit.includes('Restart=on-failure')); assert.ok(!unit.includes('User=root'));
   assert.equal(quote('/tmp/100%'), '"/tmp/100%%"'); assert.throws(() => quote('/tmp/a\nb'), /line breaks/);
 });
+
+// Apple Silicon / Metal (unified memory)
+const { availableDarwinMemory, parseMetalDevices } = require('../scripts/lib/runtime-profile.cjs');
+const VM_STAT = `Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                                     5674.
+Pages active:                                 220723.
+Pages inactive:                               210605.
+Pages speculative:                              9366.
+Pages wired down:                             188379.
+Pages purgeable:                                   7.
+`;
+const mac = (ramMiB = 16384, availableRamMiB = 9000) => ({ platform: 'darwin', arch: 'arm64', cpu: 'Apple M4', logicalCpus: 10,
+  ramMiB, availableRamMiB, gpus: [], warnings: [], unifiedMemory: { backend: 'metal', estimatedWorkingSetMiB: Math.floor(ramMiB * 0.66), source: 'estimate' } });
+const metalRuntime = (freeMiB = 12123) => ({ available: true, cuda: false, metal: [{ id: 'MTL0', name: 'Apple M4', totalMiB: 12124, freeMiB }] });
+
+test('macOS available memory counts reclaimable inactive and speculative pages, not only free pages', () => {
+  assert.equal(availableDarwinMemory(VM_STAT, 1), Math.floor((5674 + 210605 + 9366) * 16384 / 1048576));
+  assert.equal(availableDarwinMemory('garbage', 77), 77);
+});
+
+test('Metal devices are parsed from llama.cpp inventory', () => {
+  assert.deepEqual(parseMetalDevices('Available devices:\n  BLAS: Accelerate (0 MiB, 0 MiB free)\n  MTL0: Apple M4 (12124 MiB, 12123 MiB free)'),
+    [{ id: 'MTL0', name: 'Apple M4', totalMiB: 12124, freeMiB: 12123 }]);
+  assert.deepEqual(parseMetalDevices('CUDA0: NVIDIA (12288 MiB, 11000 MiB free)'), []);
+});
+
+test('hardware detection on Apple Silicon uses vm_stat and does not call nvidia-smi', () => {
+  const calls = [];
+  const machine = detectHardware({ platform: 'darwin', arch: 'arm64', env: {}, execute: (command) => { calls.push(command); return VM_STAT; } });
+  assert.deepEqual(calls, ['vm_stat']);
+  assert.equal(machine.unifiedMemory.backend, 'metal'); assert.deepEqual(machine.warnings, []);
+  assert.ok(machine.availableRamMiB > 3000);
+});
+
+test('16GB Apple Silicon selects a Qwen3-VL Metal profile from reclaimable memory', () => {
+  const roomy = buildPlan({ hardware: mac(16384, 9000), runtime: metalRuntime() });
+  assert.equal(roomy.profile, 'vision-qwen3-8b'); assert.equal(roomy.backend, 'metal'); assert.equal(roomy.vision, true);
+  assert.equal(roomy.args[roomy.args.indexOf('--device') + 1], 'MTL0');
+  assert.equal(roomy.args[roomy.args.indexOf('--n-gpu-layers') + 1], 'all');
+  assert.deepEqual(roomy.modelEnvironment, {});
+  const busy = buildPlan({ hardware: mac(16384, 3300), runtime: metalRuntime() });
+  assert.equal(busy.profile, 'vision-qwen3-4b');
+  const tight = buildPlan({ hardware: mac(8192, 2600), runtime: metalRuntime(5300) });
+  assert.equal(tight.profile, 'text-1.5b');
+  const none = buildPlan({ hardware: mac(8192, 1200), runtime: metalRuntime(5300) });
+  assert.equal(none.launchModel, false);
+});
+
+test('Metal estimate is used and disclosed when llama.cpp is not installed yet', () => {
+  const plan = buildPlan({ hardware: mac(16384, 9000) });
+  assert.equal(plan.backend, 'metal'); assert.equal(plan.gpu.source, 'estimate');
+  assert.ok(plan.warnings.some(item => item.includes('estimated')));
+});
+
+test('Metal-only profiles never change automatic CUDA selection', () => {
+  const plan = buildPlan({ hardware: hardware(32768, 30000, 24000), runtime: { available: true, cuda: true } });
+  assert.equal(plan.profile, 'vision-7b');
+});

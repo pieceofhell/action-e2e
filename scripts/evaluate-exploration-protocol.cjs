@@ -42,6 +42,12 @@ async function main() {
     startedAt: new Date().toISOString(), aiConfig, suppliedJourney: false, suppliedDefectDescription: false,
     host: { platform: process.platform, node: process.version, cpu: os.cpus()[0]?.model, ramBytes: os.totalmem() },
     implementation: { revision: gitRevision(root), sourceFiles: await sourceHashes(path.join(root, 'src')) }, targets: [], attempts: [] };
+  if (protocol.referenceFunctions) {
+    // Hash the evaluator-owned function matrix before collection, proving it was frozen before any observation.
+    const referencePath = path.resolve(path.dirname(protocolPath), protocol.referenceFunctions);
+    manifest.referenceFunctions = { path: path.relative(root, referencePath).replace(/\\/g, '/'),
+      sha256: crypto.createHash('sha256').update(await fs.readFile(referencePath)).digest('hex'), suppliedToModel: false };
+  }
   for (const target of protocol.targets) {
     const projectPath = path.resolve(path.dirname(protocolPath), target.path);
     manifest.targets.push({ id: target.id, projectPath, revision: gitRevision(projectPath), sourceFiles: await sourceHashes(projectPath) });
