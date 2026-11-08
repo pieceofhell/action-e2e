@@ -1,0 +1,103 @@
+{
+  "platform": "win32",
+  "node": "v24.19.0",
+  "modelCalled": false,
+  "targets": {
+    "form": [
+      {
+        "mode": "Enter",
+        "before": {
+          "value": "sampleuser",
+          "className": "form-control",
+          "submits": 0
+        },
+        "after": {
+          "className": "form-control success",
+          "submits": 1
+        },
+        "errors": [
+          "Email is not valid",
+          "Password must be at least 6 characters",
+          "Password2 is required"
+        ]
+      },
+      {
+        "mode": "Submit",
+        "before": {
+          "value": "sampleuser",
+          "className": "form-control",
+          "submits": 0
+        },
+        "after": {
+          "className": "form-control success",
+          "submits": 1
+        },
+        "errors": [
+          "Email is not valid",
+          "Password must be at least 6 characters",
+          "Password2 is required"
+        ]
+      }
+    ],
+    "music": {
+      "before": "ukulele",
+      "after": "summer",
+      "missingTimeNodes": 0,
+      "playing": true,
+      "paused": true,
+      "errors": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    "memory": {
+      "reference": {
+        "creation": {
+          "storage": [
+            {
+              "question": "Review question",
+              "answer": "Review answer"
+            }
+          ],
+          "afterReload": [
+            "Review question"
+          ]
+        },
+        "archiveSuite": {
+          "startTime": "2026-11-08T18:17:19.323Z",
+          "duration": 9587.139,
+          "expected": 3,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      "disabledCreate": {
+        "creation": {
+          "storage": [],
+          "afterReload": []
+        },
+        "archiveSuite": {
+          "startTime": "2026-11-08T18:17:29.479Z",
+          "duration": 6863.932999999999,
+          "expected": 3,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      "emptyNavigation": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    "todo": {
+      "created": [
+        "Review todo"
+      ],
+      "active": [
+        "Review todo"
+      ],
+      "completed": []
+    }
+  },
+  "browser": "153.0.8010.12"
+}

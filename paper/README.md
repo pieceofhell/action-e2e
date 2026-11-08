@@ -5,10 +5,15 @@
 | Anterior, preservada em 20/10/2026 | [18/10/2026](versions/2026-10-18/article.pdf) | [main.tex](versions/2026-10-18/main.tex) | Cópia integral do artigo que estava em uso antes desta revisão. Não foi sobrescrito. |
 | Incrementada, 20/10/2026, preservada | [20/10/2026](versions/2026-10-20/article.pdf) | [main.tex](versions/2026-10-20/main.tex) | Novos contextos de exploração, análise funcional, papel da instrumentação e reprodução. Cópia integral anterior à revisão editorial. |
 | Revisão editorial, 21/10/2026, preservada | [21/10/2026](versions/2026-10-21-editorial/article.pdf) | [main.tex](versions/2026-10-21-editorial/main.tex) | Revisão editorial anterior ao ajuste da declaração de IA. |
-| Declaração de IA ajustada, 21/10/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Somente o parágrafo da declaração foi substituído pelo texto fornecido pelo autor. |
+| Declaração de IA ajustada, 21/10/2026, preservada | [21/10/2026](versions/2026-10-21-declaracao-ia/article.pdf) | [main.tex](versions/2026-10-21-declaracao-ia/main.tex) | Versão anterior à incorporação da coleta no Apple M4. |
+| Avaliação complementar, 08/11/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Segunda configuração local, análise da matriz de funções e verificação da suíte dos cartões. |
 | Anteriormente publicada no GitHub | [Baseline remota](versions/remote-baseline/article.pdf) | [Fontes históricas](versions/remote-baseline/main.tex) | Preservada para continuidade do repositório. Não é o artigo de 18/10. |
 
 [versions.json](versions.json) registra hashes dos PDFs e fontes. O PDF anterior tem SHA-256 `c94145ddacaf7232c8169285b4ab7c29fc6e317643d647e7f44adfaad93b5d64`.
+
+## Avaliação complementar de 08/11/2026
+
+A [revisão da branch](../docs/research/branch-review-20261108.md) confronta a [coleta registrada no M4](../evaluation-results/apple-m4-qwen3vl4b-20261107/README.md) com os alvos e com verificações dirigidas no navegador. O artigo incorpora operações observadas nas duas configurações e o ensaio em que a suíte arquivada passou mesmo com a criação de cartões desativada. A matriz auxilia a inspeção; seus rótulos automáticos não são tratados como cobertura. A comparação não isola modelo, hardware ou quantização, e ainda não houve dupla rotulação humana. A versão anterior e a redação da declaração de IA foram preservadas.
 
 ## Revisão editorial de 21/10/2026
 
