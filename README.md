@@ -6,6 +6,8 @@ For Linux boot without logon, automatic memory-based model selection, Apple Sili
 
 Local prototype for experimenting with an action-oriented AI-assisted E2E test generation and execution pipeline.
 
+Agents can run a project without the web UI with `npm run agent:run -- <project-directory>`. See the [automation guide](docs/guides/agent-automation.md) for model settings, two-agent review, and machine-readable results.
+
 ## Goal
 
 This application was built to validate, in a first practical slice, the methodology defined in the paper. The prototype allows users to:

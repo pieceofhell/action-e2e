@@ -1,0 +1,57 @@
+{
+  "kind": "ai-agent",
+  "reviewer": "A",
+  "evidenceSha256": "d8e4e239fd3d4072a00634657f06eb3475a3999d399572209dbe0f81c294b77e",
+  "labels": [
+    {
+      "id": "case-001",
+      "label": "nao-sustentado",
+      "justification": "O preenchimento atualiza o valor para sampleuser em state-2. No teste do navegador, Enter dispara um submit e muda a classe do Username para form-control success. O trecho na linha 76 liga a validação ao submit."
+    },
+    {
+      "id": "case-002",
+      "label": "nao-sustentado",
+      "justification": "O clique em #prev no passo 1 muda a faixa de ukulele em state-1 para summer em state-2. O código associa o botão a prevSong na linha 165 e carrega songs[songIndex] nessa função na linha 56."
+    },
+    {
+      "id": "case-003",
+      "label": "nao-sustentado",
+      "justification": "Após o clique em #prev no passo 1, o título da faixa muda de ukulele em state-1 para summer em state-2. A verificação no navegador registra a mesma troca."
+    },
+    {
+      "id": "case-004",
+      "label": "nao-sustentado",
+      "justification": "Enter no passo 2 e o clique em Submit geram um evento submit cada e os mesmos três erros nos campos vazios. A linha 76 registra a validação no evento submit."
+    },
+    {
+      "id": "case-005",
+      "label": "defeito-confirmado",
+      "justification": "O percurso com #prev registra uma exceção não tratada ao atribuir innerHTML em uma referência nula, e a reprodução a registra com uma ação. Os seletores de tempo estão nas linhas 11–12 e as escritas em innerHTML nas linhas 120 e 149. O pacote lista zero nós de tempo."
+    },
+    {
+      "id": "case-006",
+      "label": "nao-sustentado",
+      "justification": "O teste do navegador confirma reprodução e pausa, com playing e paused iguais a true. O erro de referência nula é compatível com as escritas nos nós de tempo ausentes nas linhas 120 e 149."
+    },
+    {
+      "id": "case-007",
+      "label": "nao-sustentado",
+      "justification": "Após Enter no passo 2, o campo é esvaziado e Sample Todo aparece em state-3. O item continua no filtro Active e deixa de aparecer em Completed, como esperado para uma tarefa recém-criada."
+    },
+    {
+      "id": "case-008",
+      "label": "defeito-confirmado",
+      "justification": "O percurso com #prev captura a exceção não tratada ao escrever innerHTML em null. A reprodução registra a mesma exceção com uma ação. O pacote lista zero nós de tempo, cujas referências são usadas nas linhas 120 e 149."
+    },
+    {
+      "id": "case-009",
+      "label": "nao-sustentado",
+      "justification": "O teste do navegador mostra que Enter dispara um evento submit, assim como o botão Submit. O listener da linha 76 processa ambos e exibe os mesmos três erros nos campos vazios."
+    },
+    {
+      "id": "case-010",
+      "label": "nao-sustentado",
+      "justification": "A verificação do navegador registra reprodução e pausa bem-sucedidas. O passo 2 mantém a faixa summer em state-2, cuja captura registra apenas o texto da faixa e não o estado do áudio."
+    }
+  ]
+}

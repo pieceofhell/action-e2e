@@ -1,0 +1,57 @@
+{
+  "kind": "ai-agent",
+  "reviewer": "B",
+  "evidenceSha256": "d8e4e239fd3d4072a00634657f06eb3475a3999d399572209dbe0f81c294b77e",
+  "labels": [
+    {
+      "id": "case-001",
+      "label": "nao-sustentado",
+      "justification": "Após Enter, o navegador registra um envio e a classe de Username muda de `form-control` para `form-control success`. O texto de state-3 omite a classe, e as linhas 76–80 mostram que as verificações ocorrem no envio."
+    },
+    {
+      "id": "case-002",
+      "label": "inconclusivo",
+      "justification": "O passo 1 troca `ukulele` por `summer` (state-1 → state-2). O trecho de `prevSong` mostra `loadSong(songs[songIndex])`, mas não fornece a ordem das faixas nem como o índice muda, então não dá para verificar se `summer` era a faixa anterior."
+    },
+    {
+      "id": "case-003",
+      "label": "nao-sustentado",
+      "justification": "O clique em `prev` no passo 1 muda a faixa exibida de `ukulele` em state-1 para `summer` em state-2. O diagnóstico de página coexistiu com essa mudança."
+    },
+    {
+      "id": "case-004",
+      "label": "nao-sustentado",
+      "justification": "Enter e o clique em Submit geram um envio cada e os mesmos três erros para os campos restantes. O tratamento de `submit` nas linhas 76–82 aciona as verificações que explicam state-3."
+    },
+    {
+      "id": "case-005",
+      "label": "defeito-confirmado",
+      "justification": "O navegador registrou a exceção não tratada `Cannot set properties of null (setting 'innerHTML')` e a repetição em uma ação a reproduziu. O HTML não contém os elementos de tempo consultados nas linhas 11–12, usados sem verificação nas linhas 120 e 149."
+    },
+    {
+      "id": "case-006",
+      "label": "nao-sustentado",
+      "justification": "O diagnóstico de `innerHTML` foi reproduzido em uma ação, antes do clique em Play no passo 2. A sondagem registra `playing: true` e `paused: true`, enquanto as escritas nos nós de tempo (linhas 120 e 149) são distintas das chamadas `audio.play()` e `audio.pause()` (36 e 45)."
+    },
+    {
+      "id": "case-007",
+      "label": "nao-sustentado",
+      "justification": "O passo 2 envia com Enter, limpa o campo e exibe `Sample Todo` em state-3. A sondagem independente também registra `Review todo` criado e ativo, de acordo com a chamada `onSubmit(value)` na linha 20."
+    },
+    {
+      "id": "case-008",
+      "label": "defeito-confirmado",
+      "justification": "O diagnóstico `Cannot set properties of null (setting 'innerHTML')` foi capturado em state-2 e reproduzido com uma ação. O HTML não contém os elementos de tempo que o código consulta nas linhas 11–12 e tenta atualizar nas linhas 120 e 149."
+    },
+    {
+      "id": "case-009",
+      "label": "nao-sustentado",
+      "justification": "O passo 2 registra um evento `submit`, assim como o clique em Submit, e ambos exibem os mesmos erros. O manipulador nas linhas 76–82 roda a validação nesse evento, em conformidade com os dados do teste."
+    },
+    {
+      "id": "case-010",
+      "label": "nao-sustentado",
+      "justification": "O passo 2 conserva o título `summer`, e a sondagem registra `playing: true` e `paused: true`. O título igual é compatível com alternar a reprodução da mesma faixa, e a alegação não aponta uma falha específica além disso."
+    }
+  ]
+}

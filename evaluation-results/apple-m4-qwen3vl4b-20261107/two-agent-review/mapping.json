@@ -1,0 +1,42 @@
+{
+  "case-001": {
+    "runId": "form-validator-2026-11-08T01-06-19-304Z-86db46",
+    "hypothesisId": "bug-hypothesis-1uobm3i"
+  },
+  "case-002": {
+    "runId": "music-player-2026-11-08T01-09-00-125Z-b1896c",
+    "hypothesisId": "bug-hypothesis-1qp6s96"
+  },
+  "case-003": {
+    "runId": "music-player-2026-11-08T00-57-45-113Z-724262",
+    "hypothesisId": "bug-hypothesis-1243p3y"
+  },
+  "case-004": {
+    "runId": "form-validator-2026-11-08T00-55-59-588Z-f2fb5d",
+    "hypothesisId": "bug-hypothesis-cx1821"
+  },
+  "case-005": {
+    "runId": "music-player-2026-11-08T01-09-00-125Z-b1896c",
+    "hypothesisId": "runtime-diagnostic-8ymtqs"
+  },
+  "case-006": {
+    "runId": "music-player-2026-11-08T00-57-45-113Z-724262",
+    "hypothesisId": "bug-hypothesis-1w5lpl5"
+  },
+  "case-007": {
+    "runId": "react-2026-11-08T01-02-50-803Z-c229fe",
+    "hypothesisId": "bug-hypothesis-grlxyv"
+  },
+  "case-008": {
+    "runId": "music-player-2026-11-08T00-57-45-113Z-724262",
+    "hypothesisId": "runtime-diagnostic-8ymtqs"
+  },
+  "case-009": {
+    "runId": "form-validator-2026-11-08T01-06-19-304Z-86db46",
+    "hypothesisId": "bug-hypothesis-915scs"
+  },
+  "case-010": {
+    "runId": "music-player-2026-11-08T01-09-00-125Z-b1896c",
+    "hypothesisId": "bug-hypothesis-1jelcla"
+  }
+}

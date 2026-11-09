@@ -62,8 +62,8 @@ function buildTemplate(exploration, runId, reviewer = "") {
     labels: items.map((item, index) => ({
       id: `${runId}#${item.id || index + 1}`,
       summary: item.title || item.summary || item.description || "",
-      observedFacts: item.observedFacts || item.facts || [],
-      inferredExpectation: item.inferredExpectation || item.expectation || "",
+      observedFacts: (item.claim || item).observed?.facts || item.observedFacts || item.facts || [],
+      inferredExpectation: (item.claim || item).expected?.result || item.inferredExpectation || item.expectation || "",
       label: "", justification: "",
     })),
   };

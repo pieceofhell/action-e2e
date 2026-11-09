@@ -14,6 +14,7 @@ const { stageRecord, updateRunLog } = require('./run-log');
 const { isExplicitBaseline, requireAiForStage, requireCompletedAiExploration } = require('./pipeline-policy');
 const { redactSecrets } = require('./auth-config');
 const { selectBatchApprovedFlows } = require('./batch-auto-approval');
+const { buildReviewPacket, saveReviewJson, judgePacket } = require('./agent-review');
 
 function createBatchQueue({ prototypeRoot, runJob = runPipelineJob }) {
   const runsRoot = path.join(prototypeRoot, 'prototype-runs');
@@ -160,7 +161,8 @@ function createBatchQueue({ prototypeRoot, runJob = runPipelineJob }) {
   return { initialize, enqueue, get, list, resumeAfterReview };
 }
 
-async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, authConfig, onUpdate, onCheckpoint = async () => {} }) {
+async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, authConfig, runtimeConfig = {},
+  agentReviewers, onUpdate, onCheckpoint = async () => {} }) {
   requireAiForStage(aiConfig, 'batch pipeline');
   let run;
   let inspection;
@@ -180,14 +182,15 @@ async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, a
     job.runId = run.runId;
     await onCheckpoint();
   }
-  const log = (patch) => updateRunLog(run.runDirectory, patch, { secretValues: [aiConfig?.apiKey] });
+  const secretValues = [aiConfig?.apiKey, ...(agentReviewers || []).map(config => config.apiKey)];
+  const log = (patch) => updateRunLog(run.runDirectory, patch, { secretValues });
   const stage = async (name, task) => {
     const events = [];
     onUpdate(name, `Running ${name}...`);
     try {
       const data = await task(event => {
         const clean = { at: new Date().toISOString(), phase: event.phase || name,
-          message: redactSecrets(event.message || ''), progress: event.progress ?? null };
+          message: redactSecrets(event.message || '', secretValues), progress: event.progress ?? null };
         events.push(clean);
         onUpdate(name, clean.message);
       });
@@ -200,17 +203,18 @@ async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, a
           : name === 'execution' ? path.join('results', 'execution.json') : null;
       const partialData = partialFile
         ? await readJson(path.join(run.runDirectory, partialFile)).catch(() => null) : null;
-      await log({ status: 'failed', failedStage: name, error: redactSecrets(error?.message || error),
-        stages: { [name]: { failedAt: new Date().toISOString(), error: redactSecrets(error?.message || error), data: partialData, events } },
+      const message = redactSecrets(error?.message || error, secretValues);
+      await log({ status: 'failed', failedStage: name, error: message,
+        stages: { [name]: { failedAt: new Date().toISOString(), error: message, data: partialData, events } },
         events: events.map(event => ({ stage: name, ...event })) });
       throw error;
     }
   };
-  await log({ runId: run.runId, projectPath: job.projectPath, batchId: batch.id,
-    mode: 'batch', provider: aiConfig.provider, model: aiConfig.model,
+  await log({ runId: run.runId, projectPath: job.projectPath, batchId: agentReviewers ? null : batch.id,
+    mode: agentReviewers ? 'agent-cli' : 'batch', provider: aiConfig.provider, model: aiConfig.model,
     modelConfig: { provider: aiConfig.provider, endpoint: aiConfig.endpoint || '',
       model: aiConfig.model, criticModel: aiConfig.criticModel || '' },
-    reviewPolicy: batch.autoSkipBugReview ? 'skipped-by-user' : 'human-review-required' });
+    reviewPolicy: agentReviewers ? 'two-ai-agents-no-human-validation' : batch.autoSkipBugReview ? 'skipped-by-user' : 'human-review-required' });
 
   if (!resuming) {
     inspection = await stage('inspection', async onProgress => {
@@ -225,7 +229,7 @@ async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, a
       await ensureDirectory(evidenceDirectory);
       const artifactRun = { ...run, evidenceDirectory, artifactBaseUrl: `/artifacts/${run.runId}` };
       const live = await exploreLiveProject({ projectPath: job.projectPath, inspection,
-        runtimeConfig: {}, aiConfig, authConfig, artifactRun, onProgress });
+        runtimeConfig, aiConfig, authConfig, artifactRun, onProgress });
       await writeJson(path.join(run.runDirectory, 'exploration.json'), live);
       if (live.bugDiscovery) await writeJson(path.join(run.resultsDirectory, 'potential-bugs.json'), live.bugDiscovery);
       if (live.status !== 'completed') throw new Error(live.error || `Live exploration ended with status ${live.status}.`);
@@ -235,7 +239,25 @@ async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, a
     });
     inspection = explorationOutput.inspection;
     liveExploration = explorationOutput.liveExploration;
-    if (!batch.autoSkipBugReview && liveExploration.bugDiscovery?.hypotheses?.length) {
+    if (agentReviewers) {
+      await stage('agent-review', async () => {
+        const directory = path.join(run.resultsDirectory, 'agent-review');
+        if (authConfig?.mode === 'authenticated') {
+          const result = { status: 'not-applicable', reason: 'disabled-for-authenticated-session', humanValidation: false };
+          await saveReviewJson(directory, 'agreement.json', result);
+          return result;
+        }
+        const context = (inspection.relevantFiles || []).slice(0, 5).map(file => ({
+          path: file.relativePath, excerpt: String(file.excerpt || '').slice(0, 900),
+        }));
+        const { packet, mapping } = buildReviewPacket([{ runId: run.runId, exploration: liveExploration, context }], {
+          secretValues,
+        });
+        await saveReviewJson(directory, 'packet.json', packet);
+        await saveReviewJson(directory, 'mapping.json', mapping);
+        return judgePacket(packet, agentReviewers, directory);
+      });
+    } else if (!batch.autoSkipBugReview && liveExploration.bugDiscovery?.hypotheses?.length) {
       await log({ status: 'awaiting-review' });
       return { awaitingReview: true };
     }
@@ -260,7 +282,7 @@ async function runPipelineJob({ prototypeRoot, runsRoot, job, batch, aiConfig, a
 
   generated = await stage('generation', async onProgress => generateTestBundle({
     prototypeRoot, projectPath: job.projectPath, inspection, approvedFlows,
-    runtimeConfig: {}, aiConfig, authConfig, onProgress,
+    runtimeConfig: { ...runtimeConfig, runInstallBeforeExecution: false }, aiConfig, authConfig, onProgress,
   }));
 
   const result = await stage('execution', async onProgress => {

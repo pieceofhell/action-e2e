@@ -18,6 +18,8 @@
     "evaluate:corpus": "node scripts/characterize-corpus.cjs",
     "evaluate:functions": "node scripts/evaluate-function-matrix.cjs",
     "evaluate:agreement": "node scripts/evaluate-agreement.cjs",
+    "review:agents": "node scripts/review-with-agents.cjs",
+    "agent:run": "node scripts/run-agent-pipeline.cjs",
     "evaluate:initial": "node scripts/validate-current-exploration.cjs",
     "verify:approved-oracle": "node scripts/verify-approved-oracle.cjs",
     "start:unattended": "node scripts/run-unattended.cjs",

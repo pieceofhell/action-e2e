@@ -1,0 +1,100 @@
+{
+  "kind": "ai-agent-agreement",
+  "humanValidation": false,
+  "evidenceSha256": "d8e4e239fd3d4072a00634657f06eb3475a3999d399572209dbe0f81c294b77e",
+  "reviewers": [
+    "A",
+    "B"
+  ],
+  "n": 10,
+  "categories": [
+    "defeito-confirmado",
+    "inconclusivo",
+    "nao-sustentado"
+  ],
+  "observed": 0.9,
+  "expected": 0.6,
+  "kappa": 0.7500000000000001,
+  "confusion": {
+    "defeito-confirmado": {
+      "defeito-confirmado": 2,
+      "inconclusivo": 0,
+      "nao-sustentado": 0
+    },
+    "inconclusivo": {
+      "defeito-confirmado": 0,
+      "inconclusivo": 0,
+      "nao-sustentado": 0
+    },
+    "nao-sustentado": {
+      "defeito-confirmado": 0,
+      "inconclusivo": 1,
+      "nao-sustentado": 7
+    }
+  },
+  "interpretation": "substancial",
+  "disagreements": [
+    {
+      "id": "case-002",
+      "A": "nao-sustentado",
+      "B": "inconclusivo",
+      "justifications": [
+        "O clique em #prev no passo 1 muda a faixa de ukulele em state-1 para summer em state-2. O código associa o botão a prevSong na linha 165 e carrega songs[songIndex] nessa função na linha 56.",
+        "O passo 1 troca `ukulele` por `summer` (state-1 → state-2). O trecho de `prevSong` mostra `loadSong(songs[songIndex])`, mas não fornece a ordem das faixas nem como o índice muda, então não dá para verificar se `summer` era a faixa anterior."
+      ]
+    }
+  ],
+  "unpaired": [],
+  "cases": [
+    {
+      "id": "case-001",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-002",
+      "label": null,
+      "status": "unresolved-disagreement"
+    },
+    {
+      "id": "case-003",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-004",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-005",
+      "label": "defeito-confirmado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-006",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-007",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-008",
+      "label": "defeito-confirmado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-009",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    },
+    {
+      "id": "case-010",
+      "label": "nao-sustentado",
+      "status": "agreed"
+    }
+  ]
+}

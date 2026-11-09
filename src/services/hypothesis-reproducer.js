@@ -1,5 +1,6 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const { reviewClaim } = require('./agent-review');
 
 async function reproduceHypotheses({
   browser,
@@ -165,6 +166,7 @@ function gateReproducedHypotheses(hypotheses = []) {
     rejected.push({
       id: hypothesis.id,
       title: hypothesis.title,
+      claim: reviewClaim(hypothesis),
       reason: status === "observation-diverged"
         ? "Independent replay reached a materially different state; the hypothesis was not retained."
         : status === "runtime-diagnostic-not-reproduced"
