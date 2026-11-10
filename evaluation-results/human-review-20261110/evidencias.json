@@ -1,0 +1,924 @@
+{
+  "schemaVersion": 1,
+  "sourcePacketSha256": "d8e4e239fd3d4072a00634657f06eb3475a3999d399572209dbe0f81c294b77e",
+  "categories": [
+    "defeito-confirmado",
+    "nao-sustentado",
+    "inconclusivo"
+  ],
+  "traces": {
+    "trace-7b2849b97add": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Username",
+            "domId": "username",
+            "value": "sampleuser"
+          },
+          "before": "state-1",
+          "after": "state-2"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "press",
+            "name": "Press Enter in Username",
+            "domId": "username",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-3"
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Password Confirm Password Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": ""
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        },
+        {
+          "id": "state-2",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Password Confirm Password Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": "sampleuser"
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        },
+        {
+          "id": "state-3",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Email is not valid Password Password must be at least 6 characters Confirm Password Password2 is required Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": "sampleuser"
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        }
+      ],
+      "pageErrors": [],
+      "context": {
+        "browser": [
+          {
+            "mode": "Enter",
+            "before": {
+              "value": "sampleuser",
+              "className": "form-control",
+              "submits": 0
+            },
+            "after": {
+              "className": "form-control success",
+              "submits": 1
+            },
+            "errors": [
+              "Email is not valid",
+              "Password must be at least 6 characters",
+              "Password2 is required"
+            ]
+          },
+          {
+            "mode": "Submit",
+            "before": {
+              "value": "sampleuser",
+              "className": "form-control",
+              "submits": 0
+            },
+            "after": {
+              "className": "form-control success",
+              "submits": 1
+            },
+            "errors": [
+              "Email is not valid",
+              "Password must be at least 6 characters",
+              "Password2 is required"
+            ]
+          }
+        ],
+        "source": [
+          {
+            "line": 16,
+            "text": "function showSuccess(input) {"
+          },
+          {
+            "line": 25,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 39,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 59,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 76,
+            "text": "form.addEventListener('submit', function(e) {"
+          },
+          {
+            "line": 77,
+            "text": "e.preventDefault();"
+          },
+          {
+            "line": 79,
+            "text": "if(checkRequired([username, email, password, password2])){"
+          },
+          {
+            "line": 80,
+            "text": "checkLength(username, 3, 15);"
+          },
+          {
+            "line": 82,
+            "text": "checkEmail(email);"
+          }
+        ]
+      }
+    },
+    "trace-18a07010897b": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "Username",
+            "domId": "username",
+            "value": "sampleuser"
+          },
+          "before": "state-1",
+          "after": "state-2"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "press",
+            "name": "Press Enter in Username",
+            "domId": "username",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-3"
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Password Confirm Password Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": ""
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        },
+        {
+          "id": "state-2",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Password Confirm Password Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": "sampleuser"
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        },
+        {
+          "id": "state-3",
+          "title": "Form Validator",
+          "visibleText": "Register With Us Username Email Email is not valid Password Password must be at least 6 characters Confirm Password Password2 is required Submit",
+          "inputs": [
+            {
+              "id": "username",
+              "value": "sampleuser"
+            },
+            {
+              "id": "email",
+              "value": ""
+            },
+            {
+              "id": "password"
+            },
+            {
+              "id": "password2"
+            }
+          ]
+        }
+      ],
+      "pageErrors": [],
+      "context": {
+        "browser": [
+          {
+            "mode": "Enter",
+            "before": {
+              "value": "sampleuser",
+              "className": "form-control",
+              "submits": 0
+            },
+            "after": {
+              "className": "form-control success",
+              "submits": 1
+            },
+            "errors": [
+              "Email is not valid",
+              "Password must be at least 6 characters",
+              "Password2 is required"
+            ]
+          },
+          {
+            "mode": "Submit",
+            "before": {
+              "value": "sampleuser",
+              "className": "form-control",
+              "submits": 0
+            },
+            "after": {
+              "className": "form-control success",
+              "submits": 1
+            },
+            "errors": [
+              "Email is not valid",
+              "Password must be at least 6 characters",
+              "Password2 is required"
+            ]
+          }
+        ],
+        "source": [
+          {
+            "line": 16,
+            "text": "function showSuccess(input) {"
+          },
+          {
+            "line": 25,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 39,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 59,
+            "text": "showSuccess(input);"
+          },
+          {
+            "line": 76,
+            "text": "form.addEventListener('submit', function(e) {"
+          },
+          {
+            "line": 77,
+            "text": "e.preventDefault();"
+          },
+          {
+            "line": 79,
+            "text": "if(checkRequired([username, email, password, password2])){"
+          },
+          {
+            "line": 80,
+            "text": "checkLength(username, 3, 15);"
+          },
+          {
+            "line": 82,
+            "text": "checkEmail(email);"
+          }
+        ]
+      }
+    },
+    "trace-04b66442bab6": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Interactive action-btn 0",
+            "domId": "prev",
+            "value": ""
+          },
+          "before": "state-1",
+          "after": "state-2"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Interactive action-btn action-btn-big 0",
+            "domId": "play",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-2"
+        },
+        {
+          "step": 3,
+          "status": "action-unavailable",
+          "action": {
+            "kind": "click",
+            "name": "Interactive progress-container 1",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-2"
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "title": "Music Player",
+          "visibleText": "Music Player ukulele",
+          "inputs": []
+        },
+        {
+          "id": "state-2",
+          "title": "Music Player",
+          "visibleText": "Music Player summer",
+          "inputs": []
+        }
+      ],
+      "pageErrors": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ],
+      "context": {
+        "browser": {
+          "before": "ukulele",
+          "after": "summer",
+          "missingTimeNodes": 0,
+          "playing": true,
+          "paused": true,
+          "errors": [
+            "Cannot set properties of null (setting 'innerHTML')"
+          ]
+        },
+        "source": [
+          {
+            "line": 11,
+            "text": "const currTime = document.querySelector('#currTime');"
+          },
+          {
+            "line": 12,
+            "text": "const durTime = document.querySelector('#durTime');"
+          },
+          {
+            "line": 21,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 31,
+            "text": "function playSong() {"
+          },
+          {
+            "line": 36,
+            "text": "audio.play();"
+          },
+          {
+            "line": 40,
+            "text": "function pauseSong() {"
+          },
+          {
+            "line": 45,
+            "text": "audio.pause();"
+          },
+          {
+            "line": 49,
+            "text": "function prevSong() {"
+          },
+          {
+            "line": 56,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 69,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 120,
+            "text": "currTime.innerHTML = min +':'+ sec;"
+          },
+          {
+            "line": 149,
+            "text": "durTime.innerHTML = min_d +':'+ sec_d;"
+          },
+          {
+            "line": 165,
+            "text": "prevBtn.addEventListener('click', prevSong);"
+          }
+        ],
+        "htmlTimeElements": []
+      }
+    },
+    "trace-e2939adf25d2": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Interactive action-btn 0",
+            "domId": "prev",
+            "value": ""
+          },
+          "before": "state-1",
+          "after": "state-2"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Interactive action-btn action-btn-big 0",
+            "domId": "play",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-2"
+        },
+        {
+          "step": 3,
+          "status": "action-unavailable",
+          "action": {
+            "kind": "click",
+            "name": "Interactive progress-container 1",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-2"
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "title": "Music Player",
+          "visibleText": "Music Player ukulele",
+          "inputs": []
+        },
+        {
+          "id": "state-2",
+          "title": "Music Player",
+          "visibleText": "Music Player summer",
+          "inputs": []
+        }
+      ],
+      "pageErrors": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ],
+      "context": {
+        "browser": {
+          "before": "ukulele",
+          "after": "summer",
+          "missingTimeNodes": 0,
+          "playing": true,
+          "paused": true,
+          "errors": [
+            "Cannot set properties of null (setting 'innerHTML')"
+          ]
+        },
+        "source": [
+          {
+            "line": 11,
+            "text": "const currTime = document.querySelector('#currTime');"
+          },
+          {
+            "line": 12,
+            "text": "const durTime = document.querySelector('#durTime');"
+          },
+          {
+            "line": 21,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 31,
+            "text": "function playSong() {"
+          },
+          {
+            "line": 36,
+            "text": "audio.play();"
+          },
+          {
+            "line": 40,
+            "text": "function pauseSong() {"
+          },
+          {
+            "line": 45,
+            "text": "audio.pause();"
+          },
+          {
+            "line": 49,
+            "text": "function prevSong() {"
+          },
+          {
+            "line": 56,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 69,
+            "text": "loadSong(songs[songIndex]);"
+          },
+          {
+            "line": 120,
+            "text": "currTime.innerHTML = min +':'+ sec;"
+          },
+          {
+            "line": 149,
+            "text": "durTime.innerHTML = min_d +':'+ sec_d;"
+          },
+          {
+            "line": 165,
+            "text": "prevBtn.addEventListener('click', prevSong);"
+          }
+        ],
+        "htmlTimeElements": []
+      }
+    },
+    "trace-fd1885a0c4f6": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "name": "New Todo Input",
+            "domId": "",
+            "value": "Sample Todo"
+          },
+          "before": "state-1",
+          "after": "state-2"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "press",
+            "name": "Press Enter in New Todo Input",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-2",
+          "after": "state-3"
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Active",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-3",
+          "after": "state-3"
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "All",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-3",
+          "after": "state-3"
+        },
+        {
+          "step": 5,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "name": "Completed",
+            "domId": "",
+            "value": ""
+          },
+          "before": "state-3",
+          "after": "state-4"
+        }
+      ],
+      "states": [
+        {
+          "id": "state-1",
+          "title": "TodoMVC: React",
+          "visibleText": "Toggle All Input",
+          "inputs": [
+            {
+              "id": "",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "id": "state-2",
+          "title": "TodoMVC: React",
+          "visibleText": "Toggle All Input",
+          "inputs": [
+            {
+              "id": "",
+              "value": "Sample Todo"
+            }
+          ]
+        },
+        {
+          "id": "state-3",
+          "title": "TodoMVC: React",
+          "visibleText": "Toggle All Input Sample Todo",
+          "inputs": [
+            {
+              "id": "",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "id": "state-4",
+          "title": "TodoMVC: React",
+          "visibleText": "Toggle All Input",
+          "inputs": [
+            {
+              "id": "",
+              "value": ""
+            }
+          ]
+        }
+      ],
+      "pageErrors": [],
+      "context": {
+        "browser": {
+          "created": [
+            "Review todo"
+          ],
+          "active": [
+            "Review todo"
+          ],
+          "completed": []
+        },
+        "source": [
+          {
+            "line": 3,
+            "text": "export function Input({ onSubmit, placeholder, label, defaultValue, onBlur, editing = false }) {"
+          },
+          {
+            "line": 7,
+            "text": "const value = e.target.value.trim();"
+          },
+          {
+            "line": 15,
+            "text": "if (e.key !== \"Enter\") return;"
+          },
+          {
+            "line": 16,
+            "text": "const value = e.target.value.trim();"
+          },
+          {
+            "line": 20,
+            "text": "onSubmit(value);"
+          },
+          {
+            "line": 25,
+            "text": "[onSubmit, editing]"
+          }
+        ]
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "H01",
+      "traceId": "trace-fd1885a0c4f6",
+      "summary": "Input field submission does not trigger todo creation",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    },
+    {
+      "id": "H02",
+      "traceId": "trace-18a07010897b",
+      "summary": "Form validation triggered by Enter key in Username field does not align with documented behavior",
+      "observed": "Form validation triggers, displaying errors for Email, Password, and Confirm Password fields, despite no explicit submission action being taken.",
+      "observedFacts": [
+        {
+          "statement": "After pressing Enter in Username, the form displays validation errors for Email, Password, and Confirm Password fields.",
+          "evidenceRefs": [
+            "state-3"
+          ]
+        },
+        {
+          "statement": "The Username field is pre-filled with 'sampleuser' in state-2, indicating it was not empty.",
+          "evidenceRefs": [
+            "state-2"
+          ]
+        }
+      ],
+      "expected": "Validation should not trigger unless a submit action is explicitly performed, as pressing Enter in a non-submit field should not initiate validation.",
+      "expectationSource": "project-documentation",
+      "expectationReason": "The project documentation states client-side validation is triggered by specific functions (e.g., checkRequired, checkLength), not by user input alone. Pressing Enter should not be a trigger for validation unless explicitly coded to do so.",
+      "triggerStep": 2,
+      "evidenceStateIds": [
+        "state-2",
+        "state-3"
+      ]
+    },
+    {
+      "id": "H03",
+      "traceId": "trace-04b66442bab6",
+      "summary": "Previous button does not change track despite being clicked",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    },
+    {
+      "id": "H04",
+      "traceId": "trace-04b66442bab6",
+      "summary": "Play/pause button interaction fails due to DOM element reference error",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    },
+    {
+      "id": "H05",
+      "traceId": "trace-e2939adf25d2",
+      "summary": "Previous button does not navigate to prior track",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    },
+    {
+      "id": "H06",
+      "traceId": "trace-04b66442bab6",
+      "summary": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+      "observed": "Cannot set properties of null (setting 'innerHTML')",
+      "observedFacts": [
+        {
+          "statement": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+          "evidenceRefs": [
+            "page-error-1"
+          ]
+        },
+        {
+          "statement": "The application reached an observed browser state while the diagnostic was captured.",
+          "evidenceRefs": [
+            "state-2"
+          ]
+        }
+      ],
+      "expected": "The observed journey should not emit an unhandled runtime exception.",
+      "expectationSource": "runtime-diagnostic",
+      "expectationReason": "Unhandled runtime exceptions are direct execution evidence, not a model-inferred interface preference.",
+      "evidenceStateIds": [
+        "state-2"
+      ]
+    },
+    {
+      "id": "H07",
+      "traceId": "trace-18a07010897b",
+      "summary": "Username field does not validate or update state after input",
+      "observed": "The Username field displays 'sampleuser' but no validation error or success indicator appears. The form remains in the same visual state as before the interaction.",
+      "observedFacts": [
+        {
+          "statement": "After filling the Username field with 'sampleuser', the form state transitions to state-2, which shows the same visual layout without any error indicators.",
+          "evidenceRefs": [
+            "state-2"
+          ]
+        },
+        {
+          "statement": "After pressing Enter in the Username field, the form state transitions to state-3, which shows error messages for Email, Password, and Confirm Password fields, but the Username field is still filled and shows no validation indicator.",
+          "evidenceRefs": [
+            "state-3"
+          ]
+        }
+      ],
+      "expected": "The Username field should either show a success indicator or trigger validation that would update the form state to reflect a valid input.",
+      "expectationSource": "project-documentation",
+      "expectationReason": "The project documentation states that the form should validate required fields and display error messages under specific inputs. The Username field is marked as required, so its validation should be triggered upon interaction.",
+      "triggerStep": 2,
+      "evidenceStateIds": [
+        "state-2",
+        "state-3"
+      ]
+    },
+    {
+      "id": "H08",
+      "traceId": "trace-e2939adf25d2",
+      "summary": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+      "observed": "Cannot set properties of null (setting 'innerHTML')",
+      "observedFacts": [
+        {
+          "statement": "Unhandled page error: Cannot set properties of null (setting 'innerHTML')",
+          "evidenceRefs": [
+            "page-error-1"
+          ]
+        },
+        {
+          "statement": "The application reached an observed browser state while the diagnostic was captured.",
+          "evidenceRefs": [
+            "state-2"
+          ]
+        }
+      ],
+      "expected": "The observed journey should not emit an unhandled runtime exception.",
+      "expectationSource": "runtime-diagnostic",
+      "expectationReason": "Unhandled runtime exceptions are direct execution evidence, not a model-inferred interface preference.",
+      "evidenceStateIds": [
+        "state-2"
+      ]
+    },
+    {
+      "id": "H09",
+      "traceId": "trace-e2939adf25d2",
+      "summary": "Play/pause button does not function as expected",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    },
+    {
+      "id": "H10",
+      "traceId": "trace-7b2849b97add",
+      "summary": "Form validation triggered by Enter key in Username field leads to unexpected error display",
+      "observed": "",
+      "observedFacts": [],
+      "expected": "",
+      "expectationSource": "",
+      "expectationReason": "",
+      "evidenceStateIds": []
+    }
+  ],
+  "evidenceSha256": "4945dae386dcc5e32d8eab293a7f19779441a2a29d1e7fbd2254a23f0ed04935"
+}

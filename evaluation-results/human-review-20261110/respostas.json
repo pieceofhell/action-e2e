@@ -1,0 +1,57 @@
+{
+  "reviewer": "",
+  "evidenceSha256": "4945dae386dcc5e32d8eab293a7f19779441a2a29d1e7fbd2254a23f0ed04935",
+  "independentHumanReview": false,
+  "labels": [
+    {
+      "id": "H01",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H02",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H03",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H04",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H05",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H06",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H07",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H08",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H09",
+      "label": "",
+      "justification": ""
+    },
+    {
+      "id": "H10",
+      "label": "",
+      "justification": ""
+    }
+  ]
+}
