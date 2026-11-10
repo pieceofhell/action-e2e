@@ -7,7 +7,7 @@ const { cohensKappa, compareReviewers, buildTemplate } = require('../src/service
 
 const reference = validateReference({ schemaVersion: 1, id: 'ref', targets: {
   todo: { aliases: ['react'], functions: [
-    { id: 'create', match: [{ kind: 'press', descriptor: 'new todo' }], assertion: 'todo-item' },
+    { id: 'create', match: [{ kind: 'press', descriptor: 'new todo' }], effect: 'Created item: Book' },
     { id: 'complete', match: [{ kind: 'click', descriptor: 'toggle' }] },
     { id: 'persist', match: [{ kind: 'reload' }], requireChange: false, requiresPriorChange: true },
     { id: 'filter', match: [{ kind: 'click', descriptor: '^click completed' }], effect: 'No items' },
@@ -15,7 +15,9 @@ const reference = validateReference({ schemaVersion: 1, id: 'ref', targets: {
 } });
 const step = (n, kind, name, extra = {}) => ({ step: n, status: 'completed', changed: true, beforeStateId: `s${n}`, afterStateId: `s${n + 1}`,
   action: { kind, name, ...extra.action }, ...extra });
-const exploration = { agenticExploration: { model: 'm', status: 'completed', states: [{ id: 's4', visibleTextExcerpt: 'todos' }], steps: [
+const exploration = { agenticExploration: { model: 'm', status: 'completed', states: [
+  { id: 's2', visibleTextExcerpt: 'todos' }, { id: 's3', visibleTextExcerpt: 'Created item: Book' }, { id: 's4', visibleTextExcerpt: 'todos' },
+], steps: [
   step(1, 'fill', 'New Todo Input'),
   step(2, 'press', 'Press Enter in New Todo Input'),
   step(3, 'click', 'Completed'),
@@ -43,21 +45,21 @@ test('levels separate attempt, exercise with cited states, and unavailable verif
   assert.equal(level('create').level, 'exercised');
   assert.deepEqual(level('create').exercisedSteps, [{ step: 2, beforeStateId: 's2', afterStateId: 's3' }]);
   assert.equal(level('complete').level, 'attempted', 'an unavailable action is an attempt, not an exercise');
-  assert.equal(level('persist').level, 'exercised', 'reload needs completion after a prior change, not a visible change');
+  assert.equal(level('persist').level, 'attempted', 'an arbitrary earlier change and a reload do not prove restoration');
   assert.equal(level('filter').level, 'attempted', 'the declared effect was not observed in the after state');
   assert.equal(level('create').verified, null); assert.equal(run.totals.verified, null);
-  assert.deepEqual(run.totals, { functions: 4, attempted: 4, exercised: 2, verified: null });
+  assert.deepEqual(run.totals, { functions: 4, attempted: 4, exercised: 1, verified: null });
 });
 
-test('verification requires a matching expect() in a generated test and an exercised function', () => {
-  const tests = [{ file: 'a.spec.cjs', source: "await page.fill('x');\nawait expect(page.getByTestId('todo-item')).toHaveCount(1);\nawait expect(page.getByText('toggle')).toBeVisible();" }];
+test('spec source and comments cannot establish runtime verification', () => {
+  const tests = [{ file: 'a.spec.cjs', source: "// await expect(page.getByTestId('todo-item')).toHaveCount(1);\nawait expect(page.getByText('toggle')).toBeVisible();" }];
   const run = evaluateRun({ reference, runId: 'react-x', exploration, tests, targetId: 'todo' });
   const create = run.functions.find(fn => fn.id === 'create');
-  assert.equal(create.level, 'verified'); assert.equal(create.verifiedBy[0].line, 2);
+  assert.equal(create.level, 'exercised'); assert.deepEqual(create.verifiedBy, []);
   assert.equal(run.functions.find(fn => fn.id === 'complete').level, 'attempted');
-  assert.equal(run.totals.verified, 1);
+  assert.equal(run.totals.verified, null);
   const aggregate = aggregateByTarget(reference, [run]);
-  assert.deepEqual(aggregate[0].functions.map(fn => fn.exercisedIn), [1, 0, 1, 0]);
+  assert.deepEqual(aggregate[0].functions.map(fn => fn.exercisedIn), [1, 0, 0, 0]);
 });
 
 test('infrastructure overlay guards never count as function verification', () => {
@@ -65,8 +67,8 @@ test('infrastructure overlay guards never count as function verification', () =>
   const run = evaluateRun({ reference: ref, runId: 'x', targetId: 't',
     exploration: { agenticExploration: { steps: [step(1, 'click', 'Clear Cards')] } },
     tests: [{ file: 'a.spec.cjs', source: 'await expect(page.locator("vite-error-overlay, [data-vite-error-overlay], #webpack-dev-server-client-overlay")).toHaveCount(0);' }] });
-  assert.equal(run.functions[0].level, 'exercised');
-  assert.equal(run.functions[0].verified, false);
+  assert.equal(run.functions[0].level, 'attempted');
+  assert.equal(run.functions[0].verified, null);
 });
 
 test('the published reference file is valid and covers every target of the diverse-contexts protocol', () => {

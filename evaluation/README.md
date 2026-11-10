@@ -52,3 +52,21 @@ Exemplos de profundidade: no seletor de assentos, restaurar identidades e preço
 Para a coleta de 20/10/2026, a matriz é uma auditoria retroativa (definida depois). Para coletas posteriores a 07/11/2026, é a referência congelada.
 
 `npm run evaluate:agreement` gera modelos de rotulação cegos (sem o veredito do modelo) e calcula concordância observada, kappa de Cohen, matriz de confusão e divergências entre dois avaliadores humanos. Itens rotulados por só um avaliador ficam listados e fora do kappa. Com uma única categoria usada, o kappa é indefinido e não é apresentado como concordância perfeita.
+# Comparação de políticas e verificação de funções
+
+O protocolo [selector-comparison-v1](protocols/selector-comparison-v1.json) compara o explorador com modelo local e uma escolha uniforme com semente sobre o mesmo catálogo permitido. Os dois passam pelo mesmo executor, isolamento do relógio, critérios de elegibilidade, limites e compilador. O modelo escolhe os parâmetros das ações. O controle usa texto fictício, um valor numérico compatível com os alvos desta coleta e opções observadas. A política completa de ação e preenchimento é a intervenção.
+
+O avaliador lê o DOM separadamente e exige os efeitos definidos em `scripts/lib/comparison-functions.cjs`. Essas regras ficam fora do contexto do modelo. Cada efeito atingido pode gerar um replay com asserções explícitas, executado em uma nova sessão pelo Playwright. As falhas e as tentativas sem efeito permanecem na tabela. O resultado de replay mede o que foi conferido com critérios fornecidos pelo avaliador. A descoberta autônoma de critérios é um problema adicional.
+
+Para reproduzir, prepare as quatro aplicações locais e o perfil Qwen de 27B descrito no README. O serviço deve escutar em `127.0.0.1`, na porta `18081` por padrão. Use um identificador novo por coleta.
+
+```sh
+node scripts/evaluate-selector-comparison.cjs minha-coleta-controlada
+node scripts/summarize-selector-comparison.cjs evaluation-results/minha-coleta-controlada
+node scripts/verify-card-function.cjs meu-controle-dos-cartoes
+```
+
+O primeiro comando grava o plano, o commit e os hashes antes de iniciar. Ele grava cada trajetória à medida que termina. O segundo recalcula os totais e os contrastes por par. O terceiro registra uma jornada dirigida em Memory Cards, compila um teste e usa os mesmos bytes no original e nas cópias com alterações pontuais de criação e restauração.
+
+A matriz histórica de `evaluate:functions` informa tentativas e efeitos textuais configurados. O campo de verificação fica indisponível nessa leitura de logs. A execução com asserções registradas é relatada no resultado do protocolo controlado.
+
