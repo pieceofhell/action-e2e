@@ -47,9 +47,11 @@ async function runAgenticExploration({
   isolateModelThinkTime = false,
   onActionStart = () => {},
   onActionEnd = () => {},
+  selectDecision = null,
+  fixedBudget = false,
 }) {
   const normalized = normalizeAiConfig(aiConfig);
-  if (!normalized.enabled) {
+  if (!normalized.enabled && !selectDecision) {
     return buildBaselineResult(initialObservation);
   }
 
@@ -75,22 +77,17 @@ async function runAgenticExploration({
   let isolatedModelThinkTimeMs = 0;
   let terminationReason = "action-limit";
   let fatalError = "";
-  let adaptiveBudget = estimateAdaptiveExplorationBudget({
+  const getBudget = () => fixedBudget ? { stepLimit: maxSteps, durationMs: maxDurationMs } : estimateAdaptiveExplorationBudget({
     current,
     states,
     hardMaxSteps: maxSteps,
     hardMaxDurationMs: maxDurationMs,
     coverageGoalCount: qaCoverage.summary.total,
   });
+  let adaptiveBudget = getBudget();
 
   for (let attempt = 0; attempt < maxSteps + 4; attempt += 1) {
-    adaptiveBudget = estimateAdaptiveExplorationBudget({
-      current,
-      states,
-      hardMaxSteps: maxSteps,
-      hardMaxDurationMs: maxDurationMs,
-      coverageGoalCount: qaCoverage.summary.total,
-    });
+    adaptiveBudget = getBudget();
     if (Date.now() - startedAt >= adaptiveBudget.durationMs) {
       terminationReason = "time-budget";
       break;
@@ -108,6 +105,10 @@ async function runAgenticExploration({
       .filter((action) => !current.dialogsCount || action.inOverlay)
       .filter((action) => !usedActionKeys.has(actionSemanticKey(action)) || canCorrectInput(action, steps, current))
       .filter((action) => !exhaustedActionFamilies.has(actionFamilyKey(action)))
+      .filter((action) => !fixedBudget || action.kind !== 'press' || steps.some(step =>
+        step.status === 'completed' && step.action.kind === 'fill' &&
+        (action.domId ? step.action.domId === action.domId :
+          actionSemanticKey({ ...step.action, kind: 'press', name: `Press Enter in ${step.action.name}` }) === actionSemanticKey(action))))
       // Discovery uses ordinary inputs. Boundary flags are reserved for explicit defect probes.
       .map((action) => ({ ...action, boundaryProbe: false }))
       .slice(0, 40), { ...qaCoverage, goals: qaCoverage.goals.filter(goal => goal.category !== 'boundary') }).slice(0, 30);
@@ -145,7 +146,9 @@ async function runAgenticExploration({
       let validationFeedback = "";
       for (let repairAttempt = 0; repairAttempt <= maxDecisionRepairs; repairAttempt += 1) {
         try {
-        rawDecision = await requestExplorationDecision({
+          const timeoutMs = fixedBudget ? startedAt + maxDurationMs - Date.now() : 120000;
+          if (timeoutMs <= 0) throw new Error('Exploration decision budget expired.');
+          rawDecision = selectDecision ? await selectDecision({ safeActions, current, steps }) : await requestExplorationDecision({
           aiConfig: normalized,
           current,
           states,
@@ -155,6 +158,7 @@ async function runAgenticExploration({
           remainingSteps: adaptiveBudget.stepLimit - completedCount,
           validationFeedback,
           images: visionEnabled ? currentVisual.images : [],
+            timeoutMs,
         });
           decision = validateAgentDecision(rawDecision, safeActions);
           const minimumUsefulActions = Math.min(2, countUniqueSafeActions(states, current));
@@ -365,13 +369,13 @@ async function runAgenticExploration({
   const observedOpportunities = inferCoverageAreas(states, []);
 
   return {
-    strategy: "model-guided-stateful",
+    strategy: selectDecision ? "external-policy-stateful" : "model-guided-stateful",
     purpose: 'interface-discovery',
     constraints: [...new Set((current.actions || []).filter(action => !action.safe).map(action => action.name))],
     interpretation: 'Completed means the available discovery actions finished, not that the complete application journey was exercised. Boundary testing and defect adjudication are separate concerns.',
-    usedModel: true,
-    model: normalized.model,
-    provider: normalized.provider,
+    usedModel: !selectDecision,
+    model: selectDecision ? null : normalized.model,
+    provider: selectDecision ? null : normalized.provider,
     status: fatalError ? "failed" : (completedSteps.length ? "completed" : "inconclusive"),
     error: fatalError,
     terminationReason,
@@ -473,6 +477,7 @@ async function requestExplorationDecision({
   remainingSteps,
   validationFeedback = "",
   images = [],
+  timeoutMs = 120000,
 }) {
   return requestStructuredJson({
     aiConfig,
@@ -540,7 +545,7 @@ async function requestExplorationDecision({
       })),
     }),
     images,
-    timeoutMs: 120000,
+    timeoutMs,
     responseSchema: EXPLORATION_DECISION_SCHEMA,
     schemaName: "exploration_decision",
     maxTokens: 360,

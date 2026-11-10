@@ -1,9 +1,6 @@
 // Evaluator-owned function × execution matrix. Read-only over recorded runs: it never calls a model, never starts a
 // target, and never upgrades a level without a cited step/state. "Not available" is kept distinct from "no".
 const LEVELS = ["not-attempted", "attempted", "exercised", "verified"];
-// Guards that the test compiler adds to every spec (dev-server error overlays). They check infrastructure, not a
-// target function, and must never count as verification of one (e.g. their toHaveCount(0) is not "list cleared").
-const INFRASTRUCTURE_ASSERTION = /vite-error-overlay|webpack-dev-server-client-overlay|data-vite-error-overlay/i;
 
 function validateReference(reference) {
   if (!reference || reference.schemaVersion !== 1 || !reference.targets || typeof reference.targets !== "object") {
@@ -20,7 +17,7 @@ function validateReference(reference) {
         if (!matcher.kind && !matcher.descriptor) throw new Error(`Function ${targetId}/${fn.id} has an empty matcher.`);
         if (matcher.descriptor) new RegExp(matcher.descriptor, "i");
       }
-      if (fn.assertion) new RegExp(fn.assertion, "i");
+      if (fn.effect) new RegExp(fn.effect, "i");
     }
   }
   return reference;
@@ -61,37 +58,31 @@ function evaluateRun({ reference, runId, exploration, tests = null, targetId = n
   const agentic = exploration?.agenticExploration || {};
   const steps = Array.isArray(agentic.steps) ? agentic.steps : [];
   const statesById = new Map((agentic.states || []).map(state => [state.id, state]));
-  const assertions = tests === null ? null : tests.flatMap(test => String(test.source || "").split(/\r?\n/)
-    .map((line, index) => ({ file: test.file, line: index + 1, text: line.trim() })).filter(item => /\bexpect\(/.test(item.text) && !INFRASTRUCTURE_ASSERTION.test(item.text)));
   const functions = reference.targets[target].functions.map(fn => {
     const matched = steps.filter(step => fn.match.some(matcher => matches(matcher, step.action || {})));
     const exercised = matched.filter((step) => {
       if (step.status !== "completed") return false;
       if (fn.requireChange !== false && step.changed !== true) return false;
-      if (fn.requiresPriorChange && !steps.some(prior => prior.step < step.step && prior.changed === true)) return false;
-      if (fn.effect && !new RegExp(fn.effect, "i").test(stateText(step, statesById))) return false;
-      return true;
+      // Legacy references describe actions. A reload and prior arbitrary UI change do not prove restoration.
+      if (!fn.effect || fn.requiresPriorChange || !statesById.has(step.beforeStateId) || !statesById.has(step.afterStateId)) return false;
+      const effect = new RegExp(fn.effect, 'i');
+      const beforeText = stateText({ afterStateId: step.beforeStateId }, statesById);
+      return !effect.test(beforeText) && effect.test(stateText(step, statesById));
     });
-    let verified = null;
-    let verifiedBy = [];
-    if (assertions !== null) {
-      verifiedBy = fn.assertion && exercised.length ? assertions.filter(item => new RegExp(fn.assertion, "i").test(item.text)) : [];
-      verified = verifiedBy.length > 0;
-    }
-    const level = verified ? "verified" : exercised.length ? "exercised" : matched.length ? "attempted" : "not-attempted";
+    const level = exercised.length ? "exercised" : matched.length ? "attempted" : "not-attempted";
     return {
       id: fn.id, label: fn.label || fn.id, level,
       attemptedSteps: matched.map(step => step.step),
       exercisedSteps: exercised.map(step => ({ step: step.step, beforeStateId: step.beforeStateId || null, afterStateId: step.afterStateId || null })),
-      verified, verifiedBy: verifiedBy.slice(0, 5),
+      verified: null, verifiedBy: [],
     };
   });
   const count = level => functions.filter(fn => LEVELS.indexOf(fn.level) >= LEVELS.indexOf(level)).length;
   return {
     runId, target, model: agentic.model || null, status: agentic.status || exploration?.status || null,
-    actions: steps.length, testsAvailable: assertions !== null,
+    actions: steps.filter(step => step.status === 'completed').length, testsAvailable: tests !== null,
     totals: { functions: functions.length, attempted: count("attempted"), exercised: count("exercised"),
-      verified: assertions === null ? null : count("verified") },
+      verified: null },
     functions,
   };
 }

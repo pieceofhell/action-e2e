@@ -794,9 +794,11 @@ test.afterEach(async ({ page }, testInfo) => {
   if (dialogs.length) await testInfo.attach("native-dialogs", { body: Buffer.from(JSON.stringify(dialogs, null, 2)), contentType: "application/json" });
 });
 
-async function openHome(page) {
+async function openHome(page, localOnly = false) {
+  const origin = localOnly ? new URL(test.info().project.use.baseURL).origin : null;
   await page.context().route("**/*", async (route) => {
-    if (!["GET", "HEAD", "OPTIONS"].includes(route.request().method().toUpperCase())) {
+    if (!["GET", "HEAD", "OPTIONS"].includes(route.request().method().toUpperCase())
+        || (origin && new URL(route.request().url()).origin !== origin)) {
       await route.abort("blockedbyclient");
       return;
     }
@@ -858,7 +860,7 @@ function buildObservedJourneySpecContent(flow, inspection, onContract = () => {}
 
   const criterionContract = buildAcceptanceContract(flow, journeySteps, states);
   onContract(criterionContract);
-  const lines = ["await openHome(page);", "let currentPage = page;"];
+  const lines = [flow.localOnly ? "await openHome(page, true);" : "await openHome(page);", "let currentPage = page;"];
   for (const [stepIndex, step] of journeySteps.entries()) {
     const action = step.action || {};
     if (action.kind === "wait") {
@@ -893,7 +895,12 @@ function buildObservedJourneySpecContent(flow, inspection, onContract = () => {}
     for (const criterion of criterionContract.filter(item => item.status === 'asserted' && item.stepIndex === stepIndex)) {
       lines.push(`// ${criterion.assertionId}: ${criterion.title.replace(/[\r\n]/g, ' ')}`);
       const assertion = criterion.assertion;
-      if (['visible-text', 'entity-created'].includes(assertion.kind)) {
+      if (assertion.kind === 'domain-checks') {
+        for (const check of assertion.value) {
+          const matcher = check.kind === 'count' ? 'toHaveCount' : 'toHaveText';
+          lines.push(`await expect(currentPage.locator(${jsString(check.selector)}), ${jsString(criterion.assertionId)}).${matcher}(${JSON.stringify(check.value)}, { timeout: 2500 });`);
+        }
+      } else if (['visible-text', 'entity-created'].includes(assertion.kind)) {
         lines.push(`await expect(currentPage.getByText(${jsString(assertion.value)}, { exact: true }).first()).toBeVisible();`);
       } else if (assertion.kind === 'entity-persisted') {
         lines.push(`await expect(currentPage.locator("li, [role='listitem'], tr, article").filter({ hasText: ${jsString(assertion.value.description)} }).filter({ hasText: ${jsString(assertion.value.amount)} }).first()).toBeVisible();`);

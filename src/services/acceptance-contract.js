@@ -66,7 +66,10 @@ function buildAcceptanceContract(flow, steps, states) {
   return (flow.criteria || []).map((criterion, index) => {
     const id = `${flow.id || 'flow'}-criterion-${index + 1}`;
     const source = criterionSource(flow, criterion);
-    const stepIndex = matchStep(criterion.when, steps);
+    const explicitChecks = criterion.domainChecks;
+    const stepIndex = explicitChecks && source.kind === 'project-requirement' && Number.isInteger(criterion.actionStep)
+      ? steps.findIndex(step => step.step === criterion.actionStep)
+      : matchStep(criterion.when, steps);
     const item = {
       id, title: criterion.title, given: criterion.given, when: criterion.when, then: criterion.then,
       expectationSource: source, actionStep: stepIndex < 0 ? null : steps[stepIndex].step ?? stepIndex + 1,
@@ -85,7 +88,18 @@ function buildAcceptanceContract(flow, steps, states) {
     // Approved literals define the oracle even when the observed application disagrees.
     const expectedText = quoted.length === 1 ? quoted[0] : null;
     let assertion = null;
-    if (action.kind === 'reload' && /persist|remain|still|after reload|after refresh/i.test(outcome)) {
+    if (explicitChecks) {
+      if (source.kind !== 'project-requirement' || steps[stepIndex].step !== criterion.actionStep
+        || !Array.isArray(explicitChecks) || !explicitChecks.length || explicitChecks.length > 12
+        || explicitChecks.some(check => !check || typeof check.selector !== 'string' || !check.selector.trim()
+          || check.selector.length > 240 || !['text', 'count'].includes(check.kind)
+          || (check.kind === 'text' ? typeof check.value !== 'string' || check.value.length > 500
+            : !Number.isSafeInteger(check.value) || check.value < 0))) {
+        return { ...item, reason: 'Explicit domain checks require a project requirement, exact recorded step and valid locator checks.' };
+      }
+      assertion = { kind: 'domain-checks', value: explicitChecks.map(({ selector, kind, value }) => ({ selector, kind, value })),
+        observedEntity: explicitChecks.map(check => check.selector).join(', '), comparison: 'exact-domain-checks' };
+    } else if (action.kind === 'reload' && /persist|remain|still|after reload|after refresh/i.test(outcome)) {
       const priorFills = steps.slice(0, stepIndex).filter(step => step.action?.kind === 'fill' && step.action.value);
       const description = [...priorFills].reverse().find(step => step.action.inputType !== 'number' && visible.includes(step.action.value))?.action.value;
       const amount = [...priorFills].reverse().find(step => step.action.inputType === 'number' && visible.includes(step.action.value))?.action.value;

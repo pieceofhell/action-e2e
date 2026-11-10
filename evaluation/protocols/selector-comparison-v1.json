@@ -1,0 +1,13 @@
+{
+  "id": "selector-comparison-v1",
+  "repetitions": 3,
+  "seed": 20261110,
+  "maxSteps": 10,
+  "maxDurationMs": 60000,
+  "conditions": ["llm", "random"],
+  "targets": ["form-validator", "music-player", "expense-tracker", "memory-cards"],
+  "primaryOutcome": "Distinct preregistered functions with observed domain effects per attempt, including failed or incomplete attempts.",
+  "secondaryOutcomes": ["Recorded effects rechecked by the shared Playwright compiler", "Exploration wall time", "Completed actions", "Runtime exceptions"],
+  "model": "qwen3.8-vl-27b-iq1m-64k",
+  "referenceImplementation": "scripts/lib/comparison-functions.cjs"
+}
