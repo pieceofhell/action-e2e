@@ -1,0 +1,57 @@
+{
+  "reviewer": "A",
+  "kind": "dedicated-agent",
+  "evidenceSha256": "4945dae386dcc5e32d8eab293a7f19779441a2a29d1e7fbd2254a23f0ed04935",
+  "labels": [
+    {
+      "id": "H01",
+      "label": "nao-sustentado",
+      "justification": "O passo 1 registra a digitação de Sample Todo no state-2. Após Enter no passo 2, o item aparece no state-3 e a entrada fica vazia. Os passos 3 e 4 preservam o item em Active e All, e o passo 5 o oculta em Completed, como esperado para uma tarefa recém-criada. A sondagem com Review todo confirma a criação e o filtro Active. As linhas 15–20 mostram que Enter aciona onSubmit com o valor tratado."
+    },
+    {
+      "id": "H02",
+      "label": "nao-sustentado",
+      "justification": "O state-2 mostra sampleuser sem mensagens, e o state-3 exibe as mensagens dos outros campos após Enter no passo 2. A sondagem registra um evento submit tanto com Enter quanto com o botão Submit, com as mesmas três mensagens nos dois casos. O código nas linhas 76–82 associa a validação ao evento submit. A descrição atribuída à documentação sobre funções de validação não estabelece exclusão da submissão por teclado."
+    },
+    {
+      "id": "H03",
+      "label": "nao-sustentado",
+      "justification": "O clique em Previous no passo 1 foi concluído e alterou o título de ukulele no state-1 para summer no state-2. A sondagem confirma a mesma mudança. As linhas 49, 56 e 165 ligam o clique a prevSong e ao carregamento de uma faixa, contrariando a alegação de ausência de mudança."
+    },
+    {
+      "id": "H04",
+      "label": "inconclusivo",
+      "justification": "O passo 2 conclui o clique em Play/Pause e mantém o texto do state-2, que identifica a faixa, mas não mostra a transição de reprodução. A sondagem inclui playing=true e paused=true sem atribuir as leituras a momentos específicos do clique. A exceção de innerHTML aparece no percurso, e as linhas 11–12 e 120/149 apontam para os elementos de tempo. Falta associação temporal ou causal entre a exceção e uma falha de Play/Pause."
+    },
+    {
+      "id": "H05",
+      "label": "nao-sustentado",
+      "justification": "Previous é acionado no passo 1 e o state-2 passa a identificar summer, vindo de ukulele no state-1. A sondagem registra a mesma troca e as linhas 49, 56 e 165 vinculam o clique ao carregamento em prevSong. Isso contraria a alegação de que o controle não navega. O trecho não apresenta a ordem completa da lista para verificar separadamente a posição das faixas."
+    },
+    {
+      "id": "H06",
+      "label": "defeito-confirmado",
+      "justification": "O erro Cannot set properties of null (setting 'innerHTML') consta em pageErrors e é corroborado pela sondagem do navegador. O state-2 documenta o estado alcançado no percurso. O pacote lista zero elementos de tempo e mostra consultas a #currTime e #durTime nas linhas 11–12, com atribuições a innerHTML nas linhas 120 e 149. A exceção não tratada viola diretamente a expectativa de execução sem esse erro."
+    },
+    {
+      "id": "H07",
+      "label": "nao-sustentado",
+      "justification": "Após o preenchimento, o state-2 contém sampleuser. Após Enter no passo 2, a sondagem registra um submit e a classe do campo passa de form-control para form-control success. O texto do state-3 registra erros nos outros campos, e a ausência de mensagem textual de sucesso ali é compatível com a atualização de classe observada. As linhas 76–82 ligam a validação ao submit. A condição de campo obrigatório não estabelece validação durante a digitação."
+    },
+    {
+      "id": "H08",
+      "label": "defeito-confirmado",
+      "justification": "O percurso que chega ao state-2 registra em pageErrors a exceção Cannot set properties of null (setting 'innerHTML'), também registrada na sondagem. Os seletores #currTime e #durTime das linhas 11–12 não têm elementos correspondentes no HTML apresentado, e as linhas 120 e 149 escrevem em innerHTML. O diagnóstico confirma a violação da expectativa de percorrer a página sem exceção não tratada."
+    },
+    {
+      "id": "H09",
+      "label": "inconclusivo",
+      "justification": "O clique em Play/Pause foi executado no passo 2, mas o state-2 registra somente o título da faixa e não informa o estado do controle. A sondagem lista playing=true e paused=true sem fornecer um antes e depois do clique que demonstre a alternância. As linhas 36 e 45 mostram chamadas a audio.play() e audio.pause(), e a exceção registrada não demonstra por si só falha do botão. A alegação também não especifica qual transição esperava."
+    },
+    {
+      "id": "H10",
+      "label": "nao-sustentado",
+      "justification": "O passo 2 leva ao state-3 com mensagens para Email, Password e Confirm Password. A sondagem registra que Enter gera um submit, assim como o botão Submit, e ambos apresentam as mesmas mensagens quando só o Username foi preenchido. O tratamento do evento submit nas linhas 76–82 sustenta esse comportamento, e o pacote não apresenta uma exigência de respostas diferentes para os dois modos."
+    }
+  ]
+}

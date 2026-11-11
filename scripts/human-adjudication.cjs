@@ -55,10 +55,12 @@ async function prepare(input, directory, keyPath) {
     independentHumanReview: false, labels: cases.map(item => ({ id: item.id, label: '', justification: '' })) });
 }
 
-function validateSubmission(review, packet) {
-  if (review.independentHumanReview !== true || typeof review.reviewer !== 'string' || !review.reviewer.trim()
+function validateSubmission(review, packet, agents) {
+  const correctOrigin = agents ? review.kind === 'dedicated-agent' && review.independentHumanReview !== true
+    : review.independentHumanReview === true && !['ai-agent', 'dedicated-agent'].includes(review.kind);
+  if (!correctOrigin || typeof review.reviewer !== 'string' || !review.reviewer.trim()
       || review.evidenceSha256 !== packet.evidenceSha256 || !Array.isArray(review.labels)) {
-    throw new Error('A response must declare independent human review, identify its reviewer and cite this packet hash.');
+    throw new Error('A response must declare the requested reviewer origin, identify its reviewer and cite this packet hash.');
   }
   const pending = new Set(packet.cases.map(item => item.id));
   for (const item of review.labels) {
@@ -70,20 +72,21 @@ function validateSubmission(review, packet) {
   return { ...review, reviewer: review.reviewer.trim() };
 }
 
-async function compare(packetFile, firstFile, secondFile, output) {
+async function compare(packetFile, firstFile, secondFile, output, agents) {
   const { evidenceSha256, ...data } = await read(packetFile);
-  if (hash(data) !== evidenceSha256) throw new Error('Human review packet hash mismatch.');
+  if (hash(data) !== evidenceSha256) throw new Error('Review packet hash mismatch.');
   const packet = { ...data, evidenceSha256 };
-  const reviews = await Promise.all([firstFile, secondFile].map(async file => validateSubmission(await read(file), packet)));
-  if (reviews[0].reviewer.toLowerCase() === reviews[1].reviewer.toLowerCase()) throw new Error('Reviewers must be different people.');
-  await write(output, { evidenceSha256, humanReviewDeclaredBySubmitters: true, ...compareReviewers(...reviews) });
+  const reviews = await Promise.all([firstFile, secondFile].map(async file => validateSubmission(await read(file), packet, agents)));
+  if (reviews[0].reviewer.toLowerCase() === reviews[1].reviewer.toLowerCase()) throw new Error('Reviewer identifiers must differ.');
+  await write(output, { evidenceSha256, reviewerOrigin: agents ? 'dedicated-agents' : 'human',
+    humanReviewDeclaredBySubmitters: !agents, ...compareReviewers(...reviews) });
 }
 
 async function main() {
   const [operation, ...args] = process.argv.slice(2);
   if (operation === 'prepare' && args.length === 3) return prepare(...args);
-  if (operation === 'compare' && args.length === 4) return compare(...args);
-  throw new Error('Usage: prepare agent-packet.json review-directory private-key.json | compare evidencias.json review-A.json review-B.json result.json');
+  if (['compare', 'compare-agents'].includes(operation) && args.length === 4) return compare(...args, operation === 'compare-agents');
+  throw new Error('Usage: prepare agent-packet.json review-directory private-key.json | compare[-agents] evidencias.json review-A.json review-B.json result.json');
 }
 
 main().catch(error => { console.error(error.message); process.exitCode = 1; });

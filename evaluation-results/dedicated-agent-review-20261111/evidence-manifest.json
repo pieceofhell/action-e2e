@@ -1,0 +1,18 @@
+[
+  {
+    "path": "evaluation-results/dedicated-agent-review-20261111/README.md",
+    "sha256": "16146bf220d241a4f1d87ca925f70be301bdda01985e8b831af9e56e36b49df0"
+  },
+  {
+    "path": "evaluation-results/dedicated-agent-review-20261111/agent-a.json",
+    "sha256": "d34631880c90a94d6f9cdb8c3be5b3a4e78915b021d258aef302a9376927350d"
+  },
+  {
+    "path": "evaluation-results/dedicated-agent-review-20261111/agent-b.json",
+    "sha256": "dbc1aa7ba5ccead149c2c8768e4983bf8a0fe9db142e465b8d402c3bc9e31d3b"
+  },
+  {
+    "path": "evaluation-results/dedicated-agent-review-20261111/agreement.json",
+    "sha256": "6ae9ea5623bcf004418b89afcdab20ecf148d7492657c77ad4fdd2ea3599f6d2"
+  }
+]

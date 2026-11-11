@@ -47,7 +47,11 @@ Após receber as duas submissões, valide-as e calcule a concordância antes de 
 node scripts/human-adjudication.cjs compare evaluation-results/human-review-20261110/evidencias.json revisao-A.json revisao-B.json concordancia-humana.json
 ```
 
-O pacote preparado ainda aguarda as duas avaliações. A concordância anterior permanece registrada como concordância entre agentes.
+O pacote permanece disponível para uma futura avaliação humana.
+
+## Segunda revisão por agentes
+
+Em 11/11, dois agentes em contextos separados revisaram as mesmas dez alegações com o pacote embaralhado. Concordaram em oito (κ = 0,58). As duas divergências envolveram a interpretação da evidência sobre Play/Pause. A [revisão dedicada](../../evaluation-results/dedicated-agent-review-20261111/README.md) reúne os pareceres, a comparação com a primeira rodada e o comando de reprodução.
 
 ## Reprodução e reversão
 

@@ -1,0 +1,57 @@
+{
+  "reviewer": "B",
+  "kind": "dedicated-agent",
+  "evidenceSha256": "4945dae386dcc5e32d8eab293a7f19779441a2a29d1e7fbd2254a23f0ed04935",
+  "labels": [
+    {
+      "id": "H01",
+      "label": "nao-sustentado",
+      "justification": "O passo 1 preenche o campo com Sample Todo. No passo 2, Enter leva ao state-3, em que Sample Todo aparece na lista e o campo fica vazio. A verificação no navegador também registra a criação de Review todo, que aparece em Active. O código das linhas 15–20 trata Enter e chama onSubmit(value)."
+    },
+    {
+      "id": "H02",
+      "label": "nao-sustentado",
+      "justification": "O state-3 registra as três mensagens após Enter no passo 2. A verificação no navegador registra um evento submit tanto por Enter quanto pelo botão Submit, com os mesmos erros nos campos vazios. O ouvinte de submit aciona as verificações nas linhas 76–82. A justificativa atribuída à documentação descreve funções de validação e não estabelece uma restrição ao envio pelo teclado."
+    },
+    {
+      "id": "H03",
+      "label": "nao-sustentado",
+      "justification": "O clique em prev no passo 1 muda o título da faixa de ukulele no state-1 para summer no state-2. A verificação no navegador registra a mesma troca. O botão está ligado a prevSong na linha 165, e a função carrega a faixa selecionada na linha 56."
+    },
+    {
+      "id": "H04",
+      "label": "nao-sustentado",
+      "justification": "O passo 2 termina no mesmo estado de texto, mas a verificação no navegador registra reprodução e pausa (playing e paused). A exceção em innerHTML é compatível com a atualização dos elementos de tempo ausentes nas linhas 120 e 149. O código dos controles chama audio.play() e audio.pause() nas linhas 36 e 45, e o teste registra ambos os efeitos."
+    },
+    {
+      "id": "H05",
+      "label": "nao-sustentado",
+      "justification": "O passo 1 aciona prev e troca ukulele no state-1 por summer no state-2, conforme também registra o navegador. O código vincula o botão a prevSong na linha 165 e carrega a faixa selecionada na linha 56. O pacote não indica que summer esteja fora da posição esperada na sequência."
+    },
+    {
+      "id": "H06",
+      "label": "defeito-confirmado",
+      "justification": "O rastreamento e a verificação no navegador registram a exceção de página Cannot set properties of null (setting 'innerHTML') na jornada que chega ao state-2. A ausência dos elementos de tempo no HTML é compatível com as consultas das linhas 11–12 e as escritas em innerHTML nas linhas 120 e 149. A exceção observada viola a expectativa de execução sem erro não tratado."
+    },
+    {
+      "id": "H07",
+      "label": "nao-sustentado",
+      "justification": "O preenchimento já altera o valor do campo no state-2. Na verificação no navegador, Enter dispara um submit e muda a classe do campo para form-control success. O recorte textual do state-3 não mostra a classe. O trecho de código liga a validação ao evento submit nas linhas 76–82, e a alegação não traz uma exigência de validação durante o preenchimento."
+    },
+    {
+      "id": "H08",
+      "label": "defeito-confirmado",
+      "justification": "O rastreamento que chega ao state-2 registra a exceção Cannot set properties of null (setting 'innerHTML'), também presente na verificação no navegador. O HTML não contém os elementos de tempo consultados nas linhas 11–12, e o código escreve em innerHTML nas linhas 120 e 149. O diagnóstico confirma a exceção não tratada nessa jornada."
+    },
+    {
+      "id": "H09",
+      "label": "nao-sustentado",
+      "justification": "O estado textual permanece em Music Player summer após o clique no passo 2. A verificação no navegador mede reprodução e pausa (playing e paused), em linha com audio.play() e audio.pause() nas linhas 36 e 45. O registro do erro em innerHTML não demonstra falha na alternância de reprodução."
+    },
+    {
+      "id": "H10",
+      "label": "nao-sustentado",
+      "justification": "Enter no passo 2 leva ao state-3 com erros de e-mail, senha e confirmação ainda vazios. Na verificação no navegador, tanto Enter quanto o botão Submit disparam um submit e produzem as mesmas três mensagens. O código valida os campos no ouvinte de submit nas linhas 76–82."
+    }
+  ]
+}

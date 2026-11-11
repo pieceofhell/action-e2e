@@ -1,0 +1,57 @@
+{
+  "evidenceSha256": "4945dae386dcc5e32d8eab293a7f19779441a2a29d1e7fbd2254a23f0ed04935",
+  "reviewerOrigin": "dedicated-agents",
+  "humanReviewDeclaredBySubmitters": false,
+  "reviewers": [
+    "A",
+    "B"
+  ],
+  "n": 10,
+  "categories": [
+    "defeito-confirmado",
+    "inconclusivo",
+    "nao-sustentado"
+  ],
+  "observed": 0.8,
+  "expected": 0.52,
+  "kappa": 0.5833333333333334,
+  "confusion": {
+    "defeito-confirmado": {
+      "defeito-confirmado": 2,
+      "inconclusivo": 0,
+      "nao-sustentado": 0
+    },
+    "inconclusivo": {
+      "defeito-confirmado": 0,
+      "inconclusivo": 0,
+      "nao-sustentado": 2
+    },
+    "nao-sustentado": {
+      "defeito-confirmado": 0,
+      "inconclusivo": 0,
+      "nao-sustentado": 6
+    }
+  },
+  "interpretation": "moderada",
+  "disagreements": [
+    {
+      "id": "H04",
+      "A": "inconclusivo",
+      "B": "nao-sustentado",
+      "justifications": [
+        "O passo 2 conclui o clique em Play/Pause e mantém o texto do state-2, que identifica a faixa, mas não mostra a transição de reprodução. A sondagem inclui playing=true e paused=true sem atribuir as leituras a momentos específicos do clique. A exceção de innerHTML aparece no percurso, e as linhas 11–12 e 120/149 apontam para os elementos de tempo. Falta associação temporal ou causal entre a exceção e uma falha de Play/Pause.",
+        "O passo 2 termina no mesmo estado de texto, mas a verificação no navegador registra reprodução e pausa (playing e paused). A exceção em innerHTML é compatível com a atualização dos elementos de tempo ausentes nas linhas 120 e 149. O código dos controles chama audio.play() e audio.pause() nas linhas 36 e 45, e o teste registra ambos os efeitos."
+      ]
+    },
+    {
+      "id": "H09",
+      "A": "inconclusivo",
+      "B": "nao-sustentado",
+      "justifications": [
+        "O clique em Play/Pause foi executado no passo 2, mas o state-2 registra somente o título da faixa e não informa o estado do controle. A sondagem lista playing=true e paused=true sem fornecer um antes e depois do clique que demonstre a alternância. As linhas 36 e 45 mostram chamadas a audio.play() e audio.pause(), e a exceção registrada não demonstra por si só falha do botão. A alegação também não especifica qual transição esperava.",
+        "O estado textual permanece em Music Player summer após o clique no passo 2. A verificação no navegador mede reprodução e pausa (playing e paused), em linha com audio.play() e audio.pause() nas linhas 36 e 45. O registro do erro em innerHTML não demonstra falha na alternância de reprodução."
+      ]
+    }
+  ],
+  "unpaired": []
+}
