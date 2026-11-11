@@ -165,6 +165,16 @@ test('Metal estimate is used and disclosed when llama.cpp is not installed yet',
   assert.ok(plan.warnings.some(item => item.includes('estimated')));
 });
 
+test('an installed runtime without a Metal device falls back to CPU or a separate provider', () => {
+  const runtime = { available: true, cuda: false, metal: null };
+  const roomy = buildPlan({ hardware: mac(16384, 9000), runtime });
+  assert.equal(roomy.backend, 'cpu');
+  assert.equal(roomy.args[roomy.args.indexOf('--device') + 1], 'none');
+  assert.ok(roomy.warnings.some(item => item.includes('did not list a Metal device')));
+  const tight = buildPlan({ hardware: mac(8192, 2600), runtime });
+  assert.equal(tight.launchModel, false);
+});
+
 test('Metal-only profiles never change automatic CUDA selection', () => {
   const plan = buildPlan({ hardware: hardware(32768, 30000, 24000), runtime: { available: true, cuda: true } });
   assert.equal(plan.profile, 'vision-7b');

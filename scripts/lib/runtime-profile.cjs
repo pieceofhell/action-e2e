@@ -156,8 +156,10 @@ function buildPlan({ hardware, runtime = { available: false, cuda: null }, serve
     throw new Error('Context must be a multiple of 1024 from 4096 through 32768.');
   }
   if (modelPath && profile === 'auto') throw new Error('Local GGUF paths require an explicit --profile; their size cannot be inferred from the machine.');
-  const selected = chooseProfile(hardware, { profile, cuda: device ? true : runtime.cuda, cpu, metal: runtime.metal });
+  const missingMetal = runtime.available && hardware.unifiedMemory && !runtime.metal?.length && !device && !cpu;
+  const selected = chooseProfile(hardware, { profile, cuda: device ? true : runtime.cuda, cpu: cpu || missingMetal, metal: runtime.metal });
   const warnings = [...(hardware.warnings || [])];
+  if (missingMetal) warnings.push('This llama.cpp binary did not list a Metal device. Install a Metal-enabled build to use the GPU.');
   if (!selected.profile) return { ...selected, profile: 'separate-provider', hardware, launchModel: false, warnings };
   const config = selected.profile;
   const contextTokens = Number(context || config.context);
@@ -186,7 +188,6 @@ function buildPlan({ hardware, runtime = { available: false, cuda: null }, serve
     warnings.push('Available system memory is below this profile starting budget. Choose a smaller profile or a separate provider.');
   }
   if (backend === 'metal' && selected.gpu.source === 'estimate') warnings.push('Metal working set was estimated from RAM; install llama.cpp so --list-devices can report it.');
-  if (backend === 'metal' && runtime.available && !runtime.metal) warnings.push('This llama.cpp binary did not list a Metal device. Install an Apple Silicon build (for example `brew install llama.cpp`).');
   if (!config.vision) warnings.push('Text/DOM-only inference: screenshots are not supplied to this model. Exploration quality must be evaluated separately.');
   return { profile: config.id, hardware, backend, gpu: selected.gpu, server, runtime, args, alias,
     contextTokens, vision: config.vision, modelSource: modelPath ? 'local-files' : config.repository,
