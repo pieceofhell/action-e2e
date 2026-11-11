@@ -181,6 +181,10 @@ async function runAgenticExploration({
         }
       }
     } catch (error) {
+      if (fixedBudget && Date.now() - startedAt >= maxDurationMs) {
+        terminationReason = 'time-budget';
+        break;
+      }
       invalidDecisions += 1;
       steps.push({
         step: attempt + 1,
