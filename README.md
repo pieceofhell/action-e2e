@@ -1,6 +1,6 @@
 # Action E2E Prototype
 
-Current research revision is **10 November 2026**. The [controlled evaluation](docs/research/controlled-evaluation-20261110.md) documents the paired selector comparison, browser controls and the blinded human review packet. The [Apple Silicon collection](evaluation-results/apple-m4-qwen3vl4b-20261107/README.md) preserves the earlier results. See the [documentation index](docs/README.md) and [paper versions](paper/README.md).
+Current research revision is **11 November 2026**. The [controlled evaluation](docs/research/controlled-evaluation-20261110.md) documents the paired selector comparison and browser controls. The [second agent review](evaluation-results/dedicated-agent-review-20261111/README.md) revisits ten claims from the [Apple Silicon collection](evaluation-results/apple-m4-qwen3vl4b-20261107/README.md). See the [documentation index](docs/README.md) and [paper versions](paper/README.md).
 
 For Linux boot without logon, automatic memory-based model selection, Apple Silicon Macs (Metal), and an 8 GB laptop, use the [portable runtime guide](docs/guides/portable-runtime.md). Start with `npm run doctor`; `npm run start:unattended` supports Linux and Windows. The application can also use inference hosted on another computer through an SSH tunnel.
 
@@ -116,7 +116,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The project self-test passed **193 tests with zero failures or skips** on Windows on 10 November 2026. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
+The project self-test passed **196 tests with zero failures or skips** on Windows on 11 November 2026. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 
