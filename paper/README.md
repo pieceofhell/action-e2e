@@ -7,10 +7,13 @@
 | Revisão editorial, 21/10/2026, preservada | [21/10/2026](versions/2026-10-21-editorial/article.pdf) | [main.tex](versions/2026-10-21-editorial/main.tex) | Revisão editorial anterior ao ajuste da declaração de IA. |
 | Declaração de IA ajustada, 21/10/2026, preservada | [21/10/2026](versions/2026-10-21-declaracao-ia/article.pdf) | [main.tex](versions/2026-10-21-declaracao-ia/main.tex) | Versão anterior à incorporação da coleta no Apple M4. |
 | Avaliação complementar, 08/11/2026, preservada | [PDF](versions/2026-11-08-complementar/article.pdf) | [main.tex](versions/2026-11-08-complementar/main.tex) | Segunda configuração local, análise da matriz de funções e verificação da suíte dos cartões. |
-| Revisão por agentes, 08/11/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Protocolo, concordância e divergência na revisão por dois agentes. |
+| Revisão por agentes, 08/11/2026, preservada | [PDF](versions/2026-11-08-agentes/article.pdf) | [main.tex](versions/2026-11-08-agentes/main.tex) | Protocolo, concordância e divergência na revisão por dois agentes. |
+| Comparação controlada, 10/11/2026 | [Artigo atual](current/article.pdf) | [main.tex](current/main.tex) | Comparação pareada com seleção uniforme, controles de criação e recarga, reteste dos cartões e síntese por questão de pesquisa. |
 | Anteriormente publicada no GitHub | [Baseline remota](versions/remote-baseline/article.pdf) | [Fontes históricas](versions/remote-baseline/main.tex) | Preservada para continuidade do repositório. Não é o artigo de 18/10. |
 
 [versions.json](versions.json) registra hashes dos PDFs e fontes. O PDF anterior tem SHA-256 `c94145ddacaf7232c8169285b4ab7c29fc6e317643d647e7f44adfaad93b5d64`.
+
+A [avaliação controlada de 10/11](../docs/research/controlled-evaluation-20261110.md) reúne os dados e os comandos de reprodução da versão atual de 16 páginas.
 
 O [ensaio de revisão por dois agentes](../evaluation-results/apple-m4-qwen3vl4b-20261107/two-agent-review/README.md) inclui o pacote, os julgamentos e a concordância. O artigo distingue esse resultado da revisão humana, que permanece futura.
 

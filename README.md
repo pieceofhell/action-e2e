@@ -1,6 +1,6 @@
 # Action E2E Prototype
 
-Current research revision: **7 November 2026** (Apple Silicon/Metal runtime, function × execution matrix, reviewer agreement; see [`evaluation-results/apple-m4-qwen3vl4b-20261107`](evaluation-results/apple-m4-qwen3vl4b-20261107/README.md)). Previous revision: 20 October 2026. See the [documentation index](docs/README.md), [critical review and validation plan](docs/research/critical-review-20261020.md), [RTX 3060 remote setup](docs/guides/remote-rtx3060.md), and [paper versions](paper/README.md). `paper/current/` is the maintained article; `paper/versions/2026-10-18/` preserves the previous PDF and sources.
+Current research revision is **10 November 2026**. The [controlled evaluation](docs/research/controlled-evaluation-20261110.md) documents the paired selector comparison, browser controls and the blinded human review packet. The [Apple Silicon collection](evaluation-results/apple-m4-qwen3vl4b-20261107/README.md) preserves the earlier results. See the [documentation index](docs/README.md) and [paper versions](paper/README.md).
 
 For Linux boot without logon, automatic memory-based model selection, Apple Silicon Macs (Metal), and an 8 GB laptop, use the [portable runtime guide](docs/guides/portable-runtime.md). Start with `npm run doctor`; `npm run start:unattended` supports Linux and Windows. The application can also use inference hosted on another computer through an SSH tunnel.
 
@@ -116,7 +116,7 @@ npm.cmd test
 
 Use `npm.cmd` and `npx.cmd` on Windows if PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled. This invokes the same Node.js tools without changing the machine's execution policy. On another shell, ordinary `npm` and `npx` are equivalent.
 
-The expected project self-test result for this revision is **185 passed, 0 failed, 0 skipped** (7 November 2026; 167 on 20 October 2026), including approved-oracle fidelity, critic consistency, numeric constraints and corpus checks. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
+The project self-test passed **193 tests with zero failures or skips** on Windows on 10 November 2026. Reinstall the Playwright Chromium version declared by the current lockfile after upgrading dependencies.
 
 ### Start the optimized local model
 

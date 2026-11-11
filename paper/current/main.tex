@@ -18,11 +18,11 @@
 \maketitle
 \begin{otherlanguage}{english}
 \begin{abstract}
-This work investigates how far local language models can conduct initial exploration of an unfamiliar web application and observe potential failures. E2P connects project inspection, a bounded action catalogue, state observations, and test generation. Repeated explorations in two local configurations reached useful operations without a supplied navigation script or defect description. An audio player exception recurred across configurations, and browser checks distinguished it from unsupported defect hypotheses. Controlled checks show that property-specific assertions detect alterations, while a generated suite passed even when card creation was disabled. A reference function matrix organizes the evidence and exposes gaps between attempting, exercising, and verifying a function. The results characterize the exploratory reach of each configuration and the evidence needed to evaluate the resulting tests.
+This work investigates how far local language models can conduct initial exploration of an unfamiliar web application and observe potential failures. E2P connects project inspection, a bounded action catalogue, browser observations, and test generation. In a paired comparison across four applications, the model policy reached 12 domain effects and seeded uniform selection reached six. The difference was concentrated in one application, with higher median exploration time for the model. Replays confirmed all 18 effects using evaluator-defined assertions. A controlled test checked card creation and restoration and distinguished the original from two deliberately altered versions. The results characterize the scope and cost of exploration under the evaluated conditions.
 \end{abstract}
 \end{otherlanguage}
 \begin{resumo}
-Este trabalho investiga até que ponto modelos de linguagem locais conseguem realizar uma exploração inicial de uma aplicação web desconhecida e observar possíveis falhas. O E2P conecta inspeção do projeto, catálogo limitado de ações, observações de estado e geração de testes. Explorações repetidas em duas configurações locais alcançaram operações úteis sem roteiro de navegação ou descrição de defeito fornecidos. Uma exceção no reprodutor de áudio ocorreu nas duas configurações, e verificações de navegador a distinguiram de hipóteses de defeito sem sustentação. Ensaios controlados mostram que asserções específicas detectam alterações, enquanto uma suíte gerada passou mesmo com a criação de cartões desativada. Uma matriz de funções de referência organiza as evidências e evidencia lacunas entre tentar, exercitar e verificar uma função. Os resultados caracterizam o alcance exploratório de cada configuração e a evidência necessária para avaliar os testes resultantes.
+Este trabalho investiga até que ponto modelos de linguagem locais conseguem realizar uma exploração inicial de uma aplicação web desconhecida e observar possíveis falhas. O E2P conecta inspeção de projeto, catálogo limitado de ações, observações no navegador e geração de testes. Em uma comparação pareada em quatro aplicações, a política com modelo alcançou 12 efeitos de domínio e a seleção uniforme com semente, seis. A diferença concentrou-se em uma aplicação, com maior tempo mediano de exploração para o modelo. Reexecuções confirmaram os 18 efeitos com asserções definidas pelo avaliador. Um teste controlado verificou a criação e a restauração de cartão e distinguiu o original de duas versões alteradas deliberadamente. Os resultados caracterizam alcance e custo da exploração nas condições avaliadas.
 \end{resumo}
 
 \section{Introdução}\label{sec:intro}
@@ -35,8 +35,6 @@ Neste trabalho, \textit{orientado por ações} caracteriza o papel do modelo na 
 O problema de pesquisa é: \textit{até que ponto um modelo de IA consegue realizar uma exploração inicial de uma aplicação web desconhecida e, nesse processo, observar possíveis falhas?} O objetivo geral é investigar essa capacidade por meio do E2P, que conecta decisões do modelo à execução real da aplicação. Os objetivos específicos são: (i) reconhecer funções a partir de documentação, código e interface; (ii) selecionar e executar ações relacionadas ao propósito do produto; (iii) registrar estados e evidências que permitam revisar a trajetória; e (iv) analisar hipóteses de falha e os mecanismos utilizados para verificá-las.
 
 A contribuição é o E2P, um instrumento local que torna rastreável o percurso entre decisão do modelo, ação executada, evidência e asserção. As trajetórias mostram operações iniciadas sem roteiro e estados nos quais a instrumentação captura falhas reproduzíveis. Os ensaios de navegador demonstram em que casos as asserções distinguem alterações controladas e preservam a expectativa aprovada, assim como a diferença entre um teste aprovado e uma função efetivamente verificada.
-
-O restante do artigo apresenta a fundamentação e os trabalhos relacionados na Seção~\ref{sec:related}, a metodologia na Seção~\ref{sec:method}, a implementação na Seção~\ref{sec:implementation}, os resultados na Seção~\ref{sec:results}, as ameaças à validade na Seção~\ref{sec:threats} e as conclusões na Seção~\ref{sec:conclusion}.
 
 \section{Referencial Teórico e Trabalhos Relacionados}\label{sec:related}
 \subsection{Da execução de interações à avaliação de comportamento}
@@ -65,9 +63,7 @@ GUISpector verifica requisitos em linguagem natural sobre protótipos de interfa
 SpecOps decompõe o teste de agentes de interface gráfica (\textit{Graphical User Interface}, GUI) em geração, preparação, execução e validação~\cite{ahmed2026specops}. Seu objeto são agentes de IA em ambientes reais, enquanto o E2P avalia aplicações web. A separação dos estágios orienta a arquitetura do protótipo e a identificação da origem de cada evidência.
 
 \subsection{Posicionamento do trabalho}
-O E2P se posiciona na investigação da exploração inicial de aplicações web por um modelo de IA orientado por ações. Diante de um projeto apresentado sem roteiro de teste, o modelo precisa reconhecer sua finalidade, identificar possibilidades de interação e escolher como obter informação sobre seu funcionamento. A questão central é quanto dessa atividade pode ser realizada de forma útil e que indícios de falha podem surgir durante o percurso.
-
-Os trabalhos relacionados oferecem fundamentos para essa investigação: agentes de interface sustentam o ciclo de observar e agir; geração de cenários inspira os artefatos intermediários; e estudos de reprodução e avaliação orientam a conferência das hipóteses. Essas contribuições informam a arquitetura do E2P e os critérios de análise. O objeto empírico deste trabalho é a atuação do modelo dentro dessa implementação, conectada a uma aplicação executada e a evidências de suas próprias decisões.
+O E2P investiga a iniciativa do agente antes da definição de uma tarefa de teste. A exploração conecta as decisões do modelo à aplicação em execução e registra a trajetória que poderá fundamentar cenários e hipóteses. A análise examina o alcance funcional das interações e a procedência da expectativa usada para verificá-las.
 
 \section{Metodologia}\label{sec:method}
 \subsection{Delineamento e questões de pesquisa}
@@ -80,9 +76,7 @@ A avaliação articula três fontes de evidência: caracterização das aplicaç
 \subsection{Aplicações utilizadas e comportamentos de interesse}
 Para observar decisões em interfaces com finalidades diferentes, foram utilizados os exemplos públicos de Vanilla Web Projects~\cite{traversy2026vanilla}. O conjunto reúne 21 aplicações: formulários, listas, buscas, jogos, reprodução de mídia e recursos de voz. A escolha permite relacionar cada ação a um propósito identificável e examinar tanto operações locais quanto comportamentos dependentes de tempo ou de serviços externos. O catálogo Dopa~\cite{pieceofhell2026dopa}, desenvolvido pelo próprio autor deste TCC, foi utilizado como cenário inicial de integração do protótipo; os exemplos públicos oferecem os casos de estudo apresentados nesta avaliação.
 
-A caracterização considera organização do código, entradas, estado e dependências. Cada exemplo possui um documento HTML de entrada e dois a quatro arquivos-fonte, com 118 a 372 linhas físicas não vazias de HTML, CSS e JavaScript, incluindo comentários. Dependências instaladas, arquivos gerados, mídia e arquivos minificados são excluídos da contagem. Os exemplos podem ser servidos estaticamente e não possuem serviço próprio no servidor. Cinco utilizam chamadas \texttt{fetch}, quatro utilizam armazenamento no navegador e dois empregam APIs de fala.
-
-Essas características descrevem aplicações de pequeno porte e escopo funcional delimitado. O porte é sustentado pela estrutura concentrada no navegador e pela quantidade restrita de responsabilidades, além do volume de código. A exigência de teste, por sua vez, depende do comportamento: uma interface de poucos arquivos pode envolver cálculo, estado acumulado, áudio ou temporização. Por isso, a análise apresenta as funções exercitadas e os resultados observáveis, sem utilizar linhas de código como uma escala de dificuldade.
+A amostra reúne aplicações estáticas sem serviço próprio no servidor. Cada exemplo possui um HTML de entrada e dois a quatro arquivos-fonte, com 118 a 372 linhas não vazias, incluindo comentários. A contagem exclui dependências, saídas geradas, mídia e minificados. Cinco aplicações usam \texttt{fetch}, quatro usam armazenamento no navegador e duas empregam APIs de fala. O alcance é avaliado por funções e efeitos observáveis.
 
 A Tabela~\ref{tab:corpus} apresenta as aplicações por finalidade predominante. As famílias organizam a leitura dos casos; capacidades como persistência e dependência de rede podem aparecer em mais de uma família. O inventário complementar associa cada aplicação a seus arquivos, medidas, comportamentos de referência e artefatos de execução.
 
@@ -139,7 +133,7 @@ O modelo local de 27 bilhões de parâmetros utiliza os pesos \path{Qwen3.8-27B-
 
 A segunda configuração utiliza macOS, Apple M4 com 16 GB de memória unificada, Qwen3-VL de 4 bilhões de parâmetros em Q4\_K\_M, projetor visual Q8 e contexto reservado de 16.384 tokens. A inferência usa llama.cpp com Metal. A seleção de perfil considera memória recuperável pelo sistema e o limite de trabalho informado pelo servidor. A quantização e o contexto reservado influenciam o orçamento de memória de pesos, cache e processamento visual. O contexto efetivamente usado depende da etapa e das evidências selecionadas.
 
-O orçamento da exploração é de até 20 ações e 180 segundos nas duas configurações. A profundidade depende das escolhas, do tempo de inferência, da resposta do alvo e do custo de organizar código, histórico e imagens. O relógio da página é isolado durante as decisões para reduzir a interferência da latência em interfaces temporizadas.
+O orçamento nominal das explorações iniciais é de 20 ações e 180 segundos nas duas configurações. A profundidade depende das escolhas, da inferência, da resposta do alvo e da preparação das evidências. O relógio da página é isolado durante as decisões para reduzir a interferência da latência em interfaces temporizadas.
 
 \subsection{Validação e critérios de interpretação}
 A exploração é examinada por ações concluídas, funções reconhecidas, mudanças de estado e diagnósticos observados. A avaliação de um caso executável confronta a intenção do critério com sua asserção: entidade, valor esperado, comparação e momento de verificação. Um teste de persistência, por exemplo, precisa criar estado, recarregar e conferir o mesmo estado restaurado. A existência de um campo ou de um cabeçalho serve como evidência de interface, mas não substitui uma propriedade de domínio.
@@ -151,18 +145,21 @@ As ações associadas a exceções são repetidas em sessões limpas. Na revisã
 O repositório do E2P\footnote{\url{https://github.com/pieceofhell/action-e2e}. A revisão \texttt{f7df0df} identifica o suplemento da coleta no M4.} registra configurações, arquivos-fonte, protocolos e evidências. O comando \texttt{evaluate:corpus} reproduz o inventário estrutural; \texttt{evaluate:functions} refaz a classificação automática a partir das trajetórias. Os ensaios de navegador examinam as operações e propriedades separadamente.
 
 
+\subsection{Comparação pareada de políticas de exploração}
+Para investigar a contribuição das escolhas do modelo, o protocolo congelado comparou o perfil local de 27B com a escolha uniforme com semente entre as ações elegíveis do mesmo catálogo. Houve três pares por alvo em Form Validator, Music Player, Expense Tracker e Memory Cards, com ordem das condições sorteada dentro do par. Cada tentativa iniciou um contexto limpo, com o mesmo navegador, inspeção estática, política de acesso, executor, isolamento do relógio e orçamento nominal de 10 ações concluídas e 60 segundos. O modelo escolheu ações e parâmetros a partir da interface. A referência aleatória usou entradas sintéticas predefinidas. Assim, o contraste compreende a política de escolha e de preenchimento.
+
+O avaliador registrou transições no DOM segundo sete regras definidas antes da coleta. Elas abrangem validação de Username na submissão, faixa anterior e seguinte, criação com saldo e restauração de lançamento, criação e restauração de cartão. Cada regra contou no máximo uma vez por tentativa. O mesmo gerador compilou passos observados e asserções para reexecução em sessões limpas. Os oráculos do avaliador ficaram fora do contexto do explorador. Tempos e ações incluem tentativas sem funções alcançadas.
+
 \section{Descrição da Implementação}\label{sec:implementation}
 \subsection{Serviços e preparação do ambiente}
-O E2P utiliza Node.js e Express, interface HTML/CSS/JavaScript, Cheerio para inspeção estática e Playwright para observação e execução~\cite{microsoft2026playwright}. Serviços separados tratam inspeção, ambiente, provedor, exploração, planejamento, geração, hipóteses e histórico. A inspeção seleciona documentação e trechos do repositório; o modelo contribui para sua interpretação, enquanto a execução depende de comandos e controles admitidos pelo instrumento. Essa separação torna possível localizar o estágio em que uma falha ocorreu.
-
-O ambiente pode ser servido estaticamente, iniciado por comando, conectado a uma URL existente ou submetido apenas à análise. O comando e a URL inferidos são revisáveis. Cada execução mantém artefatos em diretório próprio, sem inserir testes no código do alvo. Instalar dependências e iniciar a aplicação ainda pode produzir efeitos no ambiente; a separação de diretórios não constitui isolamento completo.
+O E2P usa Node.js e Express, Cheerio para inspeção estática e Playwright para observação e execução~\cite{microsoft2026playwright}. A inspeção seleciona documentação e código. O alvo pode ser servido estaticamente, iniciado por comando ou acessado por uma URL existente. Cada execução mantém artefatos em diretório próprio. O isolamento do navegador limita as interações, mas a instalação e os comandos do alvo ainda podem produzir efeitos no ambiente.
 
 O adaptador atende diferentes provedores; as explorações avaliadas usam llama.cpp diretamente. No modo convidado, capturas podem complementar o modelo de objetos do documento (\textit{Document Object Model}, DOM) quando o provedor suporta visão. O envio ao modelo é controlado separadamente do registro da imagem. O modo autenticado é uma prova de conceito somente para leitura, com referências a segredos por variáveis de ambiente, sessões isoladas e quarentena de artefatos; vídeos e rastros ficam desabilitados nesse modo.
 
 \subsection{Exploração limitada e representação de estado}
 A cada observação, o explorador constrói um catálogo de controles com identificadores, nomes acessíveis e operações admitidas. O modelo escolhe nesse catálogo, e o executor resolve o controle correspondente. Respostas estruturadas em JSON e decisões inválidas recebem correção limitada. A política de participação obrigatória do modelo (\textit{AI-first}) interrompe a progressão quando falta uma decisão válida, preservando a evidência parcial.
 
-Objetivos QA derivados da inspeção contextualizam entrada, seleção, navegação, validação, temporização, persistência e cálculo. O perfil dos registros limita a exploração a até 20 ações e 180 segundos; esperas explícitas são limitadas a 12 segundos. Uma recarga depende de indícios de persistência e mudança anterior. Essas oportunidades orientam a descoberta, mas sua ocorrência não é uma asserção de correção.
+Objetivos QA derivados da inspeção contextualizam entrada, seleção, navegação, validação, temporização, persistência e cálculo. Esperas explícitas são limitadas a 12 segundos. Uma recarga depende de indícios de persistência e mudança anterior. Essas oportunidades orientam a descoberta. A comprovação exige observar o efeito correspondente.
 
 O relógio da página convidada é pausado durante a inferência e retomado antes da ação, reduzindo mudanças silenciosas de estado enquanto o modelo decide. A inferência integra o orçamento total; serviços externos mantêm sua própria temporização. A política prioriza entradas fictícias ordinárias, com correção limitada após validação e respeito aos limites declarados pelos controles. O esgotamento do catálogo encerra a exploração das ações permitidas naquela trajetória.
 
@@ -242,6 +239,33 @@ O formulário de controle verifica uma propriedade central do contrato. Mesmo qu
 
 No ensaio de geração e execução do Memory Cards no M4, os três testes gerados passaram. A inspeção confirmou asserções sobre valores digitados e um título, sem verificar as funções de referência dos cartões. Em uma conferência posterior no Windows, a mesma suíte passou tanto no original quanto em uma cópia com a criação desativada. Um roteiro de controle, elaborado para a conferência, criou e restaurou um cartão no original e constatou sua ausência na cópia. A aprovação da suíte indicou que a interface exercitada respondia; a comparação mostrou que ela não detectava a perda da criação.
 
+Em novo controle dirigido, o compilador vinculou asserções distintas à criação e à recarga explícita. O teste conferiu a presença da mesma pergunta e resposta no cartão em ambos os passos. O mesmo arquivo passou no original e falhou em asserções diferentes nas duas cópias: imediatamente após adicionar quando a criação estava desativada e após a recarga quando a restauração estava desativada.
+
+\subsection{Resultados da comparação pareada}
+As 24 tentativas foram concluídas. A Tabela~\ref{tab:comparison} soma efeitos por tentativa. Cada um dos 18 efeitos contabilizados foi reconferido no navegador com a asserção correspondente.
+
+\begin{table}[ht]
+\centering\small
+\caption{Efeitos de domínio observados e reconferidos em três tentativas por condição e alvo.}
+\label{tab:comparison}
+\begin{tabular}{lrrr}
+\toprule
+Alvo & Possíveis por condição & Modelo & Uniforme \\
+\midrule
+Form Validator & 3 & 3 & 3 \\
+Music Player & 6 & 3 & 3 \\
+Expense Tracker & 6 & 6 & 0 \\
+Memory Cards & 6 & 0 & 0 \\
+\midrule
+Total & 21 & 12 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O modelo teve maior alcance em três pares, todos no Expense Tracker, e empatou em nove. A diferença média foi de 0,5 efeito por par. No player, o modelo alcançou a faixa anterior e a seleção uniforme alcançou a seguinte, com a mesma contagem. O tempo mediano de exploração foi 49,25 segundos com o modelo e 4,17 com a seleção uniforme, excluindo a reexecução dos testes. Algumas operações terminaram após o orçamento nominal. Os dados indicam ganho localizado de alcance acompanhado de maior latência neste perfil.
+
+No Memory Cards, a coleta revelou controles de um formulário cujo painel pai estava transparente. A correção da observação excluiu esses controles enquanto o painel estava fechado. Uma rodada posterior e focal manteve as três sementes, a ordem por par e o orçamento dos cartões. O modelo criou um cartão em três de três tentativas e os três efeitos foram reconferidos. A seleção uniforme obteve zero criações. Nenhuma trajetória atingiu a restauração após recarga explícita. A rodada foi motivada pelo resultado inicial e permanece registrada separadamente.
+
 \subsection{Observação e reprodução de falhas}
 Nas duas configurações, a instrumentação registrou no Music Player a exceção de escrita em elemento ausente durante a atualização do tempo (\texttt{currTime} e \texttt{durTime}). A conferência no navegador constatou mudança da faixa e funcionamento do comando de pausa, mesmo com a exceção. O diagnóstico, portanto, localiza uma falha na atualização de tempo, sem sustentar as alegações sobre falha de troca de faixa ou do botão de reprodução. No Memory Cards, a navegação sem cartão atingida no Windows gera uma exceção ao acessar \texttt{cardsEl[currentActiveCard]}; nenhuma ação de navegação foi concluída nas explorações do M4.
 
@@ -253,15 +277,28 @@ O modelo selecionou as ações; o coletor identificou as exceções; a reproduç
 A coleta no M4 demonstra viabilidade em uma segunda configuração local, com operações comuns e diferenças de alcance nos controles de mídia e cartões. Hardware, modelo, quantização, contexto e ambiente de execução variaram juntos. A unidade de comparação é a configuração completa. Mais memória pode permitir menor compressão dos pesos ou mais evidência por chamada; menor latência pode permitir mais decisões no mesmo intervalo. Medir esses efeitos separadamente requer registrar tokens utilizados, memória, latência e funções alcançadas enquanto se varia um fator por vez.
 
 \subsection{Respostas às questões de pesquisa}
-Para a \textbf{QP1}, as trajetórias exercitaram operações de entrada, persistência e filtragem, com alcance parcial por alvo. Para a \textbf{QP2}, a instrumentação capturou exceções reproduzíveis; as hipóteses de formulário exigiram conferência separada do comportamento esperado. Para a \textbf{QP3}, as asserções específicas preservaram a expectativa e discriminaram alterações, enquanto o caso dos cartões mostrou uma suíte aprovada sem essa capacidade. Para a \textbf{QP4}, a execução foi viável nos dois ambientes, com diferenças observadas no alcance. O efeito isolado de memória, contexto ou modelo permanece aberto.
+\begin{table}[ht]
+\centering\small
+\caption{Evidências e alcance das respostas às questões de pesquisa.}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{5.5cm}}
+\toprule
+Questão & Evidência & Limite \\
+\midrule
+QP1 & Na comparação, 12 efeitos com modelo e seis com a seleção uniforme. & Sete funções foram selecionadas no conjunto. O ganho concentrou-se no Expense Tracker. \\
+QP2 & Exceções reproduzíveis no player e nos cartões. As alegações de formulário exigiram conferência da expectativa. & Qualidade dos julgamentos pendente de validação humana independente. \\
+QP3 & Os pares controlados distinguiram alterações por asserções ligadas à propriedade. & Os oráculos dirigidos avaliam as verificações escolhidas pelo avaliador. \\
+QP4 & Execução em Windows e M4. A comparação de políticas mediu alcance e tempo no Windows. & Efeitos isolados de hardware, quantização e contexto seguem em aberto. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \section{Ameaças à Validade}\label{sec:threats}
-\textbf{Construção.} A matriz cobre funções selecionadas, definidas por quem conhecia as coletas anteriores. Suas regras de associação podem omitir uma ação indisponível sem identificador ou creditar um efeito que a trajetória não demonstra. O reconhecimento textual de asserções também pode aceitar uma expressão alheia à função. A análise dos casos usa evidência da trajetória e do teste; as contagens não estimam cobertura funcional completa. As alterações controladas avaliam asserções sobre jornadas conhecidas.
+\textbf{Construção.} A matriz histórica cobre funções selecionadas por quem conhecia as coletas anteriores. Sua associação textual pode perder ações sem identificador e creditar efeitos alheios à função. A comparação pareada usa efeitos de domínio definidos pelo avaliador e reexecução das asserções. As contagens se restringem às funções escolhidas. As alterações controladas avaliam asserções sobre jornadas conhecidas.
 
 \textbf{Validade interna.} Cada rodada usa o mesmo perfil em suas repetições, com temperatura zero nas decisões estruturadas. Rede, temporização e dados externos podem afetar o resultado. A pausa do relógio modifica a temporalidade de uso. A revisão das trajetórias foi realizada separadamente das explorações e não reproduziu a inferência em Apple Silicon.
 
-\textbf{Avaliação e atribuição.} A dupla revisão por agentes utiliza um conjunto pequeno, com ocorrências repetidas e evidência compartilhada. Os julgamentos podem reproduzir vieses comuns e não medem concordância humana. Sem um conjunto exaustivo de defeitos e uma linha de base sob o mesmo orçamento, não se estima precisão, revocação ou vantagem sobre outra estratégia. O efeito da recuperação de revisões anteriores sobre falsos positivos não foi medido.
+\textbf{Avaliação e atribuição.} A dupla revisão por agentes utiliza um conjunto pequeno, com ocorrências repetidas e evidência compartilhada. Avaliar a precisão das alegações requer adjudicação independente, enquanto estimar revocação requer um conjunto de defeitos de referência delimitado. A comparação pareada mede a vantagem sobre a política uniforme nas funções selecionadas. A amostra de conveniência, três repetições por alvo e os parâmetros distintos de entrada limitam a generalização.
 
 \textbf{Validade externa.} Predominam aplicações didáticas de uma origem comum, acrescidas de uma aplicação React, em modo convidado e Chromium. O porte delimita a transferência para sistemas com autenticação e persistência de servidor. Os dois perfis locais foram observados em máquinas diferentes, sem comparação isolada de modelo. Não se verificou se os exemplos fizeram parte do treinamento: ``desconhecida'' designa a apresentação inicial à sessão.
 
@@ -270,9 +307,9 @@ A contribuição do E2P é conectar a iniciativa exploratória de modelos locais
 
 Em relação aos agentes web discutidos na literatura, o trabalho examina a iniciativa anterior à especificação de uma tarefa; em relação à geração de testes, acompanha a origem e a conservação do oráculo. O caso do formulário evidencia por que explorar, reproduzir e julgar uma violação são atividades complementares. A resposta ao problema de pesquisa é, assim, uma capacidade inicial observada em operações delimitadas, apoiada por mecanismos que permitem conferir os resultados e recusar expectativas sem fundamento.
 
-O próximo passo experimental é comparar as decisões do modelo com seletores aleatórios ou orientados à novidade, mantendo catálogo, orçamento e compilador. A matriz deve explicitar efeitos por função e vincular cada asserção à entidade e à ação que a fundamentam. A revisão independente das hipóteses e novos ensaios com alterações controladas complementariam essa comparação.
+Na comparação pareada, o modelo alcançou funções adicionais no Expense Tracker e apresentou maior tempo de exploração. A avaliação futura pode comparar a política com um seletor orientado à novidade, ampliar o corpus e colher julgamentos humanos independentes sobre as alegações.
 
-Como continuidade, propõe-se utilizar o \textbf{JEV}, da TypeSafe, como componente de decisão e avaliação estruturada~\cite{typesafe2026jev}. O modelo recebe estado e perguntas tipadas, retornando respostas e distribuições de probabilidade. No E2P, pode ser investigado para selecionar entre ações catalogadas, avaliar se uma evidência sustenta determinada hipótese e encaminhar casos incertos à revisão humana. A avaliação dessa integração deve comparar concordância com julgamentos humanos, custo, latência e comportamento em casos ambíguos, com limiares definidos para cada decisão.
+O JEV, da TypeSafe, é uma possibilidade de continuidade para decisões estruturadas, a avaliar por concordância com julgamentos humanos e custo de execução~\cite{typesafe2026jev}.
 
 Outra direção é comparar máquinas e configurações de inferência conforme o procedimento discutido na Seção~\ref{sec:depth}, medindo funções alcançadas, estabilidade e evidências de falha. Aplicações com jornadas integradas, diferentes perfis de acesso e persistência no servidor ampliariam os comportamentos investigados.
 
