@@ -1,0 +1,82 @@
+{
+  "byTarget": {
+    "memory-cards": {
+      "llm": {
+        "attempts": 3,
+        "completed": 3,
+        "actions": 12,
+        "possible": 6,
+        "observed": 3,
+        "rechecked": 3,
+        "medianExplorationMs": 60007,
+        "medianActions": 4,
+        "elapsedMsAvailable": 3,
+        "withRuntimeException": 0
+      },
+      "random": {
+        "attempts": 3,
+        "completed": 3,
+        "actions": 14,
+        "possible": 6,
+        "observed": 0,
+        "rechecked": 0,
+        "medianExplorationMs": 5461,
+        "medianActions": 5,
+        "elapsedMsAvailable": 3,
+        "withRuntimeException": 3
+      }
+    }
+  },
+  "overall": {
+    "llm": {
+      "attempts": 3,
+      "completed": 3,
+      "actions": 12,
+      "possible": 6,
+      "observed": 3,
+      "rechecked": 3,
+      "medianExplorationMs": 60007,
+      "medianActions": 4,
+      "elapsedMsAvailable": 3,
+      "withRuntimeException": 0
+    },
+    "random": {
+      "attempts": 3,
+      "completed": 3,
+      "actions": 14,
+      "possible": 6,
+      "observed": 0,
+      "rechecked": 0,
+      "medianExplorationMs": 5461,
+      "medianActions": 5,
+      "elapsedMsAvailable": 3,
+      "withRuntimeException": 3
+    }
+  },
+  "pairs": [
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "deltaObserved": 1,
+      "deltaRechecked": 1
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "deltaObserved": 1,
+      "deltaRechecked": 1
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 3,
+      "deltaObserved": 1,
+      "deltaRechecked": 1
+    }
+  ],
+  "pairedObserved": {
+    "higher": 3,
+    "equal": 0,
+    "lower": 0,
+    "meanDifference": 1
+  }
+}

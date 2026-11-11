@@ -1,0 +1,1728 @@
+{
+  "completedAt": "2026-11-11T00:00:54.999Z",
+  "unchanged": true,
+  "replay": [
+    {
+      "runId": "form-validator-r1-llm",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r1-llm--validate-username-on-submit",
+      "specSha256": "e0189ef5b3a682b317b8f73b2cd9aa4d57725b987d556607612b9028b72f90e1",
+      "contract": [
+        {
+          "id": "form-validator-r1-llm--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r1-llm--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "form-validator-r1-random",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r1-random--validate-username-on-submit",
+      "specSha256": "3d980bf5fc9508efaaba629baedc48f218ffea8dcb4d0fb3927997647e4f40fb",
+      "contract": [
+        {
+          "id": "form-validator-r1-random--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r1-random--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r1-llm",
+      "functionId": "previous-track",
+      "title": "music-player-r1-llm--previous-track",
+      "specSha256": "f2de62d4207ed493ec0a3c3d377582f5f0868eb376e399dda0e5a7ff91222387",
+      "contract": [
+        {
+          "id": "music-player-r1-llm--previous-track-criterion-1",
+          "title": "previous-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 1",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/previous-track"
+          },
+          "actionStep": 1,
+          "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "summer"
+            },
+            {
+              "selector": "#audio[src=\"music/summer.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r1-llm--previous-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "summer"
+              },
+              {
+                "selector": "#audio[src=\"music/summer.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 0
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r1-random",
+      "functionId": "next-track",
+      "title": "music-player-r1-random--next-track",
+      "specSha256": "06e4ee106c4e3945a55cc5ea72dda1e0df8bb2e2fcceb0c3c65021b28d396265",
+      "contract": [
+        {
+          "id": "music-player-r1-random--next-track-criterion-1",
+          "title": "next-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/next-track"
+          },
+          "actionStep": 2,
+          "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "hey"
+            },
+            {
+              "selector": "#audio[src=\"music/hey.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r1-random--next-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "hey"
+              },
+              {
+                "selector": "#audio[src=\"music/hey.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r1-llm",
+      "functionId": "create-with-balance",
+      "title": "expense-tracker-r1-llm--create-with-balance",
+      "specSha256": "d7495070726b051599178fa40c011e013680edf4fafe2e23f4bb87d6ac4ebdb1",
+      "contract": [
+        {
+          "id": "expense-tracker-r1-llm--create-with-balance-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r1-llm--create-with-balance-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r1-llm",
+      "functionId": "restore-transaction",
+      "title": "expense-tracker-r1-llm--restore-transaction",
+      "specSha256": "40e5c797efb5457a274480771575d14574afbb08d1e77a674ba0ede01848037e",
+      "contract": [
+        {
+          "id": "expense-tracker-r1-llm--restore-transaction-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r1-llm--restore-transaction-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        },
+        {
+          "id": "expense-tracker-r1-llm--restore-transaction-criterion-2",
+          "title": "restore-transaction",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/restore-transaction"
+          },
+          "actionStep": 4,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r1-llm--restore-transaction-criterion-2-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "form-validator-r2-random",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r2-random--validate-username-on-submit",
+      "specSha256": "88c6bc2c4bbcdc589c44949d3afb97530ec71b1933698fa8d3ed279d34f2e95f",
+      "contract": [
+        {
+          "id": "form-validator-r2-random--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r2-random--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "form-validator-r2-llm",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r2-llm--validate-username-on-submit",
+      "specSha256": "ca4e9c4b7011e4832d3c24f6be2fc1ae40656bff91633f85a35a99724f5f45ab",
+      "contract": [
+        {
+          "id": "form-validator-r2-llm--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r2-llm--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r2-llm",
+      "functionId": "previous-track",
+      "title": "music-player-r2-llm--previous-track",
+      "specSha256": "67f9839ea313c7729e584e0e47cb06164ae1c479c3ebc748658023793cf0d702",
+      "contract": [
+        {
+          "id": "music-player-r2-llm--previous-track-criterion-1",
+          "title": "previous-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 1",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/previous-track"
+          },
+          "actionStep": 1,
+          "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "summer"
+            },
+            {
+              "selector": "#audio[src=\"music/summer.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r2-llm--previous-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "summer"
+              },
+              {
+                "selector": "#audio[src=\"music/summer.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 0
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r2-random",
+      "functionId": "next-track",
+      "title": "music-player-r2-random--next-track",
+      "specSha256": "2cb48833efd317df6e389c586024e1d9829c968347aead9ed1e1bea93758b4de",
+      "contract": [
+        {
+          "id": "music-player-r2-random--next-track-criterion-1",
+          "title": "next-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/next-track"
+          },
+          "actionStep": 2,
+          "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "hey"
+            },
+            {
+              "selector": "#audio[src=\"music/hey.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r2-random--next-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "hey"
+              },
+              {
+                "selector": "#audio[src=\"music/hey.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r2-llm",
+      "functionId": "create-with-balance",
+      "title": "expense-tracker-r2-llm--create-with-balance",
+      "specSha256": "1fcf9f398d80f63ed9b180d0a5c0a4218660eae4335603e95d72d514f6a0ed55",
+      "contract": [
+        {
+          "id": "expense-tracker-r2-llm--create-with-balance-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r2-llm--create-with-balance-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r2-llm",
+      "functionId": "restore-transaction",
+      "title": "expense-tracker-r2-llm--restore-transaction",
+      "specSha256": "b5eb78a8f58f0829765a4ec51baa5656b18205bf47b53053b77f1d13acf3d957",
+      "contract": [
+        {
+          "id": "expense-tracker-r2-llm--restore-transaction-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r2-llm--restore-transaction-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        },
+        {
+          "id": "expense-tracker-r2-llm--restore-transaction-criterion-2",
+          "title": "restore-transaction",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/restore-transaction"
+          },
+          "actionStep": 4,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r2-llm--restore-transaction-criterion-2-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "form-validator-r3-llm",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r3-llm--validate-username-on-submit",
+      "specSha256": "3624c6479b2ba1ea9ab51bbf157a2b6a6dbb391fc3dbbbd1fb6dea66694f87c4",
+      "contract": [
+        {
+          "id": "form-validator-r3-llm--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r3-llm--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "form-validator-r3-random",
+      "functionId": "validate-username-on-submit",
+      "title": "form-validator-r3-random--validate-username-on-submit",
+      "specSha256": "aa5c413d72c47311b917472b7deeb048896efc3dff88cac20efc498cdd70f753",
+      "contract": [
+        {
+          "id": "form-validator-r3-random--validate-username-on-submit-criterion-1",
+          "title": "validate-username-on-submit",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 2",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/form-validator/validate-username-on-submit"
+          },
+          "actionStep": 2,
+          "observedEntity": ".form-control.success #username, .form-control.error #email",
+          "expectedValue": [
+            {
+              "selector": ".form-control.success #username",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": ".form-control.error #email",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-3"
+          ],
+          "status": "asserted",
+          "assertionId": "form-validator-r3-random--validate-username-on-submit-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": ".form-control.success #username",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": ".form-control.error #email",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": ".form-control.success #username, .form-control.error #email",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 1
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r3-random",
+      "functionId": "next-track",
+      "title": "music-player-r3-random--next-track",
+      "specSha256": "4b1ebb70ca053a2956d3f1796860cf2473465552d58f82f781d702635aab8877",
+      "contract": [
+        {
+          "id": "music-player-r3-random--next-track-criterion-1",
+          "title": "next-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 1",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/next-track"
+          },
+          "actionStep": 1,
+          "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "hey"
+            },
+            {
+              "selector": "#audio[src=\"music/hey.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r3-random--next-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "hey"
+              },
+              {
+                "selector": "#audio[src=\"music/hey.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/hey.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 0
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "music-player-r3-llm",
+      "functionId": "previous-track",
+      "title": "music-player-r3-llm--previous-track",
+      "specSha256": "21e0193cfa2d9ed90c848a3695a2b916c7f7c5dbcb0aa9e9084a7ca603c4ae9c",
+      "contract": [
+        {
+          "id": "music-player-r3-llm--previous-track-criterion-1",
+          "title": "previous-track",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 1",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/music-player/previous-track"
+          },
+          "actionStep": 1,
+          "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+          "expectedValue": [
+            {
+              "selector": "#title",
+              "kind": "text",
+              "value": "summer"
+            },
+            {
+              "selector": "#audio[src=\"music/summer.mp3\"]",
+              "kind": "count",
+              "value": 1
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-2"
+          ],
+          "status": "asserted",
+          "assertionId": "music-player-r3-llm--previous-track-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#title",
+                "kind": "text",
+                "value": "summer"
+              },
+              {
+                "selector": "#audio[src=\"music/summer.mp3\"]",
+                "kind": "count",
+                "value": 1
+              }
+            ],
+            "observedEntity": "#title, #audio[src=\"music/summer.mp3\"]",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 0
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r3-llm",
+      "functionId": "create-with-balance",
+      "title": "expense-tracker-r3-llm--create-with-balance",
+      "specSha256": "f18ab4b9f8d279e3547dc340e14bc4f4ebdb0824d4e608a421be46227fdde8dd",
+      "contract": [
+        {
+          "id": "expense-tracker-r3-llm--create-with-balance-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r3-llm--create-with-balance-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "expense-tracker-r3-llm",
+      "functionId": "restore-transaction",
+      "title": "expense-tracker-r3-llm--restore-transaction",
+      "specSha256": "105622d7ec2f3615c3c7f0ae1a34753b8bb20887ad0190b51170e001f60ddff2",
+      "contract": [
+        {
+          "id": "expense-tracker-r3-llm--restore-transaction-criterion-1",
+          "title": "create-with-balance",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 3",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/create-with-balance"
+          },
+          "actionStep": 3,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r3-llm--restore-transaction-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 2
+        },
+        {
+          "id": "expense-tracker-r3-llm--restore-transaction-criterion-2",
+          "title": "restore-transaction",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/expense-tracker/restore-transaction"
+          },
+          "actionStep": 4,
+          "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+          "expectedValue": [
+            {
+              "selector": "#list > li",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#list > li:nth-child(1)",
+              "kind": "text",
+              "value": "Lunch +15 x"
+            },
+            {
+              "selector": "#balance",
+              "kind": "text",
+              "value": "$15.00"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-4"
+          ],
+          "status": "asserted",
+          "assertionId": "expense-tracker-r3-llm--restore-transaction-criterion-2-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#list > li",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#list > li:nth-child(1)",
+                "kind": "text",
+                "value": "Lunch +15 x"
+              },
+              {
+                "selector": "#balance",
+                "kind": "text",
+                "value": "$15.00"
+              }
+            ],
+            "observedEntity": "#list > li, #list > li:nth-child(1), #balance",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    }
+  ],
+  "attempts": [
+    {
+      "id": "form-validator-r1-llm",
+      "target": "form-validator",
+      "condition": "llm",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 33493,
+      "elapsedMs": 33577,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "form-validator-r1-random",
+      "target": "form-validator",
+      "condition": "random",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 1753,
+      "elapsedMs": 1811,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "music-player-r1-llm",
+      "target": "music-player",
+      "condition": "llm",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 37117,
+      "elapsedMs": 37179,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "previous-track"
+      ],
+      "verified": [
+        "previous-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "music-player-r1-random",
+      "target": "music-player",
+      "condition": "random",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 3716,
+      "elapsedMs": 3779,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "next-track"
+      ],
+      "verified": [
+        "next-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "expense-tracker-r1-random",
+      "target": "expense-tracker",
+      "condition": "random",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 5,
+      "explorationMs": 4604,
+      "elapsedMs": 4663,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "expense-tracker-r1-llm",
+      "target": "expense-tracker",
+      "condition": "llm",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60013,
+      "elapsedMs": 60071,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "verified": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r1-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 8,
+      "explorationMs": 22120,
+      "elapsedMs": 22182,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "id": "memory-cards-r1-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 61199,
+      "elapsedMs": 61260,
+      "stop": "time-budget",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "form-validator-r2-random",
+      "target": "form-validator",
+      "condition": "random",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 1755,
+      "elapsedMs": 1813,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "form-validator-r2-llm",
+      "target": "form-validator",
+      "condition": "llm",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 21075,
+      "elapsedMs": 21129,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "music-player-r2-llm",
+      "target": "music-player",
+      "condition": "llm",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 36953,
+      "elapsedMs": 37011,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "previous-track"
+      ],
+      "verified": [
+        "previous-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "music-player-r2-random",
+      "target": "music-player",
+      "condition": "random",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 3734,
+      "elapsedMs": 3796,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "next-track"
+      ],
+      "verified": [
+        "next-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "expense-tracker-r2-llm",
+      "target": "expense-tracker",
+      "condition": "llm",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60007,
+      "elapsedMs": 60065,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "verified": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "expense-tracker-r2-random",
+      "target": "expense-tracker",
+      "condition": "random",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 5,
+      "explorationMs": 4631,
+      "elapsedMs": 4687,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r2-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 61883,
+      "elapsedMs": 61943,
+      "stop": "time-budget",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r2-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 9,
+      "explorationMs": 16284,
+      "elapsedMs": 16347,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "form-validator-r3-llm",
+      "target": "form-validator",
+      "condition": "llm",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 22622,
+      "elapsedMs": 22677,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "form-validator-r3-random",
+      "target": "form-validator",
+      "condition": "random",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 2,
+      "explorationMs": 1758,
+      "elapsedMs": 1813,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "validate-username-on-submit"
+      ],
+      "verified": [
+        "validate-username-on-submit"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "music-player-r3-random",
+      "target": "music-player",
+      "condition": "random",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 3728,
+      "elapsedMs": 3796,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "next-track"
+      ],
+      "verified": [
+        "next-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "music-player-r3-llm",
+      "target": "music-player",
+      "condition": "llm",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 38494,
+      "elapsedMs": 38561,
+      "stop": "safe-actions-exhausted",
+      "effects": [
+        "previous-track"
+      ],
+      "verified": [
+        "previous-track"
+      ],
+      "exceptionSignatures": [
+        "Cannot set properties of null (setting 'innerHTML')"
+      ]
+    },
+    {
+      "id": "expense-tracker-r3-random",
+      "target": "expense-tracker",
+      "condition": "random",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 5,
+      "explorationMs": 4671,
+      "elapsedMs": 4729,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "expense-tracker-r3-llm",
+      "target": "expense-tracker",
+      "condition": "llm",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60009,
+      "elapsedMs": 60066,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "verified": [
+        "create-with-balance",
+        "restore-transaction"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r3-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 8,
+      "explorationMs": 22111,
+      "elapsedMs": 22172,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "id": "memory-cards-r3-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 3,
+      "explorationMs": 62195,
+      "elapsedMs": 62259,
+      "stop": "time-budget",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": []
+    }
+  ]
+}

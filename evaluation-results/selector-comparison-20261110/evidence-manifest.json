@@ -1,0 +1,190 @@
+[
+  {
+    "path": "evaluation-results/selector-comparison-20261110/manifest.json",
+    "sha256": "4a805a98d0af8dffa343b22eb02468e22740f8a05d18d800f407cc01b632565d"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/playwright.json",
+    "sha256": "47c6ee8e8720bdeb82e5d9c526dc6436f82ddfd6e9e6acf0c7b94ebdc8ddb7dc"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/result.json",
+    "sha256": "a59333f1d7ba30655bd92bbf86401d599bb3c2e4a0880efa85f93d38bbb6903e"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r1-llm.json",
+    "sha256": "a6099b5ace74c640d55e09d24e1bb18b54667d40d6083910e8e3a507bda94f89"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r1-random.json",
+    "sha256": "17e5e7373da678f4627725e0225011555b75f1e5eb558721d996a82f413e6dfe"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r2-llm.json",
+    "sha256": "e7c194254b8a828334b4483980e4087232f5064dadf1213bedee5d5c4535832e"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r2-random.json",
+    "sha256": "50606391a828ba136f8d6102e51f06b52436009ed80a2ee1a99f640ebfa22faf"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r3-llm.json",
+    "sha256": "395e65199b6b459a06222a7ec957ca452fab3d194f195ff14d3611fd8c5fa71f"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/expense-tracker-r3-random.json",
+    "sha256": "029379c1d75a54f9e499c4b12a81b7ee2c64864f3087a6cb0a844a150707aa5e"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r1-llm.json",
+    "sha256": "c04fcad949f2fff8f72564464538961f9ed4a6c366ffbd946a9431850ccb386a"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r1-random.json",
+    "sha256": "53375bc96fd57a168969b0e04748728e57eb442ba5ccfe5e62ba009d152d0699"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r2-llm.json",
+    "sha256": "f9386c32564014144c7ae1401768c32cf5b1eafc77080c1c5b1fc3ef4bbf2ff3"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r2-random.json",
+    "sha256": "b51ba6a30f53dda190b3e2c395eae440995ba881674576fe37ad99c6577d5e41"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r3-llm.json",
+    "sha256": "1287c6f6efa20db8ac4777c84179ad16bc841332256265911197b1da788f9392"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/form-validator-r3-random.json",
+    "sha256": "77c708566ffe155083d257d3864200f5fda97a861168d853d39a49ca162d9a1b"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r1-llm.json",
+    "sha256": "348a2d168691b73eac7ea0f57b61604789da625774bf8adce3cd8205e5800c84"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r1-random.json",
+    "sha256": "cd2b7446018d9b278e8b73a8a9277b66643a7b7bd31d7e851491d1de80a388d2"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r2-llm.json",
+    "sha256": "52dcbbc298cbbb391df772c90f1d9b4abecccec975c7dcb8fac4c7c7dda75485"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r2-random.json",
+    "sha256": "f55ffa5b7c715c8a036c587f64343b305066c6a6f6426744b7939cccd651158a"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r3-llm.json",
+    "sha256": "867d103d73853d7f6d8a2f41c44632453c69ba0cf7566f3fa808bb205bf8cbc8"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/memory-cards-r3-random.json",
+    "sha256": "119ddc1daec705565105210ec1e8a0e386fd269ee5f89d37bf4e2aa57a9a296a"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r1-llm.json",
+    "sha256": "11174ebe505f3de662466d2198de010067505913737e25ed8aceb75cecd4b765"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r1-random.json",
+    "sha256": "be4eb64f6fbef32a1282bffb9a0b87fe13616b7751718384a72a480435ce71d9"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r2-llm.json",
+    "sha256": "0c2f32f075ce6d2ee7676e281a0cbfc00dce1a796b8232ebb195950e42d31ea9"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r2-random.json",
+    "sha256": "89eadea3af3bb5f983355a7b5f82b461374104bd4d5331b8a5e6338a95b352c2"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r3-llm.json",
+    "sha256": "b91e0879235787ae76a094af87e80d89c92a9aa7b108cf953cc5c9f40a9b3d6a"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runs/music-player-r3-random.json",
+    "sha256": "501e978f120e9132b8f237dbf02d3f20523d9bc501c864ae2afb541275ad47c7"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/runtime.json",
+    "sha256": "c90035bc07070f5c30af492b120279968f515c5281c4ffb0f1bf160a15c8b30b"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r1-llm--create-with-balance.spec.cjs",
+    "sha256": "d7495070726b051599178fa40c011e013680edf4fafe2e23f4bb87d6ac4ebdb1"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r1-llm--restore-transaction.spec.cjs",
+    "sha256": "40e5c797efb5457a274480771575d14574afbb08d1e77a674ba0ede01848037e"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r2-llm--create-with-balance.spec.cjs",
+    "sha256": "1fcf9f398d80f63ed9b180d0a5c0a4218660eae4335603e95d72d514f6a0ed55"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r2-llm--restore-transaction.spec.cjs",
+    "sha256": "b5eb78a8f58f0829765a4ec51baa5656b18205bf47b53053b77f1d13acf3d957"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r3-llm--create-with-balance.spec.cjs",
+    "sha256": "f18ab4b9f8d279e3547dc340e14bc4f4ebdb0824d4e608a421be46227fdde8dd"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/expense-tracker/expense-tracker-r3-llm--restore-transaction.spec.cjs",
+    "sha256": "105622d7ec2f3615c3c7f0ae1a34753b8bb20887ad0190b51170e001f60ddff2"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r1-llm--validate-username-on-submit.spec.cjs",
+    "sha256": "e0189ef5b3a682b317b8f73b2cd9aa4d57725b987d556607612b9028b72f90e1"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r1-random--validate-username-on-submit.spec.cjs",
+    "sha256": "3d980bf5fc9508efaaba629baedc48f218ffea8dcb4d0fb3927997647e4f40fb"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r2-llm--validate-username-on-submit.spec.cjs",
+    "sha256": "ca4e9c4b7011e4832d3c24f6be2fc1ae40656bff91633f85a35a99724f5f45ab"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r2-random--validate-username-on-submit.spec.cjs",
+    "sha256": "88c6bc2c4bbcdc589c44949d3afb97530ec71b1933698fa8d3ed279d34f2e95f"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r3-llm--validate-username-on-submit.spec.cjs",
+    "sha256": "3624c6479b2ba1ea9ab51bbf157a2b6a6dbb391fc3dbbbd1fb6dea66694f87c4"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/form-validator/form-validator-r3-random--validate-username-on-submit.spec.cjs",
+    "sha256": "aa5c413d72c47311b917472b7deeb048896efc3dff88cac20efc498cdd70f753"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r1-llm--previous-track.spec.cjs",
+    "sha256": "f2de62d4207ed493ec0a3c3d377582f5f0868eb376e399dda0e5a7ff91222387"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r1-random--next-track.spec.cjs",
+    "sha256": "06e4ee106c4e3945a55cc5ea72dda1e0df8bb2e2fcceb0c3c65021b28d396265"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r2-llm--previous-track.spec.cjs",
+    "sha256": "67f9839ea313c7729e584e0e47cb06164ae1c479c3ebc748658023793cf0d702"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r2-random--next-track.spec.cjs",
+    "sha256": "2cb48833efd317df6e389c586024e1d9829c968347aead9ed1e1bea93758b4de"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r3-llm--previous-track.spec.cjs",
+    "sha256": "21e0193cfa2d9ed90c848a3695a2b916c7f7c5dbcb0aa9e9084a7ca603c4ae9c"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/specs/music-player/music-player-r3-random--next-track.spec.cjs",
+    "sha256": "4b1ebb70ca053a2956d3f1796860cf2473465552d58f82f781d702635aab8877"
+  },
+  {
+    "path": "evaluation-results/selector-comparison-20261110/summary.json",
+    "sha256": "1bd90a2fce39e3d6606964c0103f349db8a2c8d13b93b7de113975cc1dd287b1"
+  }
+]

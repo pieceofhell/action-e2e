@@ -1,0 +1,54 @@
+[
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/manifest.json",
+    "sha256": "fcf6f747ce3d63ec8a6d94d768766055010ec638b67a413bd0368abdf3ca9084"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/playwright.json",
+    "sha256": "169d18f7dca43518864e6bd7b55aa92e298ee32a50c31069cff9fd54fe3f26a1"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/result.json",
+    "sha256": "dd5617ab4027e7d4d2d694de3bb096d0757de6f714141f7a226a71ec97e5c4d0"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r1-llm.json",
+    "sha256": "baf0b6a466498180929cdb85cac4a1b823deb00df01e6174c02165d928a8cec8"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r1-random.json",
+    "sha256": "9c45276f2977bedc3323af519ea00430c6a3398f5c3b2fc994082d1b82e8513d"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r2-llm.json",
+    "sha256": "595aace99dd3af12269e636b7a543142641c50fe24cf88ded70860bd57eaf39f"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r2-random.json",
+    "sha256": "77400378aaf1344cf1477fdc84fe0b30ed0b8f9c74c939f99e6309b57ac82309"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r3-llm.json",
+    "sha256": "daee321a7a47a2b735d6a1420ad0f4252f69bc6414e34f5131a7774b55f7fc22"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/runs/memory-cards-r3-random.json",
+    "sha256": "8463aedb5f5b93a80fbf316358da4116309676984b681f2dfa662c48518b2faf"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/specs/memory-cards/memory-cards-r1-llm--create-card.spec.cjs",
+    "sha256": "0a85d1f14a674d16e4e71e4acf01b15afc3e4c6a170bc0a20c5368c03bdf2072"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/specs/memory-cards/memory-cards-r2-llm--create-card.spec.cjs",
+    "sha256": "1f709c80f135f66dd17b4c627606028b6b1dd797aff2c5b3c26876dad1cdaff8"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/specs/memory-cards/memory-cards-r3-llm--create-card.spec.cjs",
+    "sha256": "bd5d12387130fca3f0be21955c6a17ee561b76350cef42c6376291c3799fe1e2"
+  },
+  {
+    "path": "evaluation-results/card-selector-retest-20261110/summary.json",
+    "sha256": "cd3ef1fea3a46897bb3e56c43ebc79e0c578a2f1edfa53afa328a25bf67848f8"
+  }
+]

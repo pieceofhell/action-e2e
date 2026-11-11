@@ -25,6 +25,9 @@ latex/*.synctex.gz
 latex/main_revisado.pdf
 output/pdf/
 test-results/
+evaluation-results/**/test-artifacts/
+evaluation-results/**/replay.config.cjs
+evaluation-results/**/control.config.cjs
 logs/
 tmp/
 paper/**/main.pdf

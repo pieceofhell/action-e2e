@@ -9,10 +9,19 @@ async function check(relative, expected) {
   if (actual !== expected) throw new Error(`Evidence hash differs: ${relative}`);
 }
 async function main() {
-  const records = JSON.parse(await fs.readFile(path.join(root, 'evaluation-results/current-20261020/evidence-manifest.json'), 'utf8'));
-  for (const row of records) await check(row.path, row.sha256);
+  const evidenceRoot = path.join(root, 'evaluation-results');
+  let count = 0;
+  for (const directory of await fs.readdir(evidenceRoot, { withFileTypes: true })) {
+    if (!directory.isDirectory()) continue;
+    let text;
+    try { text = await fs.readFile(path.join(evidenceRoot, directory.name, 'evidence-manifest.json'), 'utf8'); }
+    catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+    for (const row of JSON.parse(text)) {
+      await check(row.path, row.sha256);
+      count++;
+    }
+  }
   const versions = JSON.parse(await fs.readFile(path.join(root, 'paper/versions.json'), 'utf8'));
-  let count = records.length;
   for (const version of versions) {
     await check(`paper/${version.path}`, version.sha256); count++;
     for (const [name, sha] of Object.entries(version.sources)) {

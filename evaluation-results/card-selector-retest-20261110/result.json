@@ -1,0 +1,317 @@
+{
+  "completedAt": "2026-11-11T00:05:39.421Z",
+  "unchanged": true,
+  "replay": [
+    {
+      "runId": "memory-cards-r1-llm",
+      "functionId": "create-card",
+      "title": "memory-cards-r1-llm--create-card",
+      "specSha256": "0a85d1f14a674d16e4e71e4acf01b15afc3e4c6a170bc0a20c5368c03bdf2072",
+      "contract": [
+        {
+          "id": "memory-cards-r1-llm--create-card-criterion-1",
+          "title": "create-card",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/memory-cards/create-card"
+          },
+          "actionStep": 4,
+          "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+          "expectedValue": [
+            {
+              "selector": "#cards-container > .card",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+              "kind": "text",
+              "value": "What is the capital of France?"
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+              "kind": "text",
+              "value": "Paris"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-5"
+          ],
+          "status": "asserted",
+          "assertionId": "memory-cards-r1-llm--create-card-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#cards-container > .card",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+                "kind": "text",
+                "value": "What is the capital of France?"
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+                "kind": "text",
+                "value": "Paris"
+              }
+            ],
+            "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "memory-cards-r2-llm",
+      "functionId": "create-card",
+      "title": "memory-cards-r2-llm--create-card",
+      "specSha256": "1f709c80f135f66dd17b4c627606028b6b1dd797aff2c5b3c26876dad1cdaff8",
+      "contract": [
+        {
+          "id": "memory-cards-r2-llm--create-card-criterion-1",
+          "title": "create-card",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/memory-cards/create-card"
+          },
+          "actionStep": 4,
+          "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+          "expectedValue": [
+            {
+              "selector": "#cards-container > .card",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+              "kind": "text",
+              "value": "What is the capital of France?"
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+              "kind": "text",
+              "value": "Paris"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-5"
+          ],
+          "status": "asserted",
+          "assertionId": "memory-cards-r2-llm--create-card-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#cards-container > .card",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+                "kind": "text",
+                "value": "What is the capital of France?"
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+                "kind": "text",
+                "value": "Paris"
+              }
+            ],
+            "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "runId": "memory-cards-r3-llm",
+      "functionId": "create-card",
+      "title": "memory-cards-r3-llm--create-card",
+      "specSha256": "bd5d12387130fca3f0be21955c6a17ee561b76350cef42c6376291c3799fe1e2",
+      "contract": [
+        {
+          "id": "memory-cards-r3-llm--create-card-criterion-1",
+          "title": "create-card",
+          "given": "Recorded isolated session",
+          "when": "Recorded action 4",
+          "then": "The preregistered domain effect holds",
+          "expectationSource": {
+            "kind": "project-requirement",
+            "reference": "selector-comparison-v1/memory-cards/create-card"
+          },
+          "actionStep": 4,
+          "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+          "expectedValue": [
+            {
+              "selector": "#cards-container > .card",
+              "kind": "count",
+              "value": 1
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+              "kind": "text",
+              "value": "What is the capital of France?"
+            },
+            {
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+              "kind": "text",
+              "value": "Paris"
+            }
+          ],
+          "comparison": "exact-domain-checks",
+          "evidenceStateIds": [
+            "state-5"
+          ],
+          "status": "asserted",
+          "assertionId": "memory-cards-r3-llm--create-card-criterion-1-assertion-1",
+          "assertion": {
+            "kind": "domain-checks",
+            "value": [
+              {
+                "selector": "#cards-container > .card",
+                "kind": "count",
+                "value": 1
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+                "kind": "text",
+                "value": "What is the capital of France?"
+              },
+              {
+                "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+                "kind": "text",
+                "value": "Paris"
+              }
+            ],
+            "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+            "comparison": "exact-domain-checks"
+          },
+          "reason": null,
+          "stepIndex": 3
+        }
+      ],
+      "status": "passed"
+    }
+  ],
+  "attempts": [
+    {
+      "id": "memory-cards-r1-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 5,
+      "explorationMs": 5461,
+      "elapsedMs": 5543,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "id": "memory-cards-r1-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 1,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60016,
+      "elapsedMs": 60076,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-card"
+      ],
+      "verified": [
+        "create-card"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r2-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60004,
+      "elapsedMs": 60063,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-card"
+      ],
+      "verified": [
+        "create-card"
+      ],
+      "exceptionSignatures": []
+    },
+    {
+      "id": "memory-cards-r2-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 2,
+      "status": "completed",
+      "actions": 5,
+      "explorationMs": 5797,
+      "elapsedMs": 5857,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "id": "memory-cards-r3-random",
+      "target": "memory-cards",
+      "condition": "random",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 4589,
+      "elapsedMs": 4646,
+      "stop": "safe-actions-exhausted",
+      "effects": [],
+      "verified": [],
+      "exceptionSignatures": [
+        "Cannot set properties of undefined (setting 'className')"
+      ]
+    },
+    {
+      "id": "memory-cards-r3-llm",
+      "target": "memory-cards",
+      "condition": "llm",
+      "repetition": 3,
+      "status": "completed",
+      "actions": 4,
+      "explorationMs": 60007,
+      "elapsedMs": 60121,
+      "stop": "model-decision-exhausted-after-useful-coverage",
+      "effects": [
+        "create-card"
+      ],
+      "verified": [
+        "create-card"
+      ],
+      "exceptionSignatures": []
+    }
+  ]
+}

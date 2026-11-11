@@ -1,0 +1,180 @@
+{
+  "protocol": {
+    "id": "selector-comparison-v1",
+    "repetitions": 3,
+    "seed": 20261110,
+    "maxSteps": 10,
+    "maxDurationMs": 60000,
+    "conditions": [
+      "llm",
+      "random"
+    ],
+    "targets": [
+      "form-validator",
+      "music-player",
+      "expense-tracker",
+      "memory-cards"
+    ],
+    "primaryOutcome": "Distinct preregistered functions with observed domain effects per attempt, including failed or incomplete attempts.",
+    "secondaryOutcomes": [
+      "Recorded effects rechecked by the shared Playwright compiler",
+      "Exploration wall time",
+      "Completed actions",
+      "Runtime exceptions"
+    ],
+    "model": "qwen3.8-vl-27b-iq1m-64k",
+    "referenceImplementation": "scripts/lib/comparison-functions.cjs"
+  },
+  "reference": {
+    "form-validator": [
+      "validate-username-on-submit"
+    ],
+    "music-player": [
+      "previous-track",
+      "next-track"
+    ],
+    "expense-tracker": [
+      "create-with-balance",
+      "restore-transaction"
+    ],
+    "memory-cards": [
+      "create-card",
+      "restore-card"
+    ]
+  },
+  "inputs": {
+    "protocol": "2e3b3c9bb338fa035fad155c5beeb5cb95b5ec5547c84ef74d17a176719c3779",
+    "files": {
+      "scripts/evaluate-selector-comparison.cjs": "b459c71f6141cb482f042280d3d970f20c38be5e7d5455e1827f0484db64f01e",
+      "scripts/lib/comparison-functions.cjs": "2252f98387dc828df11005388333fc0610caec7fded91ae74e66862a6c6153fe",
+      "package-lock.json": "532c9145d7901b1664b828134b5a36062b7d1314b90dbdfd6e91f38e442542ad"
+    },
+    "services": {
+      "acceptance-contract.js": "90f01921ce8326597082ea1682067aff45ca4cc1a465e4bee09cc77edd9b7524",
+      "agent-review.js": "382e8f4a670cbc0e1d0dd1e9d954cf6df2be81aa858e546b3264af89ec84920f",
+      "agentic-explorer.js": "aa214fbc228c049cf5ec8b2a1e47e14f6ac22096be8793be169deead9b9fa5e2",
+      "ai-console.js": "96117744999da83cab19d3258614f88fbf555cdc172a36033aa0b561836272da",
+      "ai-workflows.js": "839db0a36d64a419a5016100c65322f251101717a5edaf45a254079bb3dc485c",
+      "artifact-store.js": "faf8f5da221285ba745b14a102979cc08cf91b7502f1da513647ed89284a8916",
+      "auth-config.js": "fc544af4d9bf04b3c969363dc2fe6ff100c876b89b70ec83c8d9269181633361",
+      "auth-session.js": "4742b3c25030ddde8ed13051ed0c0dd218e14c20c899942e62ca8b23bf09a4ee",
+      "authenticated-executor.js": "ebd30a3aa2ad8f5af41f992733fdf772ff0e2651aa48b6761fabcb295db520e3",
+      "batch-auto-approval.js": "d4cf62fad27010e0a5d7a402b6381b279daaafef53150244b9372428f5cf6385",
+      "batch-runner.js": "80fae63178959d733db10616a4458b4b7a620254bf93ad6331d0a4fb88bb6409",
+      "bug-discovery.js": "c8f406b50db62ef4c6fcf1432b098faf0ffb2aaef88bd8a122a4fb9e9a946087",
+      "bug-evaluator.js": "8c4d9fcc7ffaedf8e28e754e1b5aa7a388f502e1399638c76478be9afc2383fc",
+      "corpus-evaluation.js": "17f7eb928481cc58b23051a70a73b0d231ac8bf152fee5b90c65fa62e7c4e61a",
+      "directory-picker.js": "34796513eb018d7aa087de5cd755d6d1d19f7288071e21310aaaaa97c7571c25",
+      "flow-planner.js": "6170d050b66580e3f20336993fe8addbd04896cabe677d5b5e7413134c8337ca",
+      "function-matrix.js": "7c03dfd372131ceed17941c1cb57471094bf445225c4d96e9d8a4c1a493cc3e3",
+      "hypothesis-reproducer.js": "48c20db1a3f8b645c6c159a8fcd1dfbadc4ff422f237d07a2b71ae16f7fd5270",
+      "insight-builder.js": "319dc45550acfdce7c523689f31cf020924cdacde7b78883506c540717790ce7",
+      "live-explorer.js": "a951398f473380665bdd65fc6410aed93e957c62f7c897d71979700d77d20223",
+      "llm-provider.js": "753d7e3567af4807bc284b0b699fdd83834ea333d382b627249f9312162da862",
+      "local-access.js": "d0b884f0ce7d64ba6c566f83c0ad2e2aa725606b69ec45c4af41e93432ed5c69",
+      "operation-tracker.js": "9590a0d2fc9198fdf7b9dbc02fa605f46fbe754c1c17dd5ba253191029daa9d6",
+      "pipeline-policy.js": "14dd9743f30f423098dd2fd03378978aaa3f54ba5fb1f95ac2468126e583ec30",
+      "project-inspector.js": "17597c7d0194ee4fb5d7d87999d0c3d598e85ff8359211d24134f5a3a6cd6d62",
+      "qa-coverage.js": "0d4b8084aec5df90da55d1a1f8d8ffe58843437667d9519bd5dd162c2cc1b683",
+      "read-only-policy.js": "1e945f8c2423a0c5757641ac4693c4882a90bab041ea769333385188608129cf",
+      "reviewer-agreement.js": "26ee2523768eff00ace4404a89f75facdae27d7974aa24cbd2e5fc8e31562d73",
+      "run-history.js": "1c9e9194101ee8e4f26803de58f710a5a0f3e487541dab51e268c00df973af32",
+      "run-log.js": "2ebc89d7aef32a151e544ca2877c8368b2ce8ac53ee7da9c9734aed08597d55f",
+      "runtime-orchestrator.js": "097164e28f3ad287b6d3b1f6b785b077fc146638c1ad8f263140c9b233a89285",
+      "test-generator.js": "1f87f5529a1d68c48099f98e229201f9c4d0f5743eddc70621abe0fdd086b341",
+      "test-runner.js": "8a62f90871ff180310cd9875ec9a5c35638295814f661f307c95310d6996db2f"
+    },
+    "targets": {
+      "form-validator": {
+        "index.html": "fe216f8a81cfba492f920a6840e1b63e73bf99e86fd04e5ff4f12de290e10cc1",
+        "readme.md": "ebcb8848c36c6aece22a54032d1f08504a724176332ed60cff0001d763cc8b40",
+        "script.js": "d210c121fa1919c246e9c692c7c9be4bda2647ad50ebf16b0a83f08fa5d323cb",
+        "style.css": "ef2855a9c472df0b65b6be9fab2125f15e31cd6b2d745f7fabfa73e4813c14f5"
+      },
+      "music-player": {
+        "images/hey.jpg": "52c0eb7f0921153419c695f3d1e412176f0828c99ae6de134acd6216efc4a415",
+        "images/summer.jpg": "73b08574127dc569178d7fab691b68137e232cbddaa9a7f07d4ca8b67c30bcfa",
+        "images/ukulele.jpg": "a0285cb97312efa6bb58daab8523826243b874cd2c521bfa52eabde029f0b532",
+        "index.html": "6a79d2b08b20bc27d554283a893400b3c416a0a7f943fed87d85f489d7e8c1cc",
+        "music/hey.mp3": "2ff07449738c173f19f1fc32f491fdbbce65d1363617d0b1aa905a268c6ff3c8",
+        "music/summer.mp3": "3fe538d6ceb6077b4ad2cfaf50711793430afd3d88f39c6e52dfb03c8ef649ad",
+        "music/ukulele.mp3": "77a12f938f035f3dbbc083f7b5b0073431ba18849efc3e33023134dc3bad567f",
+        "readme.md": "16278ba8f18b787c3c8c00027fea9e55f510aa41acbf12753c03924c5563ef8a",
+        "script.js": "db93d97e685591db8e71bf7bc4daed43caa6edf57e89e6e3d79ef00f3b01c6ba",
+        "style.css": "264c8aca2a94b866019b49b0cc41a3a15f8e745331f4091bbd1be681a1ad6b00"
+      },
+      "expense-tracker": {
+        "index.html": "a3e2382c8ed5ecd054a1976f7477df423c7a56cd691179c805e194cd58f37d72",
+        "readme.md": "db1c9322d4150ee70cc87d901431cb847fd8ecaa32e328affe438ff80a36dffd",
+        "script.js": "eb2faebdaab42bb5e81217235045fa0dcafeb35679bcbbf98ce0c86674084b2d",
+        "style.css": "2868df5bdfbf012ccea97d277673da27c06708528604644ab7fcd82183b933f9"
+      },
+      "memory-cards": {
+        "index.html": "6b5078a0fc1d233277bc8cee499d373340c0d8728496545c9e3eea14c62d002c",
+        "readme.md": "a2fabe24cb0316c84305a94583b36d22827ea04bd942f56a4bfdc3e2d0aac1ef",
+        "script.js": "31713ccaf8031cde624fd247624d9ca8d8cbf6cbd2085c962274170719cd18ad",
+        "style.css": "d4b63da82d02c68e7e0655d89d4e0305208d25860dc19ac928b296052c31c2c0"
+      }
+    }
+  },
+  "aiConfig": {
+    "provider": "llama-cpp",
+    "endpoint": "http://127.0.0.1:18081/v1",
+    "model": "qwen3.8-vl-27b-iq1m-64k"
+  },
+  "schedule": [
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "condition": "random",
+      "seed": 295447355,
+      "id": "memory-cards-r1-random"
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 1,
+      "condition": "llm",
+      "seed": 295447355,
+      "id": "memory-cards-r1-llm"
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "condition": "llm",
+      "seed": 4186829379,
+      "id": "memory-cards-r2-llm"
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 2,
+      "condition": "random",
+      "seed": 4186829379,
+      "id": "memory-cards-r2-random"
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 3,
+      "condition": "random",
+      "seed": 3003161163,
+      "id": "memory-cards-r3-random"
+    },
+    {
+      "target": "memory-cards",
+      "repetition": 3,
+      "condition": "llm",
+      "seed": 3003161163,
+      "id": "memory-cards-r3-llm"
+    }
+  ],
+  "scope": {
+    "target": "memory-cards",
+    "kind": "targeted-follow-up"
+  },
+  "startedAt": "2026-11-11T00:02:15.512Z",
+  "browser": "153.0.8010.12",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "cpu": "AMD Ryzen 7 7800X3D 8-Core Processor           ",
+  "ramBytes": 33410682880,
+  "commit": "13184d55c1d315fa77eda31c7ba54bdb708282ce"
+}

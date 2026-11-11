@@ -1,0 +1,863 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\node_modules\\playwright\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\selector-comparison-20261110\\replay.config.cjs"
+    ],
+    "configFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\selector-comparison-20261110\\replay.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "form-validator",
+        "name": "form-validator",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/specs/form-validator",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "music-player",
+        "name": "music-player",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/specs/music-player",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "expense-tracker",
+        "name": "expense-tracker",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/selector-comparison-20261110/specs/expense-tracker",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\selector-comparison-20261110\\playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 3,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "specs\\form-validator\\form-validator-r1-llm--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r1-llm--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r1-llm--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:18.424Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6d795a6fbae8af993c8a-a9517cd0cfd64d3b10d7",
+          "file": "specs/form-validator/form-validator-r1-llm--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\form-validator\\form-validator-r1-random--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r1-random--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r1-random--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5823,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:18.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "176c40f9bd2b4c927a57-a8a54ecb3913609df8f0",
+          "file": "specs/form-validator/form-validator-r1-random--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\form-validator\\form-validator-r2-llm--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r2-llm--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r2-llm--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 5838,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:18.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fb6ce75bd7a88582f0f-460c72db8db8dca4cd3e",
+          "file": "specs/form-validator/form-validator-r2-llm--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\form-validator\\form-validator-r2-random--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r2-random--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r2-random--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:24.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6aa8957eb421a0360477-bce9cd107e1b9504f3e5",
+          "file": "specs/form-validator/form-validator-r2-random--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\form-validator\\form-validator-r3-llm--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r3-llm--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r3-llm--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 5714,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:24.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ce3d56fc29bcef470c5f-b5facba096921d9a734a",
+          "file": "specs/form-validator/form-validator-r3-llm--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\form-validator\\form-validator-r3-random--validate-username-on-submit.spec.cjs",
+      "file": "specs/form-validator/form-validator-r3-random--validate-username-on-submit.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-validator-r3-random--validate-username-on-submit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "form-validator",
+              "projectName": "form-validator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:24.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c14906991cc5037fa54c-bc5901140ef083172426",
+          "file": "specs/form-validator/form-validator-r3-random--validate-username-on-submit.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r1-llm--previous-track.spec.cjs",
+      "file": "specs/music-player/music-player-r1-llm--previous-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r1-llm--previous-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5533,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:30.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "376e337599081bbb824a-ec2190fd07646a04c421",
+          "file": "specs/music-player/music-player-r1-llm--previous-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r1-random--next-track.spec.cjs",
+      "file": "specs/music-player/music-player-r1-random--next-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r1-random--next-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 5856,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:30.398Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32deff0f012950c284c4-94094ed0c3645ddfa70c",
+          "file": "specs/music-player/music-player-r1-random--next-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r2-llm--previous-track.spec.cjs",
+      "file": "specs/music-player/music-player-r2-llm--previous-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r2-llm--previous-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:30.395Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6c983005538732502dec-9019a9a76239d907990f",
+          "file": "specs/music-player/music-player-r2-llm--previous-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r2-random--next-track.spec.cjs",
+      "file": "specs/music-player/music-player-r2-random--next-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r2-random--next-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:35.982Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "97814f51e743c2e0d420-867c028620219e634e9b",
+          "file": "specs/music-player/music-player-r2-random--next-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r3-llm--previous-track.spec.cjs",
+      "file": "specs/music-player/music-player-r3-llm--previous-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r3-llm--previous-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:36.013Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ad4663e1cb557d4b6ca-7fbcd474aeff8156792c",
+          "file": "specs/music-player/music-player-r3-llm--previous-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\music-player\\music-player-r3-random--next-track.spec.cjs",
+      "file": "specs/music-player/music-player-r3-random--next-track.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "music-player-r3-random--next-track",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "music-player",
+              "projectName": "music-player",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 5425,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:36.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9591f965608bea6465f-da39d6e4e12ef6f3aed6",
+          "file": "specs/music-player/music-player-r3-random--next-track.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r1-llm--create-with-balance.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r1-llm--create-with-balance.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r1-llm--create-with-balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6066,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:41.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f5d4c274c0ecf2c34ce7-7ffd8f71c39d712b3365",
+          "file": "specs/expense-tracker/expense-tracker-r1-llm--create-with-balance.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r1-llm--restore-transaction.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r1-llm--restore-transaction.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r1-llm--restore-transaction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6388,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:42.076Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e4714c3bdeb2743f000-333bdee4f623f304060a",
+          "file": "specs/expense-tracker/expense-tracker-r1-llm--restore-transaction.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r2-llm--create-with-balance.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r2-llm--create-with-balance.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r2-llm--create-with-balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 6057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:42.115Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "466351ef44016db74757-8792d540b937bc856df8",
+          "file": "specs/expense-tracker/expense-tracker-r2-llm--create-with-balance.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r2-llm--restore-transaction.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r2-llm--restore-transaction.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r2-llm--restore-transaction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:47.917Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f356a1f89ef53c316a9-86805562eaff57a81403",
+          "file": "specs/expense-tracker/expense-tracker-r2-llm--restore-transaction.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r3-llm--create-with-balance.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r3-llm--create-with-balance.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r3-llm--create-with-balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 2,
+                  "status": "passed",
+                  "duration": 6053,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:48.258Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c76738bfd65ea6b6d33c-8fdb6325eaafb0169dd4",
+          "file": "specs/expense-tracker/expense-tracker-r3-llm--create-with-balance.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "specs\\expense-tracker\\expense-tracker-r3-llm--restore-transaction.spec.cjs",
+      "file": "specs/expense-tracker/expense-tracker-r3-llm--restore-transaction.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expense-tracker-r3-llm--restore-transaction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expense-tracker",
+              "projectName": "expense-tracker",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:00:48.543Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "23517c1a7b13ef431c86-0ee7cdcaf6a8ec005a37",
+          "file": "specs/expense-tracker/expense-tracker-r3-llm--restore-transaction.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-11T00:00:17.976Z",
+    "duration": 36978.043,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

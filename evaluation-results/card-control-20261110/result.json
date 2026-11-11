@@ -1,0 +1,380 @@
+{
+  "protocol": "controlled-creation-and-explicit-reload",
+  "modelCalled": false,
+  "targetScriptSha256": "31713ccaf8031cde624fd247624d9ca8d8cbf6cbd2085c962274170719cd18ad",
+  "specSha256": "b4ec0dc78204fc8c4f84acb4243b36f5f04f158bd32655d03ff0f24b3d51a4f5",
+  "contract": [
+    {
+      "id": "card-control--restore-card-criterion-1",
+      "title": "create-card",
+      "given": "Recorded isolated session",
+      "when": "Recorded action 4",
+      "then": "The preregistered domain effect holds",
+      "expectationSource": {
+        "kind": "project-requirement",
+        "reference": "selector-comparison-v1/memory-cards/create-card"
+      },
+      "actionStep": 4,
+      "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+      "expectedValue": [
+        {
+          "selector": "#cards-container > .card",
+          "kind": "count",
+          "value": 1
+        },
+        {
+          "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+          "kind": "text",
+          "value": "What is persisted?"
+        },
+        {
+          "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+          "kind": "text",
+          "value": "This exact card"
+        }
+      ],
+      "comparison": "exact-domain-checks",
+      "evidenceStateIds": [
+        "control-5"
+      ],
+      "status": "asserted",
+      "assertionId": "card-control--restore-card-criterion-1-assertion-1",
+      "assertion": {
+        "kind": "domain-checks",
+        "value": [
+          {
+            "selector": "#cards-container > .card",
+            "kind": "count",
+            "value": 1
+          },
+          {
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+            "kind": "text",
+            "value": "What is persisted?"
+          },
+          {
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+            "kind": "text",
+            "value": "This exact card"
+          }
+        ],
+        "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+        "comparison": "exact-domain-checks"
+      },
+      "reason": null,
+      "stepIndex": 3
+    },
+    {
+      "id": "card-control--restore-card-criterion-2",
+      "title": "restore-card",
+      "given": "Recorded isolated session",
+      "when": "Recorded action 5",
+      "then": "The preregistered domain effect holds",
+      "expectationSource": {
+        "kind": "project-requirement",
+        "reference": "selector-comparison-v1/memory-cards/restore-card"
+      },
+      "actionStep": 5,
+      "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+      "expectedValue": [
+        {
+          "selector": "#cards-container > .card",
+          "kind": "count",
+          "value": 1
+        },
+        {
+          "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+          "kind": "text",
+          "value": "What is persisted?"
+        },
+        {
+          "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+          "kind": "text",
+          "value": "This exact card"
+        }
+      ],
+      "comparison": "exact-domain-checks",
+      "evidenceStateIds": [
+        "control-5"
+      ],
+      "status": "asserted",
+      "assertionId": "card-control--restore-card-criterion-2-assertion-1",
+      "assertion": {
+        "kind": "domain-checks",
+        "value": [
+          {
+            "selector": "#cards-container > .card",
+            "kind": "count",
+            "value": 1
+          },
+          {
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+            "kind": "text",
+            "value": "What is persisted?"
+          },
+          {
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+            "kind": "text",
+            "value": "This exact card"
+          }
+        ],
+        "observedEntity": "#cards-container > .card, #cards-container > .card:nth-child(1) .inner-card-front, #cards-container > .card:nth-child(1) .inner-card-back",
+        "comparison": "exact-domain-checks"
+      },
+      "reason": null,
+      "stepIndex": 4
+    }
+  ],
+  "run": {
+    "id": "card-control",
+    "target": "memory-cards",
+    "exploration": {
+      "steps": [
+        {
+          "step": 1,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "domId": "show",
+            "name": "show"
+          },
+          "beforeStateId": "control-0",
+          "afterStateId": "control-1",
+          "afterFingerprint": "control-1"
+        },
+        {
+          "step": 2,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "domId": "question",
+            "value": "What is persisted?",
+            "name": "question"
+          },
+          "beforeStateId": "control-1",
+          "afterStateId": "control-2",
+          "afterFingerprint": "control-2"
+        },
+        {
+          "step": 3,
+          "status": "completed",
+          "action": {
+            "kind": "fill",
+            "domId": "answer",
+            "value": "This exact card",
+            "name": "answer"
+          },
+          "beforeStateId": "control-2",
+          "afterStateId": "control-3",
+          "afterFingerprint": "control-3"
+        },
+        {
+          "step": 4,
+          "status": "completed",
+          "action": {
+            "kind": "click",
+            "domId": "add-card",
+            "name": "add-card"
+          },
+          "beforeStateId": "control-3",
+          "afterStateId": "control-4",
+          "afterFingerprint": "control-4"
+        },
+        {
+          "step": 5,
+          "status": "completed",
+          "action": {
+            "kind": "reload",
+            "name": "reload"
+          },
+          "beforeStateId": "control-4",
+          "afterStateId": "control-5",
+          "afterFingerprint": "control-5"
+        }
+      ],
+      "states": [
+        {
+          "id": "control-0",
+          "fingerprint": "control-0"
+        },
+        {
+          "id": "control-1",
+          "fingerprint": "control-1"
+        },
+        {
+          "id": "control-2",
+          "fingerprint": "control-2"
+        },
+        {
+          "id": "control-3",
+          "fingerprint": "control-3"
+        },
+        {
+          "id": "control-4",
+          "fingerprint": "control-4"
+        },
+        {
+          "id": "control-5",
+          "fingerprint": "control-5"
+        }
+      ]
+    },
+    "observations": {
+      "0": {
+        "question": "",
+        "answer": "",
+        "items": []
+      },
+      "1": {
+        "question": "",
+        "answer": "",
+        "items": []
+      },
+      "2": {
+        "question": "What is persisted?",
+        "answer": "",
+        "items": []
+      },
+      "3": {
+        "question": "What is persisted?",
+        "answer": "This exact card",
+        "items": []
+      },
+      "4": {
+        "question": "",
+        "answer": "",
+        "items": [
+          {
+            "question": "What is persisted?",
+            "answer": "This exact card"
+          }
+        ]
+      },
+      "5": {
+        "question": "",
+        "answer": "",
+        "items": [
+          {
+            "question": "What is persisted?",
+            "answer": "This exact card"
+          }
+        ]
+      }
+    },
+    "effects": [
+      {
+        "id": "create-card",
+        "step": 4,
+        "beforeStateId": "control-3",
+        "afterStateId": "control-4",
+        "checks": [
+          {
+            "kind": "count",
+            "selector": "#cards-container > .card",
+            "value": 1
+          },
+          {
+            "kind": "text",
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+            "value": "What is persisted?"
+          },
+          {
+            "kind": "text",
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+            "value": "This exact card"
+          }
+        ],
+        "entity": {
+          "question": "What is persisted?",
+          "answer": "This exact card"
+        },
+        "prerequisite": null
+      },
+      {
+        "id": "restore-card",
+        "step": 5,
+        "beforeStateId": "control-4",
+        "afterStateId": "control-5",
+        "checks": [
+          {
+            "kind": "count",
+            "selector": "#cards-container > .card",
+            "value": 1
+          },
+          {
+            "kind": "text",
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+            "value": "What is persisted?"
+          },
+          {
+            "kind": "text",
+            "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+            "value": "This exact card"
+          }
+        ],
+        "entity": {
+          "question": "What is persisted?",
+          "answer": "This exact card"
+        },
+        "prerequisite": {
+          "id": "create-card",
+          "step": 4,
+          "beforeStateId": "control-3",
+          "afterStateId": "control-4",
+          "checks": [
+            {
+              "kind": "count",
+              "selector": "#cards-container > .card",
+              "value": 1
+            },
+            {
+              "kind": "text",
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-front",
+              "value": "What is persisted?"
+            },
+            {
+              "kind": "text",
+              "selector": "#cards-container > .card:nth-child(1) .inner-card-back",
+              "value": "This exact card"
+            }
+          ],
+          "entity": {
+            "question": "What is persisted?",
+            "answer": "This exact card"
+          },
+          "prerequisite": null
+        }
+      }
+    ],
+    "browser": "153.0.8010.12"
+  },
+  "mutations": {
+    "create-disabled": {
+      "needle": "if (question.trim() && answer.trim()) {",
+      "replacement": "if (false) {",
+      "scriptSha256": "a94101125249893e53c0cc03e8976b4401d82f06156aed5cff80d8995da6ad5b"
+    },
+    "restore-disabled": {
+      "needle": "const cards = JSON.parse(localStorage.getItem('cards'));",
+      "replacement": "const visits = Number(sessionStorage.getItem('e2pControlVisits') || 0) + 1;\n  sessionStorage.setItem('e2pControlVisits', String(visits));\n  const cards = visits >= 3 ? null : JSON.parse(localStorage.getItem('cards'));",
+      "scriptSha256": "6cfe9e59df0ec48a592a3a6660a0df1103929ac85076e02835d9b5a440940acc"
+    }
+  },
+  "executions": [
+    {
+      "variant": "reference",
+      "status": "passed",
+      "message": ""
+    },
+    {
+      "variant": "create-disabled",
+      "status": "failed",
+      "message": "Error: card-control--restore-card-criterion-1-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-1-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n"
+    },
+    {
+      "variant": "restore-disabled",
+      "status": "failed",
+      "message": "Error: card-control--restore-card-criterion-2-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-2-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n"
+    }
+  ]
+}

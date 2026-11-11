@@ -1,0 +1,38 @@
+[
+  {
+    "path": "evaluation-results/card-control-20261110/create-disabled/index.html",
+    "sha256": "6b5078a0fc1d233277bc8cee499d373340c0d8728496545c9e3eea14c62d002c"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/create-disabled/script.js",
+    "sha256": "a94101125249893e53c0cc03e8976b4401d82f06156aed5cff80d8995da6ad5b"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/create-disabled/style.css",
+    "sha256": "d4b63da82d02c68e7e0655d89d4e0305208d25860dc19ac928b296052c31c2c0"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/playwright.json",
+    "sha256": "7320e8373fa01eb7d8b6ed61665698e9caa8010e97c772621d4f574a193d322b"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/restore-disabled/index.html",
+    "sha256": "6b5078a0fc1d233277bc8cee499d373340c0d8728496545c9e3eea14c62d002c"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/restore-disabled/script.js",
+    "sha256": "6cfe9e59df0ec48a592a3a6660a0df1103929ac85076e02835d9b5a440940acc"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/restore-disabled/style.css",
+    "sha256": "d4b63da82d02c68e7e0655d89d4e0305208d25860dc19ac928b296052c31c2c0"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/result.json",
+    "sha256": "42d10b1f91eabdacd307a0fe1e17e50a4e45cb335404d89444a9502a94003a32"
+  },
+  {
+    "path": "evaluation-results/card-control-20261110/specs/creation-and-restore.spec.cjs",
+    "sha256": "b4ec0dc78204fc8c4f84acb4243b36f5f04f158bd32655d03ff0f24b3d51a4f5"
+  }
+]

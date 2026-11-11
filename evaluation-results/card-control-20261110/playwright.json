@@ -1,0 +1,277 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\node_modules\\playwright\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\control.config.cjs"
+    ],
+    "configFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\control.config.cjs",
+    "rootDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/specs",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "reference",
+        "name": "reference",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 25000
+      },
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "create-disabled",
+        "name": "create-disabled",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 25000
+      },
+      {
+        "outputDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "restore-disabled",
+        "name": "restore-disabled",
+        "testDir": "C:/Users/henri/Documents/Codex/E2P/action-e2e-validacao/evaluation-results/card-control-20261110/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 25000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 3,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "creation-and-restore.spec.cjs",
+      "file": "creation-and-restore.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "card-control--restore-card",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 25000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "reference",
+              "projectName": "reference",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6831,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:01:31.794Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d172f0d1ee4f4499ebec-5874a35c52039f40467f",
+          "file": "creation-and-restore.spec.cjs",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "card-control--restore-card",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 25000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "create-disabled",
+              "projectName": "create-disabled",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 8993,
+                  "error": {
+                    "message": "Error: card-control--restore-card-criterion-1-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-1-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                    "stack": "Error: card-control--restore-card-criterion-1-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-1-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs:51:119",
+                    "location": {
+                      "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                      "column": 119,
+                      "line": 51
+                    },
+                    "snippet": "  49 |   await pauseForUi(currentPage, 300);\n  50 |   // card-control--restore-card-criterion-1-assertion-1: create-card\n> 51 |   await expect(currentPage.locator(\"#cards-container > .card\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveCount(1, { timeout: 2500 });\n     |                                                                                                                       ^\n  52 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-front\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveText(\"What is persisted?\", { timeout: 2500 });\n  53 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-back\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveText(\"This exact card\", { timeout: 2500 });\n  54 |   await currentPage.reload({ waitUntil: \"domcontentloaded\" });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                        "column": 119,
+                        "line": 51
+                      },
+                      "message": "Error: card-control--restore-card-criterion-1-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-1-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  49 |   await pauseForUi(currentPage, 300);\n  50 |   // card-control--restore-card-criterion-1-assertion-1: create-card\n> 51 |   await expect(currentPage.locator(\"#cards-container > .card\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveCount(1, { timeout: 2500 });\n     |                                                                                                                       ^\n  52 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-front\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveText(\"What is persisted?\", { timeout: 2500 });\n  53 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-back\"), \"card-control--restore-card-criterion-1-assertion-1\").toHaveText(\"This exact card\", { timeout: 2500 });\n  54 |   await currentPage.reload({ waitUntil: \"domcontentloaded\" });\n    at C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs:51:119"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:01:31.802Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\test-artifacts\\creation-and-restore-card-control--restore-card-create-disabled\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                    "column": 119,
+                    "line": 51
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d172f0d1ee4f4499ebec-2f92533fec04ac7126a9",
+          "file": "creation-and-restore.spec.cjs",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "card-control--restore-card",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 25000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "restore-disabled",
+              "projectName": "restore-disabled",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "failed",
+                  "duration": 9339,
+                  "error": {
+                    "message": "Error: card-control--restore-card-criterion-2-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-2-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                    "stack": "Error: card-control--restore-card-criterion-2-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-2-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs:57:119",
+                    "location": {
+                      "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                      "column": 119,
+                      "line": 57
+                    },
+                    "snippet": "  55 |   await pauseForUi(currentPage, 300);\n  56 |   // card-control--restore-card-criterion-2-assertion-1: restore-card\n> 57 |   await expect(currentPage.locator(\"#cards-container > .card\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveCount(1, { timeout: 2500 });\n     |                                                                                                                       ^\n  58 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-front\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveText(\"What is persisted?\", { timeout: 2500 });\n  59 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-back\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveText(\"This exact card\", { timeout: 2500 });\n  60 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                        "column": 119,
+                        "line": 57
+                      },
+                      "message": "Error: card-control--restore-card-criterion-2-assertion-1\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#cards-container > .card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2500ms\n\nCall log:\n\u001b[2m  - card-control--restore-card-criterion-2-assertion-1 locator('#cards-container > .card') with timeout 2500ms\u001b[22m\n\u001b[2m  - waiting for locator('#cards-container > .card')\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  55 |   await pauseForUi(currentPage, 300);\n  56 |   // card-control--restore-card-criterion-2-assertion-1: restore-card\n> 57 |   await expect(currentPage.locator(\"#cards-container > .card\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveCount(1, { timeout: 2500 });\n     |                                                                                                                       ^\n  58 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-front\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveText(\"What is persisted?\", { timeout: 2500 });\n  59 |   await expect(currentPage.locator(\"#cards-container > .card:nth-child(1) .inner-card-back\"), \"card-control--restore-card-criterion-2-assertion-1\").toHaveText(\"This exact card\", { timeout: 2500 });\n  60 | });\n    at C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs:57:119"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-11T00:01:31.794Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\test-artifacts\\creation-and-restore-card-control--restore-card-restore-disabled\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\henri\\Documents\\Codex\\E2P\\action-e2e-validacao\\evaluation-results\\card-control-20261110\\specs\\creation-and-restore.spec.cjs",
+                    "column": 119,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d172f0d1ee4f4499ebec-c031837b3e9159f6343a",
+          "file": "creation-and-restore.spec.cjs",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-11T00:01:31.480Z",
+    "duration": 9800.647,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
