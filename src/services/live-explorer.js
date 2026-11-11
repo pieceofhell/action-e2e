@@ -397,6 +397,10 @@ async function capturePageObservation({ page, baseUrl, authenticated = false, di
 
       const style = window.getComputedStyle(element);
       const rect = element.getBoundingClientRect();
+      // Opacity affects descendants visually without appearing in their computed opacity.
+      for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+        if (window.getComputedStyle(parent).opacity === '0') return false;
+      }
       return style.display !== "none"
         && style.visibility !== "hidden"
         && style.opacity !== "0"

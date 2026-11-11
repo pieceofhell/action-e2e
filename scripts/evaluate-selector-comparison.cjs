@@ -160,27 +160,34 @@ async function verify(output, runs, runtimes) {
 }
 
 async function main() {
-  const id = process.argv[2];
-  if (!/^[a-z0-9][a-z0-9-]+$/.test(id || '')) throw new Error('Usage: node scripts/evaluate-selector-comparison.cjs unique-collection-id');
+  const [id, focus, ...extra] = process.argv.slice(2);
+  if (!/^[a-z0-9][a-z0-9-]+$/.test(id || '') || extra.length || (focus && !focus.startsWith('--target='))) {
+    throw new Error('Usage: node scripts/evaluate-selector-comparison.cjs unique-collection-id [--target=id]');
+  }
   const output = path.join(root, 'evaluation-results', id);
   const protocol = JSON.parse(await fs.readFile(protocolPath, 'utf8'));
+  const targetOnly = focus ? focus.slice('--target='.length) : null;
+  if (focus && !protocol.targets.includes(targetOnly)) throw new Error(`Unknown protocol target: ${targetOnly}`);
   const endpoint = new URL(process.env.E2P_COMPARISON_ENDPOINT || 'http://127.0.0.1:18081/v1');
   if (endpoint.protocol !== 'http:' || endpoint.hostname !== '127.0.0.1' || endpoint.username || endpoint.password) throw new Error('Use a local loopback llama.cpp server.');
   const available = await fetch(`${endpoint.href.replace(/\/$/, '')}/models`, { signal: AbortSignal.timeout(5000) });
   if (!available.ok || !(await available.json()).data?.some(item => item.id === protocol.model)) throw new Error('The preregistered model is unavailable.');
   const aiConfig = { provider: 'llama-cpp', endpoint: endpoint.href, model: protocol.model };
   const inputs = await frozenInputs(protocol);
-  const rows = schedule(protocol);
+  // Filter after building the schedule to retain the same paired seeds and order in follow-up collections.
+  const rows = schedule(protocol).filter(row => !targetOnly || row.target === targetOnly);
   await fs.mkdir(output);
   const runtimes = {};
   const inspections = {};
   const browser = await chromium.launch();
   try {
     await write(path.join(output, 'manifest.json'), { protocol, reference, inputs, aiConfig, schedule: rows,
+      scope: targetOnly ? { target: targetOnly, kind: 'targeted-follow-up' } : { kind: 'complete-protocol' },
       startedAt: new Date().toISOString(), browser: browser.version(), node: process.version, platform: process.platform,
       cpu: os.cpus()[0]?.model, ramBytes: os.totalmem(), commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim() });
     await fs.mkdir(path.join(output, 'runs'));
     for (const target of protocol.targets) {
+      if (targetOnly && target !== targetOnly) continue;
       const projectPath = path.join(targetsRoot, target);
       inspections[target] = await inspectProject(projectPath);
       runtimes[target] = await startTargetRuntime({ targetProjectPath: projectPath, runtimeConfig: { mode: 'static' } });
