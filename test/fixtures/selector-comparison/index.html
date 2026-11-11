@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Directory lookup</title></head>
+<body>
+  <label for="keyword">Keyword</label><input id="keyword" type="search" value="cedar">
+  <output id="result"></output>
+  <script>
+    const input = document.querySelector('#keyword');
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') document.querySelector('#result').textContent = 'Found: ' + input.value;
+    });
+  </script>
+</body></html>

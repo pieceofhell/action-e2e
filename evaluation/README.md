@@ -47,7 +47,7 @@ Exemplos de profundidade: no seletor de assentos, restaurar identidades e preço
 
 ## Matriz função × execução e concordância entre avaliadores
 
-`reference-functions/diverse-contexts-v1.json` define, por alvo, as funções que o avaliador espera ver exercitadas, com padrões sobre as ações registradas. O arquivo não é fornecido ao modelo. `npm run evaluate:functions` classifica cada execução em **tentada**, **exercitada** (ação concluída com mudança de estado citada por identificador) ou **verificada** (asserção `expect()` compatível em teste gerado). Sem testes gerados, a verificação fica como não disponível, e não como zero. O protocolo `protocols/diverse-contexts-v2.json` registra o hash do arquivo de funções no manifesto antes da coleta.
+`reference-functions/diverse-contexts-v1.json` define as funções de referência por alvo. O avaliador mantém o arquivo separado do contexto do modelo. `npm run evaluate:functions` registra tentativas e, quando há um efeito textual configurado, indica a transição correspondente. A verificação fica indisponível nessa leitura estática. O protocolo `protocols/diverse-contexts-v2.json` registra o hash da referência antes da coleta.
 
 Para a coleta de 20/10/2026, a matriz é uma auditoria retroativa (definida depois). Para coletas posteriores a 07/11/2026, é a referência congelada.
 
@@ -69,4 +69,18 @@ node scripts/verify-card-function.cjs meu-controle-dos-cartoes
 O primeiro comando grava o plano, o commit e os hashes antes de iniciar. Ele grava cada trajetória à medida que termina. O segundo recalcula os totais e os contrastes por par. O terceiro registra uma jornada dirigida em Memory Cards, compila um teste e usa os mesmos bytes no original e nas cópias com alterações pontuais de criação e restauração.
 
 A matriz histórica de `evaluate:functions` informa tentativas e efeitos textuais configurados. O campo de verificação fica indisponível nessa leitura de logs. A execução com asserções registradas é relatada no resultado do protocolo controlado.
+
+### Protocolo para outro aplicativo estático
+
+Use um identificador próprio e passe `--protocol` para carregar seu arquivo JSON. O protocolo declara os IDs em `targets`, os respectivos diretórios em `targetPaths`, o modelo local, as duas condições `llm` e `random`, a semente, as repetições e os limites. Os caminhos dos diretórios e de `referenceImplementation` são relativos à raiz do E2P ou absolutos. Use um módulo CommonJS local que você revisou, pois o executor carrega seu código.
+
+O módulo de avaliação exporta `reference`, com IDs de função por alvo, `readDomain(page, target)`, com as observações de domínio, e `judgeEffects(target, steps, observations)`, com os efeitos atingidos. Cada efeito aponta para o passo e seus estados e traz as asserções de texto ou contagem que serão reexecutadas. O manifesto grava o hash do módulo carregado. Prefira manter as regras em um módulo autônomo para que esse hash cubra o oráculo inteiro. O código da exploração recebe a observação padrão do E2P. Os dados de `readDomain` seguem para o avaliador.
+
+```sh
+node scripts/evaluate-selector-comparison.cjs minha-coleta --protocol=evaluation/protocols/meu-protocolo.json
+```
+
+Ative `requirePriorFillForPress` se o protocolo exigir preenchimento prévio no mesmo controle. O orçamento fixo funciona também com valores pré-preenchidos. `baselineNumber` pode sugerir um valor numérico preferido, sujeito aos limites e ao incremento do controle observado. O protocolo original continua disponível para o corpus histórico. Os manifestos arquivados apontam para os commits exatos usados nas respectivas coletas.
+
+O [oráculo de exemplo](../test/fixtures/selector-comparison-oracle.cjs) e o [teste em Chromium](../test/selector-comparison.integration.test.cjs) mostram um aplicativo fora do corpus de 10/11. O teste carrega seu protocolo, explora uma busca pré-preenchida e reexecuta a mesma asserção no original e em uma versão com resultado alterado.
 

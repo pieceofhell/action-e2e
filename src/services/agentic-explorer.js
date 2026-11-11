@@ -49,6 +49,7 @@ async function runAgenticExploration({
   onActionEnd = () => {},
   selectDecision = null,
   fixedBudget = false,
+  requirePriorFillForPress = false,
 }) {
   const normalized = normalizeAiConfig(aiConfig);
   if (!normalized.enabled && !selectDecision) {
@@ -105,10 +106,8 @@ async function runAgenticExploration({
       .filter((action) => !current.dialogsCount || action.inOverlay)
       .filter((action) => !usedActionKeys.has(actionSemanticKey(action)) || canCorrectInput(action, steps, current))
       .filter((action) => !exhaustedActionFamilies.has(actionFamilyKey(action)))
-      .filter((action) => !fixedBudget || action.kind !== 'press' || steps.some(step =>
-        step.status === 'completed' && step.action.kind === 'fill' &&
-        (action.domId ? step.action.domId === action.domId :
-          actionSemanticKey({ ...step.action, kind: 'press', name: `Press Enter in ${step.action.name}` }) === actionSemanticKey(action))))
+      .filter((action) => !requirePriorFillForPress || action.kind !== 'press' || steps.some(step =>
+        step.status === 'completed' && step.action.kind === 'fill' && sameInputControl(step.action, action)))
       // Discovery uses ordinary inputs. Boundary flags are reserved for explicit defect probes.
       .map((action) => ({ ...action, boundaryProbe: false }))
       .slice(0, 40), { ...qaCoverage, goals: qaCoverage.goals.filter(goal => goal.category !== 'boundary') }).slice(0, 30);
@@ -159,6 +158,7 @@ async function runAgenticExploration({
           validationFeedback,
           images: visionEnabled ? currentVisual.images : [],
             timeoutMs,
+            allowPrefilledPress: fixedBudget && !requirePriorFillForPress,
         });
           decision = validateAgentDecision(rawDecision, safeActions);
           const minimumUsefulActions = Math.min(2, countUniqueSafeActions(states, current));
@@ -482,6 +482,7 @@ async function requestExplorationDecision({
   validationFeedback = "",
   images = [],
   timeoutMs = 120000,
+  allowPrefilledPress = false,
 }) {
   return requestStructuredJson({
     aiConfig,
@@ -500,7 +501,9 @@ async function requestExplorationDecision({
       "For fill actions, use a short value grounded in the visible purpose of the field. Do not enter personal data, credentials, scripts, or secrets.",
       "When a number field is explicitly available in a disposable local application, use a fictional amount from -1000 through 1000 with at most two decimal places. Respect numericConstraints min, max and step: step 1 requires an integer, while step any allows decimals. Never use real financial or account data.",
       "Use plausible fictional values such as sampleuser or a meaningful search term, respecting visible constraints. Do not start with single-character, empty, malformed, or extreme inputs to provoke validation. The expected visible outcome is a tentative prediction to learn from, not a test oracle or bug verdict.",
-      "For a text input, choose its fill action before its press action; use press only after the completed actions show that the same input was filled.",
+      allowPrefilledPress
+        ? "A text input may already have a value. Fill an empty field before submitting it when the intended operation requires a value."
+        : "For a text input, choose its fill action before its press action; use press only after the completed actions show that the same input was filled.",
       "For select controls, choose one supplied option value that differs from the current value.",
       "Return raw JSON only: {\"decision\":\"act|finish\",\"actionId\":\"...\",\"value\":\"\",\"rationale\":\"...\",\"expectedOutcome\":\"...\"}.",
     ].join(" "),
@@ -999,6 +1002,13 @@ function inferCoverageAreas(states, steps) {
 
 function sanitizeText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function sameInputControl(fill, press) {
+  if (fill.testId || press.testId) return Boolean(fill.testId && fill.testId === press.testId);
+  if (fill.domId || press.domId) return Boolean(fill.domId && fill.domId === press.domId);
+  return Boolean(fill.tagName && fill.tagName === press.tagName && Number.isInteger(fill.tagIndex)
+    && fill.tagIndex >= 0 && fill.tagIndex === press.tagIndex);
 }
 
 module.exports = {
